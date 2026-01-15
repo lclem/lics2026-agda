@@ -88,7 +88,7 @@ open Properties
 
 ```
 module _ where
-    open Classic
+    open Inductive
 
     δʳ-coeff : ∀ a w f → δʳ a f ⟨ w ⟩ ≡ f ⟨ w ∷ʳ a ⟩
     δʳ-coeff a ε f = refl
@@ -284,7 +284,7 @@ then the equation `P-Rev` holds.
     module RevEnd→PU-Rev (rev-end : IsEndomorphism rev) where
 
         end-rev :
-            ∀ (p : Term (Var n)) (ϱ : VEnv ∞ n) →
+            ∀ (p : Term (Var n)) (ϱ : SEnvᵥ n) →
             ---------------------------------------
             rev (⟦ p ⟧ᵥ (map rev ϱ)) ≈[ i ] ⟦ p ⟧ᵥ ϱ
 

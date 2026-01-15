@@ -31,12 +31,6 @@ private variable
     m n : ℕ
     X Y : Set
     f₀ f₁ f₂ f₃ f₄ f₅ : A ⟪ Σ ⟫ i
-
-SEnv : Size → Set → Set
-SEnv i X = X → A ⟪ Σ ⟫ i
-
-VEnv : Size → ℕ → Set
-VEnv i n = Vec (A ⟪ Σ ⟫ i) n
 ```
 
 Definition of the product operation.
@@ -52,14 +46,14 @@ module Product (productRule : ProductRule) where
         δ (f * g) a = ⟦ P ⟧⟨ f , δ f a , g , δ g a ⟩
 
         infix 200 ⟦_⟧_ ⟦_⟧ᵥ_ ⟦_⟧⟨_⟩ ⟦_⟧⟨_,_,_,_⟩ -- ⟦_⟧⟨_,_,_,_,_,_⟩
-        ⟦_⟧_ : Term X → SEnv i X → A ⟪ Σ ⟫ i
+        ⟦_⟧_ : Term X → SEnv {i} X → A ⟪ Σ ⟫ i
         ⟦ 0T ⟧ ϱ = 𝟘
         ⟦ c [·] u ⟧ ϱ = c · ⟦ u ⟧ ϱ
         ⟦ var x ⟧ ϱ = ϱ x
         ⟦ p [+] q ⟧ ϱ = ⟦ p ⟧ ϱ + ⟦ q ⟧ ϱ
         ⟦ p [*] q ⟧ ϱ = ⟦ p ⟧ ϱ * ⟦ q ⟧ ϱ
 
-        ⟦_⟧ᵥ_ : ∀ {n} → TE n → VEnv i n → A ⟪ Σ ⟫ i
+        ⟦_⟧ᵥ_ : ∀ {n} → TE n → SEnvᵥ {i} n → A ⟪ Σ ⟫ i
         ⟦ p ⟧ᵥ fs = ⟦ p ⟧ (lookup fs)
 
         ⟦_⟧⟨_⟩ : TE 1 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
@@ -80,7 +74,7 @@ module Product (productRule : ProductRule) where
         -- equivalent series enviroments yield equivalent series
         infix 30 ⟦_⟧≈_
         ⟦_⟧≈_ sem-cong :
-            ∀ {ϱ₀ ϱ₁ : SEnv ∞ X} (p : Term X) →
+            ∀ {ϱ₀ ϱ₁ : SEnv X} (p : Term X) →
             ϱ₀ ≈ϱ[ i ] ϱ₁ →
             -----------------------------------
             ⟦ p ⟧ ϱ₀ ≈[ i ] ⟦ p ⟧ ϱ₁
@@ -94,8 +88,8 @@ module Product (productRule : ProductRule) where
         sem-cong = ⟦_⟧≈_
 
         sem-congᵥ :
-            ∀ {fs gs : VEnv ∞ n} (p : TE n) →
-            fs ≈s[ i ] gs → ⟦ p ⟧ᵥ fs ≈[ i ] ⟦ p ⟧ᵥ gs
+            ∀ {fs gs : SEnvᵥ n} (p : TE n) →
+            fs ≈ᵥ[ i ] gs → ⟦ p ⟧ᵥ fs ≈[ i ] ⟦ p ⟧ᵥ gs
         sem-congᵥ p fs≈gs = sem-cong p (build-≈ϱ fs≈gs)
 
         infix 20 _*≈_
@@ -112,10 +106,9 @@ from the series algebra to the underlying ring `R`.
 ```
     open Semantics
         renaming (⟦_⟧_ to T⟦_⟧_; ⟦_⟧ᵥ_ to T⟦_⟧ᵥ_; sem-cong to sem-congT)
-        hiding (VEnv)
 
     eval-ν :
-        ∀ (p : Term X) (ϱ : SEnv ∞ X) →
+        ∀ (p : Term X) (ϱ : SEnv X) →
         -------------------------------
         ν (⟦ p ⟧ ϱ) ≈R T⟦ p ⟧ (ν ∘ ϱ)
     
@@ -126,7 +119,7 @@ from the series algebra to the underlying ring `R`.
     eval-ν (p [*] q) ϱ = eval-ν p ϱ ⟨ *R-cong ⟩ eval-ν q ϱ
 
     eval-νᵥ :
-        ∀ (p : Term (Var n)) (ϱ : VEnv ∞ n) →
+        ∀ (p : Term (Var n)) (ϱ : SEnvᵥ n) →
         -------------------------------
         ν (⟦ p ⟧ᵥ ϱ) ≈R T⟦ p ⟧ᵥ (map ν ϱ)
 
@@ -145,19 +138,8 @@ from the series algebra to the underlying ring `R`.
 Substitution and evalation commute.
 
 ```
-    eval-PolyExpr :
-        ∀ (p : Term X) (env : SEnv ∞ X) →
-        -------------------------------------------
-        ⟦ toPolyExpr p ⟧P (ν ∘ env) ≈R ν (⟦ p ⟧ env)
-
-    eval-PolyExpr 0T env = R-refl
-    eval-PolyExpr (var x) env = R-refl
-    eval-PolyExpr (p [·] q) env = *R-cong R-refl (eval-PolyExpr q env)
-    eval-PolyExpr (p [+] q) env = +R-cong (eval-PolyExpr p env) (eval-PolyExpr q env)
-    eval-PolyExpr (p [*] q) env = *R-cong (eval-PolyExpr p env) (eval-PolyExpr q env)
-
     eval-subst :
-        ∀ (p : Term X) {ϱ : Subst X Y} {env : SEnv ∞ Y} →
+        ∀ (p : Term X) {ϱ : Subst X Y} {env : SEnv Y} →
         -------------------------------------------------
         ⟦ subst ϱ p ⟧ env ≈ ⟦ p ⟧ (⟦_⟧ env ∘ ϱ)
 
@@ -168,7 +150,7 @@ Substitution and evalation commute.
     eval-subst (p [*] q) = eval-subst p *≈ eval-subst q
 
     eval-substᵥ :
-        ∀ (p : TE m) {qs : VSubst m X} {fs : SEnv ∞ X} →
+        ∀ (p : TE m) {qs : VSubst m X} {fs : SEnv X} →
         ------------------------------------------------
         ⟦ substᵥ qs p ⟧ fs ≈ ⟦ p ⟧ᵥ (map (⟦_⟧ fs) qs)
 
@@ -207,7 +189,7 @@ Substitution and evalation commute.
     -- endomorphism lemma
     -- an endomorphism of the series ring commutes with the semantics of polynomial expressions
     end :
-        ∀ {F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫} (p : Term X) {ϱ : SEnv ∞ X} →
+        ∀ {F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫} (p : Term X) {ϱ : SEnv X} →
         IsEndomorphism F {i} →
         ------------------------------------------------------
         F (⟦ p ⟧ ϱ) ≈[ i ] ⟦ p ⟧ (F ∘ ϱ)
@@ -256,7 +238,7 @@ Substitution and evalation commute.
 
 
     endᵥ :
-        ∀ {F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫} (p : TE n) (ϱ : VEnv ∞ n) →
+        ∀ {F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫} (p : TE n) (ϱ : SEnvᵥ n) →
         IsEndomorphism F {i} →
         ------------------------------------------------------
         F (⟦ p ⟧ᵥ ϱ) ≈[ i ] ⟦ p ⟧ᵥ (map F ϱ)

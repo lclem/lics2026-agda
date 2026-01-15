@@ -1,4 +1,4 @@
-title: Formal Power Series in Agda
+title: Commutative algebras of series in Agda
 
 description: Formal series in noncommuting variables developed with the proof assistant Agda.
 
@@ -33,7 +33,6 @@ plugins:
   - jemoji
 
 baseurl: "/lics2026-agda"
-url: ""
 markdown: kramdown
 
 kramdown:
@@ -77,6 +76,7 @@ exclude:
   - "*.bib"
   - "*.csl"
   - "*#*"
-  - "*!*"
+  - "*\\!*"
   - "*.md.sed"
   - "*.pp"
+  - ".*"

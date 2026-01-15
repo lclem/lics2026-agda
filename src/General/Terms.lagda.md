@@ -231,7 +231,7 @@ module Semantics where
   Env X = X → A
 ```
 
-The semantics extends the environment from variables `X` to all polynomial expressions `PolyExpr X`.
+The semantics extends the environment from variables `X` to all terms `Term X`.
 
 ```
   infix 200 ⟦_⟧_ ⟦_⟧ᵥ_

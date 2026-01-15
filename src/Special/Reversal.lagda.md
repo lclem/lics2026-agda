@@ -40,7 +40,7 @@ in the case of special products.
 
 ```
 -- -- module _ (f g : A ⟪ Σ ⟫) where
-open Classic
+open Inductive
 open import General.Automata R Σ productRule
 
 infix 8 _x[_]_
@@ -79,7 +79,7 @@ var-lemma : ∀ u f v →
     ----------------------------------------
     S ⟦ var (u x[ f ] v) ⟧ ≈ δˡ* u (δʳ* v f)
 
-var-lemma u f v = series-ext _ _ λ w → EqR.≡→≈ (helper w) where
+var-lemma u f v = series-ext λ w → EqR.≡→≈ (helper w) where
 
     helper : ∀ w → S ⟦ var (u x[ f ] v) ⟧ ⟨ w ⟩ ≡ δˡ* u (δʳ* v f) ⟨ w ⟩
     helper w =
@@ -160,7 +160,7 @@ module _
             δʳ b (S ⟦ α ⟧ * S ⟦ β ⟧)
                 ≈⟨ ass-* _ _ _ ⟩
             ⟦ P ⟧ᵥ (S ⟦ α ⟧ ∷ δʳ b (S ⟦ α ⟧) ∷ S ⟦ β ⟧ ∷ δʳ b (S ⟦ β ⟧) ∷ [])
-                ≈⟨ sem-congᵥ P (≈-refl ∷-≈ lem b α ∷-≈ ≈-refl ∷-≈ lem b β ∷-≈ []-≈) ⟩
+                ≈⟨ sem-congᵥ P [ ≈-refl , lem b α , ≈-refl , lem b β ] ⟩
             ⟦ P ⟧ᵥ (S ⟦ α ⟧ ∷ S ⟦ Δʳ b ↑ α ⟧ ∷ S ⟦ β ⟧ ∷ S ⟦ Δʳ b ↑ β ⟧ ∷ [])
                 ≈⟨ sem-substᵥ S P (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
             S ⟦ [ P ]⟨ α , Δʳ b ↑ α , β , Δʳ b ↑ β ⟩ ⟧

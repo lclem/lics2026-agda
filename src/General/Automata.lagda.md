@@ -102,7 +102,7 @@ mutual
 
     sem-· :
         ∀ (S : TermAut X) c p →
-        ----------------------------------------------
+        -------------------------------
         S ⟦ c [·] p ⟧ ≈[ i ] c · S ⟦ p ⟧
 
     ν-≈ (sem-· S c p) = R-refl
@@ -143,7 +143,7 @@ mutual
         ∎ where open EqS
 ```
 
-!lemma(#lemma:automataSemHom)(Homomorphism lemmaaa)
+!lemma(#lemma:automataSemHom)(Homomorphism lemma)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The semantics of an automaton is a homomorphism from terms to series.
 ```
@@ -224,7 +224,8 @@ This will be used elsewhere.
         ∎ where open EqS
 ```
 
-# Equivalence with finitely generated series
+# Equivalence with finitely generated series {#sec:coincidence}
+
 
 We show that the class of series recognized by term automata
 coincides with the class of finitely generated series.

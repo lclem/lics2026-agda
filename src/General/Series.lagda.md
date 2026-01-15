@@ -29,41 +29,57 @@ record _⟪_⟫_ (A Σ : Set) (i : Size) : Set where
     ν : A
     -- left derivative
     δ : ∀ {j : Size< i} → Σ → A ⟪ Σ ⟫ j
+
+open _⟪_⟫_ public
 ```
 
 The additional `Size` parameter is used to ensure productivity
 of certain more complicated coinductive definitions that occur later.
+We define a shorthand notation `A ⟪ Σ ⟫` for series over alphabet `Σ` and coefficients in `A` for the trivial size parameter.
 
 ```
-open _⟪_⟫_ public
-
 _⟪_⟫ : Set → Set → Set
 A ⟪ Σ ⟫ = A ⟪ Σ ⟫ ∞
+```
 
+We will denote sizes by `i`, `j`, and series by `f`, `g`, etc.
+
+```
 private variable
-  i : Size
+  i j : Size
   f g : A ⟪ Σ ⟫
+```
 
+In the rest of the section `A` is the carrier of the commutative ring `R`.
+We are now ready to define some series.
+For every `c : A`, `const c : A ⟪ Σ ⟫` is the constant series with value `c`.
+
+```
 -- constant series
 const : A → A ⟪ Σ ⟫
 ν (const c) = c
 δ (const c) a = const c
+```
 
--- only constant term
-only : A → A ⟪ Σ ⟫
-ν (only c) = c
-δ (only _) a = const 0R
+For instance, `𝟘` is the series which is zero everywhere.
 
--- flip the order of the arguments
-δˡ : ∀ {i} {j : Size< i} → Σ → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ j
+```
+𝟘 : A ⟪ Σ ⟫
+𝟘 = const 0R
+```
+
+Sometimes we will find it useful to have a version of the left derivative
+which takes its arguments in the opposite order.
+
+```
+δˡ : ∀ {j : Size< i} → Σ → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ j
 δˡ {j = j} a f = δ f {j} a
-
--- map a series to its constant term
-hd : A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
-hd f = only (ν f)
 ```
 
 # Equality of series
+
+We define what it means for two series to be equal in an coinductive way,
+by requiring that their constant terms are equal and that their left derivatives are equal.
 
 ```
 infix 4 _≈[_]_
@@ -74,19 +90,40 @@ record _≈[_]_ (f : A ⟪ Σ ⟫) (i : Size) (g : A ⟪ Σ ⟫) : Set where
     δ-≈ : ∀ {j : Size< i} (a : Σ) → δ f a ≈[ j ] (δ g a)
   
 open _≈[_]_ public
+```
 
+The additional `Size` parameter is use to ensure productivity of the definition.
+We define a shorthand notation `f ≈ g` for equality of series `f` and `g` at the trivial size parameter.
+
+```
 infix 3 _≈_
 _≈_ : A ⟪ Σ ⟫ → A ⟪ Σ ⟫ → Set
 f ≈ g = f ≈[ ∞ ] g
 ```
 
-# Properties of equality
+## Properties of equality
+
+We prove that equality of series is an equivalence relation.
+Reflexivity is straightforward.
 
 ```
-≈-refl : {f : A ⟪ Σ ⟫} → f ≈[ i ] f
+≈-refl : {f : A ⟪ Σ ⟫} → f ≈ f
 ν-≈ ≈-refl = R-refl
 δ-≈ ≈-refl _ = ≈-refl
+```
 
+Reflexivity gives us one way to prove that two series are equal,
+by means of definitional equality.
+
+```
+≡→≈ : f ≡ g → f ≈ g
+≡→≈ _≡_.refl = ≈-refl
+```
+
+We prove symmetry and transitivity at every size,
+which will help us later to ensure productivity.
+
+```
 ≈-sym : {f g : A ⟪ Σ ⟫} → f ≈[ i ] g → g ≈[ i ] f
 ν-≈ (≈-sym f≈g) = R-sym (ν-≈ f≈g)
 δ-≈ (≈-sym f≈g) a = ≈-sym (δ-≈ f≈g a)
@@ -94,7 +131,11 @@ f ≈ g = f ≈[ ∞ ] g
 ≈-trans : {f g h : A ⟪ Σ ⟫} → f ≈[ i ] g → g ≈[ i ] h → f ≈[ i ] h
 ν-≈ (≈-trans f≈g g≈h) = R-trans (ν-≈ f≈g) (ν-≈ g≈h)
 δ-≈ (≈-trans f≈g g≈h) a = ≈-trans (δ-≈ f≈g a) (δ-≈ g≈h a)
+```
 
+We can now package these properties together.
+
+```
 isEquivalence-≈ : IsEquivalence (_≈[ i ]_)
 isEquivalence-≈ = record { refl = ≈-refl; sym = ≈-sym; trans = ≈-trans }
 
@@ -103,48 +144,83 @@ module EqS {i : Size} where
   open Eq public
 ```
 
-# Extensions
+## Extensions of equality
+
+We extend equality of series to environments and vectors of series.
+
+### Extension to environments
+
+An *environment* is a mapping from a set of variables `X` to series `A ⟪ Σ ⟫`.
 
 ```
--- extension of equality to environments
-infix 4 _≈ϱ[_]_
-_≈ϱ[_]_ : ∀ {X} (ϱ : X → A ⟪ Σ ⟫) i (ϱ′ : X → A ⟪ Σ ⟫) → Set
-ϱ ≈ϱ[ i ] ϱ′ = ∀ x → ϱ x ≈[ i ] ϱ′ x
+SEnv : {i : Size} → Set → Set
+SEnv {i} X = X → A ⟪ Σ ⟫ i
+```
 
+We extend equality of series to environments point-wise.
+
+```
+private variable X : Set
+
+infix 4 _≈ϱ[_]_
+_≈ϱ[_]_ : ∀ (ϱ : SEnv X) i (ϱ′ : SEnv X) → Set
+ϱ ≈ϱ[ i ] ϱ′ = ∀ x → ϱ x ≈[ i ] ϱ′ x
+```
+
+For instance, we can show that two environments are equal if they are point-wise definitionally so.
+
+```
 ≡→≈ϱ :
-  ∀ {X} {ϱ ϱ′ : X → A ⟪ Σ ⟫} →
+  ∀ {ϱ ϱ′ : SEnv X} →
   (∀ x → ϱ x ≡ ϱ′ x) →
   ----------------------------
   ϱ ≈ϱ[ i ] ϱ′
 
 ≡→≈ϱ ϱ≡ϱ′ x rewrite ϱ≡ϱ′ x = ≈-refl
+```
 
--- extension of equality to vectors of series
-infix 4 _≈s[]_
-infixr 5 _∷-≈_ _[]-≈
-data _≈s[]_ {i : Size} : ∀ {n} → (fs gs : Vec (A ⟪ Σ ⟫) n) → Set where
-    []-≈ : _≈s[]_ {i} [] []
-    _∷-≈_ : ∀ {n f g} {fs gs : Vec (A ⟪ Σ ⟫) n} (f≈g : f ≈[ i ] g) (fs≈gs : _≈s[]_ {i} fs gs) → _≈s[]_ {i} (f ∷ fs) (g ∷ gs)
+### Extension to vectors
 
-_[]-≈ : ∀ {n f g} {fs gs : Vec (A ⟪ Σ ⟫) n} (f≈g : f ≈[ i ] g) → _≈s[]_ {i} (f ∷ []) (g ∷ [])
-f≈g []-≈ = f≈g ∷-≈ []-≈
+We denote by `SEnvᵥ n` the type of `n`-tuples of series.
 
-infix 5 [_,_,_,_]
+```
+SEnvᵥ : {Size} → ℕ → Set
+SEnvᵥ {i} n = Vec (A ⟪ Σ ⟫ i) n
+```
+
+We define equality of vectors of series point-wise.
+
+```
+private variable
+  n : ℕ
+  fs gs : SEnvᵥ n
+
+infix 4 _≈ᵥ[_]_
+infixr 5 _∷≈_
+infixr 6 _∎≈
+
+data _≈ᵥ[_]_ : ∀ (fs : SEnvᵥ n) (i : Size) (gs : SEnvᵥ n) → Set where
+    []≈ : [] ≈ᵥ[ i ] []
+    _∷≈_ : (f≈g : f ≈[ i ] g) (fs≈gs : fs ≈ᵥ[ i ] gs) → (f ∷ fs) ≈ᵥ[ i ] (g ∷ gs)
+
+_∎≈ : (f≈g : f ≈[ i ] g) → (f ∷ []) ≈ᵥ[ i ] (g ∷ [])
+f≈g ∎≈ = f≈g ∷≈ []≈
+```
+
+We introduce some convenient abbreviations to denote vector equalities of certain lengths.
+
+```
+infix 5 [_,_,_,_] [_,_,_,_,_,_]
 [_,_,_,_] :
   ∀ {f₀ f₁ f₂ f₃ g₀ g₁ g₂ g₃ : A ⟪ Σ ⟫} →
     (f₀ ≈[ i ] g₀) →
     (f₁ ≈[ i ] g₁) →
     (f₂ ≈[ i ] g₂) →
     (f₃ ≈[ i ] g₃) →
-    _≈s[]_ {i} (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ []) (g₀ ∷ g₁ ∷ g₂ ∷ g₃ ∷ [])
+    (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ []) ≈ᵥ[ i ]  (g₀ ∷ g₁ ∷ g₂ ∷ g₃ ∷ [])
 [ f₀≈g₀ , f₁≈g₁ , f₂≈g₂ , f₃≈g₃ ] =
-    f₀≈g₀ ∷-≈
-    f₁≈g₁ ∷-≈
-    f₂≈g₂ ∷-≈
-    f₃≈g₃ ∷-≈
-    []-≈
+    f₀≈g₀ ∷≈ f₁≈g₁ ∷≈ f₂≈g₂ ∷≈ f₃≈g₃ ∎≈
 
-infix 5 [_,_,_,_,_,_]
 [_,_,_,_,_,_] :
   ∀ {f₀ f₁ f₂ f₃ f₄ f₅ g₀ g₁ g₂ g₃ g₄ g₅ : A ⟪ Σ ⟫} →
     (f₀ ≈[ i ] g₀) →
@@ -153,58 +229,52 @@ infix 5 [_,_,_,_,_,_]
     (f₃ ≈[ i ] g₃) →
     (f₄ ≈[ i ] g₄) →
     (f₅ ≈[ i ] g₅) →
-    _≈s[]_ {i} (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ f₄ ∷ f₅ ∷ []) (g₀ ∷ g₁ ∷ g₂ ∷ g₃ ∷ g₄ ∷ g₅ ∷ [])
+    (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ f₄ ∷ f₅ ∷ []) ≈ᵥ[ i ] (g₀ ∷ g₁ ∷ g₂ ∷ g₃ ∷ g₄ ∷ g₅ ∷ [])
 [ f₀≈g₀ , f₁≈g₁ , f₂≈g₂ , f₃≈g₃ , f₄≈g₄ , f₅≈g₅ ] =
-    f₀≈g₀ ∷-≈
-    f₁≈g₁ ∷-≈
-    f₂≈g₂ ∷-≈
-    f₃≈g₃ ∷-≈
-    f₄≈g₄ ∷-≈
-    f₅≈g₅ ∷-≈
-    []-≈
-
-infix 4 _≈s[_]_
-_≈s[_]_ : ∀ {n} (fs : Vec (A ⟪ Σ ⟫) n) i (gs : Vec (A ⟪ Σ ⟫) n) → Set
-fs ≈s[ i ] gs = _≈s[]_ {i} fs gs
+    f₀≈g₀ ∷≈ f₁≈g₁ ∷≈ f₂≈g₂ ∷≈ f₃≈g₃ ∷≈ f₄≈g₄ ∷≈ f₅≈g₅ ∎≈
 ```
 
-# Properties of the extensions
+## Auxiliary definitions
+
+We can convert vector equalities to environment equalities.
 
 ```
 build-≈ϱ :
-  ∀ {n} {fs gs : Vec (A ⟪ Σ ⟫) n} →
-  fs ≈s[ i ] gs →
-  ---------------------------------
+  fs ≈ᵥ[ i ] gs →
+  ---------------------------
   lookup fs ≈ϱ[ i ] lookup gs
 
-build-≈ϱ (f≈g ∷-≈ _) zero = f≈g
-build-≈ϱ (_ ∷-≈ h) (suc x) = build-≈ϱ h x
-
-map-cong : ∀ {B : Set} {n} (f g : B → A ⟪ Σ ⟫) (bs : Vec B n) →
-    (∀ b → f b ≈[ i ] g b) →
-    map f bs ≈s[ i ] map g bs
-map-cong f g [] ass = []-≈
-map-cong f g (b ∷ bs) ass = ass b ∷-≈ map-cong f g bs ass
-
-≡→≈ : ∀ {f g : A ⟪ Σ ⟫} → f ≡ g → f ≈ g
-≡→≈ _≡_.refl = ≈-refl
+build-≈ϱ (f≈g ∷≈ _) zero = f≈g
+build-≈ϱ (_ ∷≈ h) (suc x) = build-≈ϱ h x
 ```
+
+```
+map-cong :
+  ∀ (f g : SEnv X) (xs : Vec X n) →
+  (∀ x → f x ≈[ i ] g x) →
+  ---------------------------------
+  map f xs ≈ᵥ[ i ] map g xs
+
+map-cong f g [] ass = []≈
+map-cong f g (x ∷ xs) ass = ass x ∷≈ map-cong f g xs ass
+```
+
+# Sum of series
+
+The sum of two series `f` and `g` is the series `f + g` which is defined coinductively as follows.
 
 ```
 infixr 6 _+_
-_+_ : ∀ {i} → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
+_+_ : A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
 ν (f + g) = ν f +R ν g
 δ (f + g) a = δ f a + δ g a
-
-𝟘 : A ⟪ Σ ⟫
-𝟘 = const 0R
 ```
 
-# Properties
+## Properties of sum
+
+We show that series with addition `_+_` and zero `𝟘` form a monoid.
 
 ```
--- open import Series.Equality {Σ = Σ} isEquivalence
-
 +-identityˡ : (f : A ⟪ Σ ⟫) → 𝟘 + f ≈ f
 ν-≈ (+-identityˡ f) = +R-identityˡ (ν f)
 δ-≈ (+-identityˡ f) a = +-identityˡ (δ f a)
@@ -219,9 +289,6 @@ _+_ : ∀ {i} → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
 +-comm : (f g : A ⟪ Σ ⟫) → f + g ≈ g + f
 ν-≈ (+-comm f g) = +R-comm (ν f) (ν g)
 δ-≈ (+-comm f g) a = +-comm (δ f a) (δ g a)
-
-𝟘-+-𝟘 : 𝟘 + 𝟘 ≈ 𝟘
-𝟘-+-𝟘 = +-identityˡ 𝟘
 
 +-assoc : (f g h : A ⟪ Σ ⟫) → (f + g) + h ≈ f + g + h
 ν-≈ (+-assoc f g h) = +R-assoc (ν f) (ν g) (ν h)
@@ -256,11 +323,17 @@ _+≈_ = +-cong
   }
 ```
 
+We define what it means for a function on series to be an endomorphism with respect to addition and zero.
+
 ```
 Endomorphic-+ Endomorphic-𝟘 : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → Set
-Endomorphic-+ F = ∀ {i} x y → F (x + y) ≈[ i ] F x + F y
+Endomorphic-+ F = ∀ {i} f g → F (f + g) ≈[ i ] F f + F g
 Endomorphic-𝟘 F = ∀ {i} → F 𝟘 ≈[ i ] 𝟘
 ```
+
+# Scalar multiplication
+
+We define the operation that multiplies a series by a scalar from the ring `R`.
 
 ```
 infixr 7 _·_
@@ -269,7 +342,7 @@ _·_ : A → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
 δ (c · f) a = c · δ f a
 ```
 
-# Properties
+## Properties of scalar multiplication
 
 ```
 ·-zero :
@@ -336,27 +409,41 @@ Distributivity of ring addition over scalar multiplication.
   δ-≈ (+-·-distrib f c d) a = +-·-distrib (δ f a) c d
 ```
 
+We define what it means for a map of series to respect scalar multiplication.
+
 ```
-  Endomorphic-· : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → Set
-  Endomorphic-· F = ∀ {i} c f → F (c · f) ≈[ i ] c · F f
+Endomorphic-· : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → Set
+Endomorphic-· F = ∀ {i} c f → F (c · f) ≈[ i ] c · F f
 ```
 
-Additive inverse
+# Additive inverses
+
+We can use scalar multiplication to define additive inverses.
 
 ```
 infixl 3 -_
 -_ : A ⟪ Σ ⟫ → A ⟪ Σ ⟫
 - f = (-R 1R) · f
+```
 
+In turn, this allows us to define subtraction of series.
+
+```
 infixr 6 _-_
 _-_ : A ⟪ Σ ⟫ → A ⟪ Σ ⟫ → A ⟪ Σ ⟫
 f - g = f + (- g)
 ```
 
+## Properties of additive inverses
+
+The unary minus operator is a congruence.
+
 ```
 -‿cong : Congruent₁ _≈_ (-_)
 -‿cong f≈g = ·-cong R-refl f≈g
 ```
+
+The unary minus operator allows us to define left and right additive inverses.
 
 ```
 -‿inverseʳ : RightInverse _≈_ 𝟘 (-_) _+_
@@ -386,6 +473,8 @@ f - g = f + (- g)
 -‿inverse = -‿inverseˡ ,, -‿inverseʳ
 ```
 
+Therefore, series with addition, zero, and unary minus form a (commutative) group.
+
 ```
 +-isGroup : IsGroup _≈_ _+_ 𝟘 (-_)
 +-isGroup = record {
@@ -401,6 +490,10 @@ f - g = f + (- g)
   }
 ```
 
+We aggregate the above properties by showing that
+series with zero, addition, and scalar multiplication
+form a left module over the ring `R`.
+
 ```
 open Properties
 
@@ -415,40 +508,60 @@ isLeftModule = record
   }
 ```
 
+# Classic (inductive) approach to series
+
 ```
-module Classic where
-
+module Inductive where
   open import Preliminaries.List public
+```
 
-  -- homomorphic extension to all words
+Classically, formal series are defined as functions
+from finite words over the alphabet `Σ` to the carrier of the coefficient ring `R`.
+
+```
+  Series : Set → Set → Set
+  Series A Σ = Σ * → A
+```
+
+We can convert a coinductively defined series to a classically defined one.
+To this end, let `δˡ*` be the homomorphic extension of the left derivative `δˡ` to all finite words.
+
+```
   δˡ* : Σ * → A ⟪ Σ ⟫ → A ⟪ Σ ⟫
   δˡ* ε f = f
   δˡ* (a ∷ w) f = δˡ* w (δˡ a f)
+```
 
-  Series : Set → Set → Set
-  Series A Σ = Σ * → A
+A coinductively defined series `f : A ⟪ Σ ⟫`
+can now be converted to a classically defined one
+thanks to the following *coefficient extraction* operation.
 
-  -- we can convert a classical series to a coinductive one
-  -- unravel : Series A Σ → A ⟪ Σ ⟫
-  -- ν (unravel f) = f ε
-  -- δ (unravel f) a = unravel (Classic-δˡ a f)
-
-  -- we can convert a coinductive series to a classical one
-  -- coefficient extraction operation
+```
   infix 12 _⟨_⟩
   _⟨_⟩ : A ⟪ Σ ⟫ → Series A Σ
   f ⟨ w ⟩ = ν (δˡ* w f)
+```
 
+The following *extensionality principle* for series
+shows that series are completely determined by their coefficients.
+
+```
+  series-ext :
+    (∀ w → f ⟨ w ⟩ ≈R g ⟨ w ⟩) →
+    ----------------------------
+    f ≈ g
+
+  ν-≈ (series-ext ass) = ass ε
+  δ-≈ (series-ext ass) a = series-ext λ w → ass (a ∷ w)
+```
+
+A nice property connects `δˡ*` and `_⟨_⟩`.
+
+```
   coeff-δˡ* : ∀ u v f → δˡ* u f ⟨ v ⟩ ≡ f ⟨ u ++ v ⟩
   coeff-δˡ* ε v f = refl
   coeff-δˡ* (a ∷ u) v f = coeff-δˡ* u v (δˡ a f)
-
-  series-ext :
-      ∀ (f g : A ⟪ Σ ⟫) →
-      (∀ w → f ⟨ w ⟩ ≈R g ⟨ w ⟩) →
-      ----------------------------
-      f ≈ g
-
-  ν-≈ (series-ext _ _ asmpt) = asmpt ε
-  δ-≈ (series-ext f g asmpt) a = series-ext (δ f a) (δ g a) λ w → asmpt (a ∷ w)
 ```
+
+We can also convert a classical series to a coinductive one,
+however we will not need this in the rest of the development.
