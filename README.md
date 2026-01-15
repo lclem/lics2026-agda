@@ -1,2 +1,1 @@
-# lics2026-agda
-Agda formalisation of the LICS’26 paper submission “Commutative algebras of series”
+[website](https://lclem.github.io/lics2026-agda/)

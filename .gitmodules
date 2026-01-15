@@ -1,0 +1,6 @@
+[submodule "pp"]
+	path = pp
+	url = https://github.com/CDSoft/pp
+[submodule "agda-stdlib"]
+	path = agda-stdlib
+	url = https://github.com/agda/agda-stdlib

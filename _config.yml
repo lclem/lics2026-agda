@@ -1,0 +1,82 @@
+title: Formal Power Series in Agda
+
+description: Formal series in noncommuting variables developed with the proof assistant Agda.
+
+license: Creative Commons Attribution 4.0 International License
+license-file: https://creativecommons.org/licenses/by/4.0/
+
+authors:
+  - name: Lorenzo Clemente
+    email: clementelorenzo@gmail.com
+    corresponding: true
+    github_username: lclem
+
+repository: lclem/lics2026-agda
+branch: main
+host: 0.0.0.0
+
+collections_dir     : .
+plugins_dir         : _plugins
+layouts_dir         : _layouts
+data_dir            : _data
+includes_dir        : _includes
+encoding            : "utf-8"
+show_dir_listing    : false
+
+plugins:
+  - jekyll-toc
+  - html-proofer
+#  - jekyll-paginate
+#  - jekyll-sitemap
+#  - jekyll-gist
+#  - jekyll-feed
+  - jemoji
+
+baseurl: "/lics2026-agda"
+url: ""
+markdown: kramdown
+
+kramdown:
+  input: GFM
+  math_engine: mathjax
+  parse_block_html: true
+
+theme: minima
+#theme: alembic-jekyll-theme
+excerpt_separator: <!--more-->
+
+toc:
+  min_level: 1 # default: 1
+  max_level: 2 # default: 6
+
+exclude:
+  - "Makefile"
+  - "README.md"
+  - "*.lagda.md"
+  - "*.agdai"
+  - "*.agda-lib"
+  - "epub/"
+  - "src/"
+  - "tmp/"
+  - "pp/"
+  - "agda-stdlib/"
+  - "_build/"
+  - "docs/"
+  - "Guardfile"
+  - "Gemfile"
+  - "Gemfile.lock"
+  - "pp-macros.txt"
+  - "spell-checker/"
+  - "TODO.md"
+  - "*.awk"
+  - "*.sh"
+  - "ignore/"
+  - "*.dep"
+  - "*.make"
+  - "*.dot"
+  - "*.bib"
+  - "*.csl"
+  - "*#*"
+  - "*!*"
+  - "*.md.sed"
+  - "*.pp"

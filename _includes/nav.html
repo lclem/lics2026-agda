@@ -1,0 +1,23 @@
+<header class="nav-header">
+    <p style="text-align:center;">
+        {% if page.prev %}
+        <a alt="Previous chapter" href="{{ site.baseurl }}{{ page.prev }}">Prev</a>
+        {% endif %}
+        {% if page.prev and (page.src or page.next) %}
+        &bullet;
+        {% endif %}
+        {% if page.part %}
+        <a alt="Part" href="{{ site.baseurl }}{{ page.part }}">Part</a>
+        &bullet;
+        {% endif %}
+        {% if page.src %}
+        <a alt="Source code" href="https://github.com/{{ site.repository }}/blob/{{ site.branch }}/{{ page.src }}">Source</a>
+        {% endif %}
+        {% if page.src and page.next %}
+        &bullet;
+        {% endif %}
+        {% if page.next %}
+        <a alt="Next chapter" href="{{ site.baseurl }}{{ page.next }}">Next</a>
+        {% endif %}
+    </p>
+</header>

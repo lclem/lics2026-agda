@@ -1,0 +1,364 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+@import "katex";
+@import "minima";
+@import "agda";
+
+$on-medium: 600px !default;
+
+.trigger { display: none; }
+
+@media screen and (min-width: $on-medium) {
+  .trigger { display: block; }
+}
+
+ul.list-of-contributors {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: calc(100% - 2rem);
+}
+
+ul.list-of-contributors li {
+    margin-right: 2rem;
+}
+
+pre {
+    break-inside: avoid;
+}
+
+.post-title {
+    font-size: 3em;
+    margin-top: 0em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #111;
+    line-height: 125%;
+    margin-top: 0em;
+    font-weight: normal;
+}
+
+.post-content h1 {
+    font-size: 2.5em;
+    margin-top: 0em;
+}
+
+dt {
+    display: inline;
+}
+
+dd {
+    display: inline;
+}
+
+.exercise:after {
+    display: inline-block;
+    content: ".";
+}
+
+.example:after {
+    display: inline-block;
+    content: ".";
+}
+
+.theorem:after {
+    display: inline-block;
+    content: ".";
+}
+
+.lemma:after {
+    display: inline-block;
+    content: ".";
+}
+
+body {
+    overflow-wrap: break-word;
+    text-align: justify;
+}
+
+// h1::before {
+//     display: inline-block;
+//     content: "~~~";
+//     border-top: .3rem solid black;
+//     width: 4rem;
+//     margin: 0 1rem;
+//     transform: translateY(-1rem);
+// }
+
+// add a horizontal rule before h1 headers
+.post-content h1:before {
+//    content: "\A𝄐";
+//    content: "<hr>";
+    content: "";
+    border-top: 1px dashed rgba(0, 0, 0, 0);
+    display: block;
+    position: relative;
+    justify-content: center;
+    text-align: center;
+    font-size: 1em;
+    margin-top: 1em;
+    margin-right: 2em;
+    margin-bottom: 0.5em;
+    margin-left: 2em;
+    //    height: 10px;
+//    width: 50px;
+    //background: red;
+}
+  
+h4, h5, h6 {
+font-weight: bold;
+}
+
+h2 {
+    font-size: 2em;
+    margin-top: 1.1em;
+}
+
+h3 {
+    font-size: 1.5em;
+    margin-top: 1em;
+}
+
+h4 {
+    font-size: 1.2em;
+}
+
+h5 {
+    font-size: 1em;
+}
+
+h6 {
+    font-size: 0.9em;
+}
+
+// change the appearence of the reverse footnote marker
+
+.reversefootnote {
+    visibility: hidden;
+    position: relative;
+  }
+  
+.reversefootnote:after {
+    visibility: visible;
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "\21B5";
+}
+
+//div .exercisebox:after {
+//    content: "∎";
+//    display: block;
+//    text-align: end;
+//}
+
+div .examplebox:after {
+//    content: "∎";
+//    display: block;
+//    text-align: end;
+//    padding: 1em;
+//    background: white;
+    //#c9e1f62e;
+//    color: white;
+//    border: 3px solid #ffffff;
+//    border-radius: 10px;
+//    border-bottom: 10px solid #111;
+//    border-radius: 0px;
+//    border-bottom-style: dotted;
+//    margin-bottom: 1em
+}
+
+div .solutionbox:after {
+//    content: "∎";
+//    display: block;
+//    text-align: end;
+}
+
+div .theorembox:after {
+//    content: "∎";
+//    display: block;
+//    text-align: end;
+}
+
+.theorembox {
+    position: relative;
+}
+
+div .lemmabox:after {
+//    content: "∎";
+//    display: block;
+//    text-align: end;
+}
+
+.lemmabox {
+    position: relative;
+}
+
+.remarkbox {
+    position: relative;
+}
+
+.examplebox p {
+    //padding-left: 1em;
+    //padding-right: 1em;
+}
+
+.examplebox dl {
+    //padding: 1em;
+}
+
+// .examplebox pre:last-of-type {
+//     margin-bottom: 0em;
+// }
+
+.examplebox :last-child {
+//    margin-top: 1em;
+//    margin-bottom: 0em;
+}
+
+.examplebox {
+    position: relative;
+}
+
+.inlinecode {
+//    padding: 0.5em;
+    display: block
+}
+
+.inlinecode p {
+    display: inline !important;
+}
+
+.inlinecode pre {
+    display: inline !important;
+    background: transparent;
+    border: none;
+    white-space: nowrap; //prevents breaking the code across lines
+    padding: 2px 3px;
+    word-spacing: -3px;
+}
+
+// pre {
+//     display: block;
+// }
+
+// .solutionbox pre:last-of-type {
+//     margin-bottom: 0em;
+// }
+
+.solutionbox :last-child {
+//    margin-top: 1em;
+//    margin-bottom: 0em;
+}
+
+// .exercisebox pre:last-of-type {
+//     margin-bottom: 0em;
+// }
+
+.solutionbox {
+    position: relative;
+}
+
+.exercisebox {
+    position: relative;
+}
+
+.exercisebox :last-child {
+    //margin-right: 1em;
+    //margin-bottom: -2em;
+//    margin-top: 1em;
+//    margin-bottom: 0em;
+}
+
+// .lemmabox pre:last-of-type {
+//     margin-bottom: 0em;
+// }
+
+.lemmabox :last-child {
+//    margin-top: 1em;
+//    margin-bottom: 0em;
+}
+
+// .theorembox pre:last-of-type {
+//     margin-bottom: 0em;
+// }
+
+.theorembox :last-child {
+//    margin-right: 1em;
+//    margin-bottom: -2em;
+//    margin-top: 1em;
+//    margin-bottom: 0em;
+}
+
+.center {
+    text-align: center;
+}
+
+pre.highlight {
+    padding: .4em .4em;
+    background: #e8f2fb;
+    border: 1px solid #e0dede;
+    border-radius: 3px;
+    border-style: solid !important;
+}
+
+// collapsible button style
+.collapsible {
+    background-color: #ffffff;
+//    color: #444;
+    cursor: pointer;
+//    padding: 18px;
+//    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    text-align: right;
+    outline: none;
+    display: inline;
+    position: absolute;
+    right: 0em;
+    font: inherit;
+}
+
+.right-aligned {
+    display: inline;
+    position: absolute;
+    right: 0em;
+}
+
+  /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+    //background-color: #ccc;
+    font: normal;
+  }
+
+  /* Style the collapsible content. Note: hidden by default */
+.hidebox {
+    padding: 0 0px;
+    display: none;
+    overflow: hidden;
+  }
+
+.flex-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+//    outline: 2px dashed blue;
+}
+
+.introbox {
+    position: relative;
+}
+
+div .solutionlink {
+    text-align: end;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.highlighter-rouge .highlight {
+    background: #eef !important;
+}

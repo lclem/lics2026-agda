@@ -1,0 +1,1029 @@
+// Define variables for code formatting
+@font-face {
+    font-family: 'mononoki';
+    src: url('fonts/mononoki.woff2') format('woff2'),
+         url('fonts/mononoki.woff')  format('woff');
+}
+@font-face {
+    font-family: 'DejaVu Sans Mono';
+    src: url('fonts/DejaVuSansMono.woff2') format('woff2'),
+         url('fonts/DejaVuSansMono.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'FreeMono';
+    src: url('fonts/FreeMono.woff') format('woff');
+    font-stretch: normal;
+    font-style: normal;
+    unicode-range: U+20-7E, U+A0-220, U+224-233, U+237, U+250-36F, U+374-375, U+37A, U+37E, U+384-38A, U+38C, U+38E-3A1, U+3A3-3CE, U+3D0-3D6, U+3DA-3DD, U+3F0-3F1, U+3F4-3F5, U+400-47F, U+483-487, U+48A-4FF, U+510-513, U+51A-51F, U+524-527, U+531-556, U+559-55F, U+561-587, U+589-58A, U+58F, U+5B0-5C7, U+5D0-5EA, U+5F0-5F4, U+606-60F, U+61B, U+61E-657, U+659-6D5, U+6EE-6FF, U+10D0-10F5, U+10F9, U+10FB-10FC, U+13A0-13F4, U+16A0-16F0, U+1E00-1E9B, U+1EA0-1EF9, U+1F00-1F15, U+1F18-1F1D, U+1F20-1F45, U+1F48-1F4D, U+1F50-1F57, U+1F59, U+1F5B, U+1F5D, U+1F5F-1F7D, U+1F80-1FB4, U+1FB6-1FC4, U+1FC6-1FD3, U+1FD6-1FDB, U+1FDD-1FEF, U+1FF2-1FF4, U+1FF6-1FFE, U+2000-2064, U+20A1-20B5, U+20B8-20B9, U+20D0-20D2, U+20D6-20D7, U+20DB-20E3, U+20E5-20E6, U+20E8, U+20EA-20EF, U+2100-2109, U+210D-211A, U+211C-211E, U+2120-2122, U+2124, U+2126-2127, U+2129-212B, U+212E, U+2132, U+2135-213B, U+2141-2144, U+214B, U+214D-214E, U+2153-217F, U+2190-21D5, U+21DC-21DD, U+21E6-21E9, U+21F3, U+2200-22F1, U+2300, U+2302-2306, U+2308-2310, U+2312, U+2314-2315, U+2318-2319, U+231C-2327, U+2329-232C, U+2336-237A, U+237C-23B7, U+23BA-23CF, U+23DA-23DB, U+23DE-23DF, U+23E2-23E6, U+2400-2426, U+2440-244A, U+2460-2469, U+2500-2609, U+2610-2614, U+261A-261F, U+2626-2629, U+262E-2653, U+2660-2667, U+2669-266F, U+2680-2685, U+27C0-27CA, U+27CC, U+27D0-27D7, U+27E4-27EB, U+27F2-27F3, U+27F5-27FC, U+2800-28FF, U+2A00-2A06, U+2A1D, U+2A3F, U+2B00-2B0D, U+2B12-2B19, U+2B1B-2B2B, U+2B53-2B54, U+2E16-2E18, U+2E1A-2E1B, U+2E1E-2E1F, U+2E28-2E2E, U+2E30, U+A788-A78C, U+A900-A92F, U+FB00-FB05, U+FB1D-FB36, U+FB38-FB3C, U+FB3E, U+FB40-FB41, U+FB43-FB44, U+FB46-FBBE, U+FBC0-FBC1, U+FBD3-FBE9, U+FBFC-FBFF, U+FE70-FE74, U+FE76-FEFC, U+FEFF, U+FFF9-FFFD;
+}
+
+// 'mononoki', 
+@mixin code-font {
+    font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Bitstream Vera Sans Mono', 'FreeMono', 'Courier New', 'Monaco', 'Menlo', monospace, serif !important;
+    font-size: .85em !important;
+}
+@mixin code-container {
+    padding: .4em .4em !important;
+    background: #e8f2fb !important;
+    border: 1px solid #c9e1f6;
+    border-radius: 3px !important;
+}
+
+a, a:-webkit-any-link, a:link, a:toc-entry { color: #2a7ae2; text-decoration: none; }
+a:visited { color: #1756a9; }
+a:hover { color: #111; text-decoration: underline; }
+
+/* Code. */
+pre.highlight {
+    @include code-container;
+    border-style: dashed !important;
+}
+
+code {
+    @include code-font;
+    //white-space: normal;
+}
+
+/* Agda. */
+pre.Agda {
+    @include code-font;
+    @include code-container;
+}
+
+pre.Spec {
+    @include code-font;
+    @include code-container;
+    border-style: dashed !important;
+    color: #B22222;
+}
+
+/* Aspects. */
+.Comment       { color: #B22222 }
+.Keyword       { color: #CD6600 }
+.String        { color: #B22222 }
+.Number        { color: #A020F0 }
+.Symbol        { color: #404040 }
+.PrimitiveType { color: #0000CD }
+.Operator      {}
+
+/* NameKinds. */
+.Bound                  { color: black   }
+.InductiveConstructor   { color: #008B00 }
+.CoinductiveConstructor { color: #8B7500 }
+.Datatype               { color: #0000CD }
+.Field                  { color: #EE1289 }
+.Function               { color: #0000CD }
+.Module                 { color: #A020F0 }
+.Postulate              { color: #0000CD }
+.Primitive              { color: #0000CD }
+.Record                 { color: #0000CD }
+
+/* OtherAspects. */
+.DottedPattern      {}
+.UnsolvedMeta       { color: black; background: yellow         }
+.UnsolvedConstraint { color: black; background: yellow         }
+.TerminationProblem { color: black; background: #FFA07A        }
+.IncompletePattern  { color: black; background: #F5DEB3        }
+.Error              { color: red;   text-decoration: underline }
+.TypeChecks         { color: black; background: #ADD8E6        }
+
+/* Standard attributes. */
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+
+// CODEMIRROR theme
+
+ /* BASICS */
+
+.CodeMirror {
+  /* Set height, width, borders, and global font properties here */
+  //font-family: monospace;
+  @include code-font;
+  height: 300px;
+  //color: black;
+  direction: ltr;
+  -webkit-tap-highlight-color: black;
+}
+
+.CodeMirror-foldmarker {
+  visibility: hidden;
+  display: none;
+}
+
+/* PADDING */
+
+.CodeMirror-lines {
+  padding: 4px 0; /* Vertical padding around content */
+}
+.CodeMirror pre.CodeMirror-line,
+.CodeMirror pre.CodeMirror-line-like {
+  padding: 0 4px; /* Horizontal padding of content */
+}
+
+.CodeMirror-lines .readOnly {
+  background-color: #cccccc !important;
+}
+
+.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+  background-color: white; /* The little square between H and V scrollbars */
+}
+
+/* GUTTER */
+
+.CodeMirror-gutters {
+  border-right: 1px solid #ddd;
+//  background-color: #f7f7f7;
+//  background-color: #e8f2fb !important;
+  background-color: #dcdcec !important;
+  white-space: nowrap;
+}
+
+.CodeMirror-linenumbers {}
+.CodeMirror-linenumber {
+  padding: 0 3px 0 5px;
+  min-width: 20px;
+  text-align: right;
+  //color: #999;
+  color: #424242;
+  white-space: nowrap;
+}
+
+.CodeMirror-guttermarker { color: black; }
+.CodeMirror-guttermarker-subtle { color: #999; }
+
+/* CURSOR */
+
+.CodeMirror-cursor {
+  border-left: 1px solid black;
+  border-right: none;
+  width: 0;
+}
+/* Shown when moving in bi-directional text */
+.CodeMirror div.CodeMirror-secondarycursor {
+  border-left: 1px solid silver;
+}
+.cm-fat-cursor .CodeMirror-cursor {
+  width: auto;
+  border: 0 !important;
+  background: #7e7;
+}
+.cm-fat-cursor div.CodeMirror-cursors {
+  z-index: 1;
+}
+.cm-fat-cursor-mark {
+  background-color: rgba(20, 255, 20, 0.5);
+  -webkit-animation: blink 1.06s steps(1) infinite;
+  -moz-animation: blink 1.06s steps(1) infinite;
+  animation: blink 1.06s steps(1) infinite;
+}
+.cm-animate-fat-cursor {
+  width: auto;
+  border: 0;
+  -webkit-animation: blink 1.06s steps(1) infinite;
+  -moz-animation: blink 1.06s steps(1) infinite;
+  animation: blink 1.06s steps(1) infinite;
+  background-color: #7e7;
+}
+@-moz-keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+@-webkit-keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+@keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+
+/* Can style cursor different in overwrite (non-insert) mode */
+.CodeMirror-overwrite .CodeMirror-cursor {}
+
+.cm-tab { display: inline-block; text-decoration: inherit; }
+
+.CodeMirror-rulers {
+  position: absolute;
+  left: 0; right: 0; top: -50px; bottom: 0;
+  overflow: hidden;
+}
+.CodeMirror-ruler {
+  border-left: 1px solid #ccc;
+  top: 0; bottom: 0;
+  position: absolute;
+}
+
+/* DEFAULT THEME */
+
+.cm-s-default .cm-header {color: blue;}
+.cm-s-default .cm-quote {color: #090;}
+.cm-negative {color: #d44;}
+.cm-positive {color: #292;}
+.cm-header, .cm-strong {font-weight: bold;}
+.cm-em {font-style: italic;}
+.cm-link {text-decoration: underline;}
+.cm-strikethrough {text-decoration: line-through;}
+
+// font-weight: bold; 
+.cm-s-default .cm-keyword { line-height: 1em; color: #CD6600 !important; }
+.cm-s-default .cm-atom {color: #219;}
+.cm-s-default .cm-number {color: #164;}
+.cm-s-default .cm-def {color: #00f;}
+
+/* .cm-s-default .cm-variable {color: #0000CD !important;} */
+
+.cm-s-default .cm-variable
+.cm-s-default .cm-punctuation,
+.cm-s-default .cm-property,
+.cm-s-default .cm-operator {}
+
+.cm-s-default .cm-variable-2 {color: #05a;}
+.cm-s-default .cm-variable-3, .cm-s-default .cm-type {color: #085;}
+.cm-s-default .cm-comment {color: #B22222 !important;}
+.cm-s-default .cm-string {color: #a11;}
+.cm-s-default .cm-string-2 {color: #f50;}
+.cm-s-default .cm-meta {color: #555;}
+.cm-s-default .cm-qualifier {color: #555;}
+
+/* .cm-s-default .cm-builtin {color: #30a;} */
+.cm-s-default .cm-builtin {color: #0000CD !important;}
+
+.cm-s-default .cm-bracket {color: #997;}
+.cm-s-default .cm-tag {color: #170;}
+.cm-s-default .cm-attribute {color: #00c;}
+.cm-s-default .cm-hr {color: #999;}
+.cm-s-default .cm-link {color: #00c;}
+
+.cm-s-default .cm-error {color: #f00;}
+.cm-invalidchar {color: #f00;}
+
+.CodeMirror-composing { border-bottom: 2px solid #cecedd; }
+
+/* Default styles for common addons */
+
+div.CodeMirror span.CodeMirror-matchingbracket {color: #0b0;}
+div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
+.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
+.CodeMirror-activeline-background {background: #e8f2fb !important;}
+
+/* STOP */
+
+/* The rest of this file contains styles related to the mechanics of
+   the editor. You probably shouldn't touch them. */
+
+.CodeMirror {
+  position: relative;
+  overflow: hidden;
+  background: #eeeeff !important;
+}
+
+.CodeMirror-scroll {
+  overflow: scroll !important; /* Things will break if this is overridden */
+  /* 50px is the magic margin used to hide the element's real scrollbars */
+  /* See overflow: hidden in .CodeMirror */
+  margin-bottom: -50px; margin-right: -50px;
+  padding-bottom: 50px;
+  height: 100%;
+  outline: none; /* Prevent dragging from highlighting the element */
+  position: relative;
+}
+.CodeMirror-sizer {
+  position: relative;
+  border-right: 50px solid transparent;
+}
+
+/* The fake, visible scrollbars. Used to force redraw during scrolling
+   before actual scrolling happens, thus preventing shaking and
+   flickering artifacts. */
+.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+  position: absolute;
+  z-index: 6;
+  display: none;
+}
+.CodeMirror-vscrollbar {
+  right: 0; top: 0;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+.CodeMirror-hscrollbar {
+  bottom: 0; left: 0;
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+.CodeMirror-scrollbar-filler {
+  right: 0; bottom: 0;
+}
+.CodeMirror-gutter-filler {
+  left: 0; bottom: 0;
+}
+
+.CodeMirror-gutters {
+  position: absolute; left: 0; top: 0;
+  min-height: 100%;
+  z-index: 3;
+}
+
+.CodeMirror-gutter {
+  white-space: normal;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: -50px;
+}
+.CodeMirror-gutter-wrapper {
+  position: absolute;
+  z-index: 4;
+  background: none !important;
+  border: none !important;
+}
+.CodeMirror-gutter-background {
+  position: absolute;
+  top: 0; bottom: 0;
+  z-index: 4;
+}
+.CodeMirror-gutter-elt {
+  position: absolute;
+  cursor: default;
+  z-index: 4;
+}
+.CodeMirror-gutter-wrapper ::selection { background-color: #d3e7f8 !important; }
+.CodeMirror-gutter-wrapper ::-moz-selection { background-color: #d3e7f8 !important; }
+
+
+.CodeMirror-lines {
+  cursor: text;
+  min-height: 1px; /* prevents collapsing before first draw */
+}
+
+.CodeMirror pre.CodeMirror-line,
+.CodeMirror pre.CodeMirror-line-like {
+    /* Reset some styles that the rest of the page might have set */
+    -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
+    border-width: 0;
+    margin: 0;
+    white-space: pre;
+    word-wrap: normal;
+    line-height: inherit;
+    color: inherit;
+    z-index: 2;
+    position: relative;
+    overflow: visible;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-variant-ligatures: contextual;
+    font-variant-ligatures: contextual;
+}
+
+.CodeMirror-wrap pre.CodeMirror-line,
+.CodeMirror-wrap pre.CodeMirror-line-like {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+.CodeMirror-linebackground {
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  z-index: 0;
+}
+
+.CodeMirror-linewidget {
+  position: relative;
+  z-index: 2;
+  padding: 0.1px; /* Force widget margins to stay inside of the container */
+}
+
+.CodeMirror-widget {}
+
+.CodeMirror-rtl pre { direction: rtl; }
+
+.CodeMirror-code {
+  outline: none;
+}
+
+/* Force content-box sizing for the elements where we expect it */
+.CodeMirror-scroll,
+.CodeMirror-sizer,
+.CodeMirror-gutter,
+.CodeMirror-gutters,
+.CodeMirror-linenumber {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+.CodeMirror-measure {
+  position: absolute;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.CodeMirror-cursor {
+  position: absolute;
+  pointer-events: none;
+}
+
+.CodeMirror-measure pre { position: static; }
+
+div.CodeMirror-cursors {
+  visibility: hidden;
+  position: relative;
+  z-index: 3;
+}
+
+div.CodeMirror-dragcursors {
+  visibility: visible;
+}
+
+.CodeMirror-focused div.CodeMirror-cursors {
+  visibility: visible;
+}
+
+.CodeMirror-selected { background: #d3e7f8 !important; }
+
+.CodeMirror-focused .CodeMirror-selected {
+  background: #d3e7f8 !important;
+  border-color: #cce7ff !important;
+}
+
+.CodeMirror-crosshair { cursor: crosshair; }
+.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d3e7f8; }
+.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d3e7f8; }
+
+span.CodeMirror-selectedtext { background: #d3e7f8 !important; }
+
+.cm-searching {
+  background-color: #ffa;
+  background-color: rgba(255, 255, 0, .4);
+}
+
+/* Used to force a border model for a node */
+.cm-force-border { padding-right: .1px; }
+
+@media print {
+  /* Hide the cursor when printing */
+  .CodeMirror div.CodeMirror-cursors {
+    visibility: hidden;
+  }
+}
+
+/* See issue #2901 */
+.cm-tab-wrap-hack:after { content: ''; }
+
+
+.p-Widget, .lm-Widget {
+    box-sizing: border-box;
+    position: relative;
+    overflow: visible !important;
+    cursor: default;
+    // padding-top: 8px;
+    // padding-bottom: 8px;
+}
+
+/* agda-specific extensions */
+
+.compile-error {
+    background: rgb(255, 150, 150) !important;
+    color: black !important;
+    margin-right: -5px;
+}
+
+.compile-error:link {
+    color: black;
+}
+
+.compile-ok {
+    background: rgb(225, 255, 225) !important;
+    border-radius: 3px;
+}
+
+.compile-ok-border {
+    border: 1px solid #cde9cc !important;
+}
+
+.compile-hole {
+    background: rgb(255, 255, 225);
+    margin-right: -5px;
+    /* !important; */
+}
+
+.highlighter-rouge .highlight {
+//  background: #eef;
+}
+
+// buttons
+
+@mixin buttons-badges {
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: 10px;
+  background-position: center;
+  border: none;
+  mix-blend-mode: multiply;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+  // padding: 3.5px;
+
+  // margin-top: 10px;
+  // margin-right: 10px;
+  // margin-bottom: 10px;
+  // margin-left: 18px;
+
+  height: 15px; 
+  width: 15px; 
+
+//  max-width: 6px;
+//  max-height: 6px;
+  transition: all .3s ease-in-out;
+  filter: blur(0.2px);
+}
+
+.play-button-class {
+  @include buttons-badges;
+  background-image: url(../assets/images/play.png);
+  padding-left: 5px;
+  padding-right: 12px;
+  border-right: 1px solid #aaaaaa;
+  border-radius: 0px;
+}
+
+.play-button-class:hover {
+  filter: brightness(130%);
+//  transform: scale(1.3);
+  cursor: pointer;
+}
+
+.kernel-status-button {
+  @include buttons-badges;
+  background-image: url(../assets/images/kernel.png);
+  background-size: 25px;
+  height: 25px; 
+  width: 25px; 
+  transition: none;
+  padding: 5px;
+  border: 0;
+  filter: opacity(25%);
+  -webkit-appearance: button;
+  outline: transparent;
+}
+
+// .kernel-status-button:focus {
+// }
+
+button.kernel-status-button:hover {
+  cursor: pointer; 
+  //filter: opacity(100%);
+}
+
+button.kernel-status-button-connected {
+  filter: opacity(100%);
+}
+
+button.kernel-status-button-disconnected {
+  background-image: url(../assets/images/kernel-broken.png);
+  filter: opacity(100%);
+}
+
+// the per-cell status badge on the right
+
+// .status-badge {
+//   @include buttons-badges;
+//   transition: none;
+//   float: right;
+//   // display: inline-block;
+//   vertical-align: middle;
+//   // center: right;
+//   line-height: normal;
+//   padding: 5px;
+// //  margin-top: 5px;
+// }
+
+// .status-badge-unknown {
+//   background-image: url(../assets/images/unknown.png);
+// }
+
+// .status-badge-ok {
+//   background-image: url(../assets/images/checkmark.png);
+// }
+
+// .status-badge-error {
+//   background-image: url(../assets/images/error.png);
+// }
+
+// loading animation
+
+// .status-badge-running {
+//   background-image: url(../assets/images/running.png);
+// //  animation: lds-dual-ring 1.2s linear infinite;
+//   animation: lds-heart 1.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+//   // animation: pulse 2s infinite;
+// }
+
+@mixin status-badge-common {
+
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-top: 5px;
+  float: right;
+
+  stroke-width: 4;
+  stroke: #fff;
+  stroke-miterlimit: 10;
+
+}
+
+.status-badge-error {
+  @include status-badge-common;
+  stroke-width: 1;
+}
+
+.status-badge-warning {
+  @include status-badge-common;
+  stroke-width: 1;
+}
+
+.status-badge-ok {
+  @include status-badge-common;
+  box-shadow: inset 0px 0px 0px #7ac142;
+  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.info-area {
+ display: none;
+//  visibility: hidden;
+}
+
+// .status-badge-error:hover .info-area,
+// .status-badge-warning:hover .info-area,
+// .status-badge-ok:hover .info-area,
+//.status-badge-unknown:hover .info-area,
+// .status-badge-running:hover .info-area
+
+svg.status-badge-warning:hover {
+  cursor: pointer;
+  display: block;
+  visibility: visible;
+}
+
+.checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #7ac142;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark__check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes scale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
+
+@keyframes fill {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px #7ac142;
+  }
+}
+
+.status-badge-running {
+  @include status-badge-common;
+  box-shadow: inset 0px 0px 0px 30px #ec9f6e;
+//  animation: fill-running .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+  animation: lds-heart 1.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.running__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #ec9f6e;
+  fill: #ec9f6e;
+  animation: fill-running 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes fill-running {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px #ec9f6e;
+  }
+}
+
+.status-badge-unknown {
+  @include status-badge-common;
+  box-shadow: inset 0px 0px 0px 30px #94959f;
+  fill: #94959f;
+}
+
+@keyframes fill-unknown {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px #94959f;
+  }
+}
+
+.unknown__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #94959f;
+  fill: #94959f;
+//  animation: fill-unknown 0.6s cubic-bezier(1, 0, 1, 1) forwards;
+}
+
+// .lds-dual-ring {
+//   display: inline-block;
+//   width: 80px;
+//   height: 80px;
+// }
+
+// .status-badge-running:after {
+//   content: " ";
+//   display: block;
+//   width: 15px;
+//   height: 15px;
+//   margin: 2px;
+//   border-radius: 50%;
+//   border: 4px solid #fed;
+//   border-color: #fed transparent #fed transparent;
+//   animation: lds-dual-ring 1.2s linear infinite;
+// }
+
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes lds-heart {
+  0% {
+    transform: scale(0.95);
+  }
+  5% {
+    transform: scale(1.1);
+  }
+  39% {
+    transform: scale(0.85);
+  }
+  45% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+	}
+
+	70% {
+		transform: scale(1);
+		box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+	}
+
+	100% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+	}
+}
+
+.thebelab-cell {
+  //padding: .4em 0em .4em 0em;
+  padding: 0px;
+//  background: #e8f2fb; // blu-ish
+  background: #eeeeff; // gray-ish
+  //border: 1px solid #c9e1f6;
+  border: 2px solid #e0dede;
+  border-radius: 3px;
+}
+
+.thebelab-cell {
+  /* border: 2px solid #aaa;
+  border-radius: 4px;
+  margin-top: 8px;
+  margin-bottom: 8px; */
+  //padding: .4em .4em;
+  transition: all .1s ease-in-out;
+}
+
+// .thebelab-cell:focus-within {
+//   border-color: #050607;
+// }
+
+.thebelab-cell:hover {
+  padding: 0px;
+//  border: 2px solid #b6d1e9;
+  border: 2px solid #cccbcb;
+}
+
+// higher priority than hover
+.thebelab-cell:focus-within {
+  padding: 0px;
+//  border: 2px solid #a0b8ce;
+  border: 2px solid #888787;
+}
+
+.jp-OutputArea {
+  padding: 0px;
+}
+
+.jp-OutputArea > :first-child {
+  padding-top: 0em;
+  border-top: 1px solid #cecfdd;
+}
+
+.jp-OutputArea-output {
+  padding: 8px;
+}
+
+.jp-RenderedText pre, .jp-RenderedJavaScript pre, .jp-RenderedHTMLCommon pre {
+  margin-bottom: 0px;
+}
+
+// nope
+.thebelab-input {
+  border-bottom: 1px solid #cecedd;
+}
+
+main {
+  padding: 0;
+}
+
+header.site-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 50px;
+  z-index: 10;
+  padding-bottom: 5px;
+  background: white;
+  -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+  -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  border-top: none;
+  min-height: 0;
+  transition: top 0.3s; /* Transition effect when sliding down (and up) */
+
+}
+  
+content > div {
+  height: 50px;
+}
+
+// tooltips
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  z-index: 100;
+  //border-bottom: 1px dotted black;
+}
+
+@mixin tooltip-defaults {
+
+  opacity:0;
+  visibility: hidden;
+  //transition: .3s visibility;
+
+  background-color: rgb(73, 73, 73);
+  color: rgb(226, 226, 226);
+
+  border-radius: 6px;
+  z-index: 1000;
+  position: fixed;
+
+  padding: 10px;
+  top: 150%;
+
+}
+
+.tooltip .tooltiptext {
+  
+  @include tooltip-defaults;
+
+  width: 120px;
+  text-align: center;
+
+  /* Position the tooltip */
+  //margin-bottom: 100px;
+  top: -6px;
+  //margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  margin-left: 15px;
+  padding: 5px;
+}
+
+.tooltip:hover .tooltiptext {
+  opacity:1;
+}
+
+span.cell-count {
+
+  text-align: center;
+  height: 10px;
+  position: absolute;
+  top: 125%;
+  line-height: normal;
+  background: transparent;
+  
+}
+
+//.kernel-status-button
+span.kernel-messages {
+
+  @include tooltip-defaults;
+  width: 600px;
+  text-align: left;
+
+  z-index: 100;
+  margin-left: -600px;
+
+  height: 250px;
+
+  // only vertical scrollbars
+  overflow: auto;
+
+  top: 125%;
+  position: absolute;
+  line-height: normal;
+  opacity: 50%;
+
+//  visibility: visible;
+}
+
+span.kernel-status:hover span.kernel-messages  {
+  visibility: visible;
+  opacity:1;
+  filter: opacity(100%) !important;
+}
+
+.cell-info {
+  color: #808080;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+//  padding-top: 10px;
+  padding-left: 10px;
+//  position: absolute;
+  display: inline-block;
+  font-size: 10pt;
+//  margin-top: 5px;
+}
+
+div.cell-toolbar {
+  padding: 5px;
+}
+
+pre {
+  background-color: transparent;
+  border: none;
+}
+
+.info-area-button {
+  cursor: pointer;
+  position: absolute;
+  bottom: 0px;
+  right: 5px;
+  visibility: hidden;
+}
+
+.show-info-area {
+  content: url("../assets/images/show.svg");
+}
+
+.hide-info-area {
+  content: url("../assets/images/hide.svg");
+}
