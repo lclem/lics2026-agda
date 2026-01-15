@@ -2,16 +2,25 @@
 title: "Series 🚧"
 ---
 
+# Formal series
+
+In this section we introduce formal series in a coinductive way.
+The definitions are parametrised by a commutative ring `R` and a set of input symbols `Σ`.
+
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- --allow-unsolved-metas
 
 open import Preliminaries.Base hiding (_++_)
 module General.Series (R : CommutativeRing) (Σ : Set) where
 
 open import Size
 open import Preliminaries.Algebra R
+```
 
+A series `f` is coinductively defined by its constant term `ν f` (in `R`)
+and its left derivative `δ f a`, for every input symbol `a` from `Σ`.
+
+```
 infix 4 _⟪_⟫_
 record _⟪_⟫_ (A Σ : Set) (i : Size) : Set where
   coinductive
@@ -20,7 +29,12 @@ record _⟪_⟫_ (A Σ : Set) (i : Size) : Set where
     ν : A
     -- left derivative
     δ : ∀ {j : Size< i} → Σ → A ⟪ Σ ⟫ j
+```
 
+The additional `Size` parameter is used to ensure productivity
+of certain more complicated coinductive definitions that occur later.
+
+```
 open _⟪_⟫_ public
 
 _⟪_⟫ : Set → Set → Set
@@ -49,7 +63,7 @@ hd : A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
 hd f = only (ν f)
 ```
 
-# Coinductive equality of series
+# Equality of series
 
 ```
 infix 4 _≈[_]_
