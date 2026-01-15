@@ -30,6 +30,12 @@ jobs:
         with:
           path: ~/pp
           key: ${{ runner.os }}-${{ matrix.ghc }}-pp
+
+      - name: Cache ./pp
+        uses: actions/cache@v4
+        with:
+          path: ./pp
+          key: ${{ runner.os }}-${{ matrix.ghc }}-pp
           
       - name: Cache ~/.cabal/packages
         uses: actions/cache@v4
