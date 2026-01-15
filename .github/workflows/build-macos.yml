@@ -47,7 +47,7 @@ jobs:
       - run: bundle install
       
       - name: Install deps
-        run: brew install cabal-install agda pandoc pandoc-crossref gsed
+        run: brew install haskell-stack cabal-install agda pandoc pandoc-crossref gsed
         # deprecated: pandoc-citeproc
 
       - run: cp -R .agda ~/
@@ -67,7 +67,7 @@ jobs:
         run: cd pp && make
 
       - name: Copy pp
-        run: cd pp & cp "$(stack path --local-install-root)/bin/pp" ./pp-macos
+        run: cd pp && cp "$(stack path --local-install-root)/bin/pp" ./pp-macos
         
       # - name: Ls
       #   run: ls -la pp/src/
