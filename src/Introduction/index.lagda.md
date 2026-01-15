@@ -1,12 +1,10 @@
 ---
-title: "All"
+title: "Introduction"
 ---
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- --allow-unsolved-metas
-
-module all where
+module Introduction.index where
 ```
 
 In this part we preliminariate.

@@ -1,6 +1,0 @@
-
-::: {#refs}
-# References
-:::
-
-!solutionsSection
