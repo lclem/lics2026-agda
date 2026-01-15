@@ -63,10 +63,11 @@ jobs:
       - name: Update cabal
         run: cabal update
         
-#      - name: Make pp
-#        run: cd pp && make 
-      - name: make pp executable    
-        run: chmod +x pp/pp-macos
+      - name: Make pp
+        run: cd pp && make
+
+      - name: Copy pp
+        run: cd pp & cp "$(stack path --local-install-root)/bin/pp" ./pp-macos
         
       # - name: Ls
       #   run: ls -la pp/src/
