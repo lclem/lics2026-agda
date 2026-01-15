@@ -1,0 +1,6 @@
+
+::: {#refs}
+# References
+:::
+
+!solutionsSection
