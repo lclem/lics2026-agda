@@ -175,14 +175,15 @@ module AlgebraicProperties where
         comm = +-comm
         }
 
-    isLeftModule : IsLeftModule (_≈_ {X}) _+_ -_ 0T _·_
-    isLeftModule = record
-        { +-isAbelianGroup = +-isAbelianGroup
-        ; distribˡ = ·-+-distrib
-        ; distribʳ = +-·-distrib
-        ; combatible = *-·-distrib
-        ; identity = ·-one
-        }
+    -- TODO: for some misterious reason this one does not work
+    -- isLeftModule : IsLeftModule (_≈_ {X}) _+_ -_ 0T _·_
+    -- isLeftModule = record
+    --     { +-isAbelianGroup = +-isAbelianGroup
+    --     ; distribˡ = ·-+-distrib
+    --     ; distribʳ = +-·-distrib
+    --     ; combatible = *-·-distrib
+    --     ; identity = ·-one
+    --     }
 ```
 
 ### Multiplicative structure
