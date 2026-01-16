@@ -42,12 +42,12 @@ _⟪_⟫ : Set → Set → Set
 A ⟪ Σ ⟫ = A ⟪ Σ ⟫ ∞
 ```
 
-We will denote sizes by `i`, `j`, and series by `f`, `g`, etc.
+We will denote sizes by `i`, `j`, and series by `f`, `g`, `h`, etc.
 
 ```
 private variable
   i j : Size
-  f g : A ⟪ Σ ⟫
+  f f′ g g′ h h′ : A ⟪ Σ ⟫
 ```
 
 In the rest of the section `A` is the carrier of the commutative ring `R`.
@@ -300,7 +300,16 @@ We show that series with addition `_+_` and zero `𝟘` form a monoid.
 
 infix 20 _+≈_
 _+≈_ = +-cong
+```
 
+We can prove a ternary version of the congruence property for addition.
+
+```
++-cong₃ : f ≈[ i ] f′ → g ≈[ i ] g′ → h ≈[ i ] h′ → f + g + h ≈[ i ] f′ + g′ + h′
++-cong₃ f≈f′ g≈g′ h≈h′ = f≈f′ ⟨ +-cong ⟩ (g≈g′ ⟨ +-cong ⟩ h≈h′)
+```
+
+```
 +-isMonoid : IsMonoid _≈_ _+_ 𝟘
 +-isMonoid = record {
     isSemigroup = record {

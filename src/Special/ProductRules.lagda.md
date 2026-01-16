@@ -21,8 +21,7 @@ open AlgebraicProperties
 These are the axioms satisfied by special product rules.
 
 ```
-record Special (rule : ProductRule) : Set where
-    open ProductRule rule
+record Special (P : ProductRule) : Set where
 
     field
 
@@ -312,10 +311,7 @@ open Special public
 
 -- module GeneralisedInfiltrationSpecial where
 
---     U : TE 1
---     U = 0T
-
---     P : TE 5
+--     P : Term′ 5
 --     P = x′ * y + (x + z * x′) * y′
 
 --     P-one-special :

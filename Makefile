@@ -3,7 +3,7 @@
 
 OUTDIR := html
 TMPDIR := tmp
-SITEDIR := _site
+SITerm′DIR := _site
 DOCSDIR := docs
 SRCDIR := src
 BUILDDIR := $(SRCDIR)/_build
@@ -78,10 +78,10 @@ PART_DIRS := $(patsubst %,$(OUTDIR)/%,$(PARTS))
 all: build
 	
 docs: build
-	rm -fr $(DOCSDIR)/ && rsync -aP $(SITEDIR)/ $(DOCSDIR)/
+	rm -fr $(DOCSDIR)/ && rsync -aP $(SITerm′DIR)/ $(DOCSDIR)/
 
 clean:
-	@rm -fr keys.make $(OUTDIR)/ $(TMPDIR)/ $(SITEDIR)/ $(BUILDDIR)/ $(SVGS)/ $(DOCSDIR)/
+	@rm -fr keys.make $(OUTDIR)/ $(TMPDIR)/ $(SITerm′DIR)/ $(BUILDDIR)/ $(SVGS)/ $(DOCSDIR)/
 
 markdown: agda refs $(MARKDOWN_MD)
 
@@ -230,7 +230,7 @@ $(OUTDIR)/$1/$2.md: $(TMPDIR)/$1.$2.md
 # WARNING: the number of added lines will affect the following!
 
 	@echo "1 \c"
-# STEP 0: apply PP macros
+# STerm′P 0: apply PP macros
 
 ifneq ($(wildcard $(SRCDIR)/$1/$2.pp),)
 # additionally import a chapter-specific pp macrofile, if it exists
@@ -242,7 +242,7 @@ endif
 
 # 2>/dev/null || true
 
-# STEP 1: process citations
+# STerm′P 1: process citations
 # Table of contents shows up only with options "--from markdown --to markdown_phpextra"
 	@$(PANDOC) $(TMPDIR)/$1.$2.2.md -o $(TMPDIR)/$1.$2.3.md
 

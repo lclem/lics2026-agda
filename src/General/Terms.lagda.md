@@ -1,6 +1,8 @@
 ---
-title: "Series 🚧"
+title: "Terms 🚧"
 ---
+
+In this section we define the syntax of terms and their semantics.
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
@@ -9,15 +11,25 @@ title: "Series 🚧"
 
 open import Preliminaries.Base
 module General.Terms (R : CommutativeRing) where
-
 open import Preliminaries.Algebra R
-open import Preliminaries.PolyExpr R as P
-  using (PolyExpr; con; 0P; 1P)
-  renaming (mkVar to mkVarP; var to varP; ⟦_⟧_ to ⟦_⟧P_; _+_ to _+P_; _*_ to _*P_; _·_ to _·P_; _≈_ to _≈P_)
+```
 
-private variable
-  X Y Z X′ Y′ X₀ X₁ Y₀ Y₁ : Set
+# Terms {#sec:terms}
 
+Let `X` be the type of variables.
+Recall that `A` is the carrier set of the commutative ring `R`.
+We define the type `Term X` of terms over `X`.
+A *term over `X`* is either
+
+- the zero term `0T`,
+- a variable `var x` for `x : X`,
+- a scalar multiplication `c · u` for `c : A` and `u : Term X`,
+- a sum `u + v` for `u v : Term X`, or
+- a product `u * v` for `u v : Term X`.
+
+This is formalised as follows.
+
+```
 module Terms (X : Set) where
 
   infixr 9 _+_
@@ -30,9 +42,16 @@ module Terms (X : Set) where
     _+_ _*_ : (u v : Term) → Term
 
 open Terms public
+
+private variable
+  X Y Z : Set
 ```
 
-We can define additive inverses.
+Note that we do not allow constant terms of the form `con c` for `c : A`.
+Therefore, terms have no "constant coefficient"
+and the only way to introduce coefficients in terms is via scalar multiplication.
+
+We define additive inverses as a convenient syntactic sugar.
 
 ```
 infix 3 -_
@@ -44,35 +63,33 @@ _-_ : Term X → Term X → Term X
 p - q = p + (- q)
 ```
 
+## Term substitutions
+
+A *term substitution* from `X` to `Y` is a function mapping every variable from `X` to a term over `Y`.
+
 ```
 Subst : Set → Set → Set
 Subst X Y = X → Term Y
+```
 
-toPolyExpr : Term X → PolyExpr X
-toPolyExpr 0T = 0P
-toPolyExpr (var x) = varP x
-toPolyExpr (c · p) = c ·P toPolyExpr p
-toPolyExpr (p + q) = toPolyExpr p +P toPolyExpr q
-toPolyExpr (p * q) = toPolyExpr p *P toPolyExpr q
+We can apply a substitution to a term over `X`, obtaining a term over `Y`.
 
-toPolyExpr-≡ :
-  ∀ (ϱ₀ : Subst X Y) (ϱ₁ : Subst X Y) →
-  (∀ x → ϱ₀ x ≡ ϱ₁ x) →
-  -----------------------------------------------
-  ∀ x → toPolyExpr (ϱ₀ x) ≡ toPolyExpr (ϱ₁ x)
-
-toPolyExpr-≡ ϱ₀ ϱ₁ ϱ≡ϱ′ x = cong toPolyExpr (ϱ≡ϱ′ x) 
-
+```
 subst : Subst X Y → Term X → Term Y
 subst ϱ 0T = 0T
 subst ϱ (var x) = ϱ x
 subst ϱ (c · p) = c · subst ϱ p
 subst ϱ (p + q) = subst ϱ p + subst ϱ q
 subst ϱ (p * q) = subst ϱ p * subst ϱ q
+```
 
-subst-≡ : ∀ p (ϱ₀ : Subst X Y) (ϱ₁ : Subst X Y) →
+If two substitutions are pointwise equal, then their application to a term are equal as well.
+
+```
+subst-≡ :
+  ∀ p (ϱ₀ ϱ₁ : Subst X Y) →
   (∀ x → ϱ₀ x ≡ ϱ₁ x) →
-  -----------------------------------------------
+  -------------------------
   subst ϱ₀ p ≡ subst ϱ₁ p
 
 subst-≡ 0T ϱ₀ ϱ₁ ϱ≡ϱ′ = refl
@@ -85,17 +102,9 @@ subst-≡ (p * q) ϱ₀ ϱ₁ ϱ≡ϱ′
   rewrite subst-≡ p ϱ₀ ϱ₁ ϱ≡ϱ′ | subst-≡ q ϱ₀ ϱ₁ ϱ≡ϱ′ = refl
 ```
 
+We can compose substitutions.
+
 ```
-subst-PolyExpr : ∀ p (ϱ : Subst X Y) →
-  ----------------------------------------------------------------
-  P.subst (toPolyExpr ∘ ϱ) (toPolyExpr p) ≡ toPolyExpr (subst ϱ p)
-
-subst-PolyExpr 0T ϱ = refl
-subst-PolyExpr (var x) ϱ = refl
-subst-PolyExpr (p · q) ϱ = cong₂ P._*_ refl (subst-PolyExpr q ϱ)
-subst-PolyExpr (p + q) ϱ = cong₂ P._+_ (subst-PolyExpr p ϱ) (subst-PolyExpr q ϱ)
-subst-PolyExpr (p * q) ϱ = cong₂ P._*_ (subst-PolyExpr p ϱ) (subst-PolyExpr q ϱ)
-
 subst-subst :
   ∀ p (ϱ₀ : Subst X Y) (ϱ₁ : Subst Y Z) →
   -----------------------------------------------
@@ -108,26 +117,51 @@ subst-subst (p + q) ϱ₀ ϱ₁ = cong₂ _+_ (subst-subst p ϱ₀ ϱ₁) (subst
 subst-subst (p * q) ϱ₀ ϱ₁ = cong₂ _*_ (subst-subst p ϱ₀ ϱ₁) (subst-subst q ϱ₀ ϱ₁)
 ```
 
+## Terms with finitely many variables
+
+Sometimes we will work with terms with finitely many variables.
+To this end, let `Var` be the type of finite sets
+and, for a natural number `m : ℕ`,
+let `Term′ m` be the type of terms with variables from `Var m`.
+
 ```
-open import Preliminaries.Vector
 Var = Fin
 
+Term′ : (m : ℕ) → Set
+Term′ m = Term (Var m)
+```
+
+Let `m : ℕ` be the number of variables.
+A *finite substitution* (or *vector substitution*) a vector of terms over `X` of length `m`.
+
+```
+open import Preliminaries.Vector
 private variable m n k : ℕ
 
-TE : (m : ℕ) → Set
-TE m = Term (Var m)
+Substᵥ : ℕ → Set → Set
+Substᵥ m X = Vec (Term X) m
+```
 
-VSubst : ℕ → Set → Set
-VSubst m X = Vec (Term X) m
+We can apply a finite substitution to a term with `m` variables, obtaining a term over `X`.
+The definion relies on the previous definition of `subst`.
 
-substᵥ : VSubst n X → TE n → Term X
+```
+substᵥ : Substᵥ n X → Term′ n → Term X
 substᵥ ϱ p = subst (lookup ϱ) p
+```
 
-[_]ᵥ_ : TE n → VSubst n X → Term X
+We introduce a convenient notation for applying finite substitutions.
+
+```
+[_]ᵥ_ : Term′ n → Substᵥ n X → Term X
 [ p ]ᵥ ϱ = substᵥ ϱ p
+```
 
+We can compose finite substitutions.
+
+```
 subst-substᵥ :
-  ∀ p (ϱ₀ : VSubst m (Var n)) (ϱ₁ : VSubst n X) →
+  ∀ p (ϱ₀ : Substᵥ m (Var n)) (ϱ₁ : Substᵥ n X) →
   -------------------------------------------------------
   substᵥ ϱ₁ (substᵥ ϱ₀ p) ≡ substᵥ (map (substᵥ ϱ₁) ϱ₀) p
 
@@ -142,27 +176,30 @@ subst-substᵥ p ϱ₀ ϱ₁ =
       subst (lookup (map (subst (lookup ϱ₁)) ϱ₀)) p ≡⟨⟩
       substᵥ (map (substᵥ ϱ₁) ϱ₀) p
     ∎ where open ≡-Eq
+```
 
-infix 101 [_]⟨_⟩
-[_]⟨_⟩ : TE 1 → Term X → Term X
-[ p ]⟨ q ⟩ = substᵥ (q ∷ []) p
+We introduce convenient notations for finite substitutions of certain fixed lengths.
 
+```
 infix 101 [_]⟨_,_,_,_⟩
-[_]⟨_,_,_,_⟩ : TE 4 → Term X → Term X → Term X → Term X → Term X
-[ p ]⟨ p0 , p1 , p2 , p3 ⟩ = subst (lookup (p0 ∷ p1 ∷ p2 ∷ p3 ∷ [])) p 
+[_]⟨_,_,_,_⟩ : Term′ 4 → Term X → Term X → Term X → Term X → Term X
+[ p ]⟨ p0 , p1 , p2 , p3 ⟩ =
+  substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ []) p 
 
 infix 101 [_]⟨_,_,_,_,_⟩
-[_]⟨_,_,_,_,_⟩ : TE 5 → Term X → Term X → Term X → Term X → Term X → Term X
-[ p ]⟨ p0 , p1 , p2 , p3 , p4 ⟩ = subst (lookup (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ [])) p
+[_]⟨_,_,_,_,_⟩ : Term′ 5 → Term X → Term X → Term X → Term X → Term X → Term X
+[ p ]⟨ p0 , p1 , p2 , p3 , p4 ⟩ =
+  substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ []) p
 
 infix 101 [_]⟨_,_,_,_,_,_⟩
-[_]⟨_,_,_,_,_,_⟩ : TE 6 → Term X → Term X → Term X → Term X → Term X → Term X → Term X
-[ p ]⟨ p0 , p1 , p2 , p3 , p4 , p5 ⟩ = subst (lookup (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ p5 ∷ [])) p
+[_]⟨_,_,_,_,_,_⟩ : Term′ 6 → Term X → Term X → Term X → Term X → Term X → Term X → Term X
+[ p ]⟨ p0 , p1 , p2 , p3 , p4 , p5 ⟩ =
+  substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ p5 ∷ []) p
 ```
 
 ## Variables
 
-We define a simple facility `mkVar m : PE n` for constructing a variable of type `PE n`.
+We define a simple facility `mkVar m : PE n` for constructing the `m`-th variable of type `PE n`.
 We use instance arguments to automatically construct a proof that `m < n`.
 
 ```
@@ -179,45 +216,37 @@ open import Data.Nat.Properties
 
 instance
 
-  -- <-ste : ⦃ m < n ⦄ → suc m < suc n
-  -- <-ste {{m<n}} = s<s m<n
-
   m<sucm+n : ∀ {m n} → m < suc m +ℕ n
   m<sucm+n {zero} {n} =  <-sucn
   m<sucm+n {suc m} {n} = s≤s m<sucm+n
 
-mkVar : ∀ (m : ℕ) → ⦃ m < n ⦄ → TE n
+mkVar : ∀ (m : ℕ) → ⦃ m < n ⦄ → Term′ n
 mkVar _ ⦃ m<n ⦄ = var (fromℕ< m<n)
+```
 
-x : TE (1 +ℕ n)
+In this way we define some commonly used variables.
+
+```
+x : Term′ (1 +ℕ n)
 x  = mkVar 0
 
-x′ : TE (2 +ℕ n)
+x′ : Term′ (2 +ℕ n)
 x′ = mkVar 1
 
-y : TE (3 +ℕ n)
+y : Term′ (3 +ℕ n)
 y  = mkVar 2
 
-y′ :  TE (4 +ℕ n)
+y′ :  Term′ (4 +ℕ n)
 y′ = mkVar 3
 
-z : TE (5 +ℕ n)
+z : Term′ (5 +ℕ n)
 z  = mkVar 4
 
-z′ :  TE (6 +ℕ n)
+z′ :  Term′ (6 +ℕ n)
 z′ = mkVar 5
 
-t :  TE (7 +ℕ n)
+t :  Term′ (7 +ℕ n)
 t = mkVar 6
-
-x₀ : PolyExpr (Fin (1 +ℕ n))
-x₀ = mkVarP 0
-
-y₀ : PolyExpr (Fin (2 +ℕ n))
-y₀ = mkVarP 1
-
-z₀ : PolyExpr (Fin (3 +ℕ n))
-z₀ = mkVarP 2
 ```
 
 # Semantics
@@ -234,7 +263,7 @@ module Semantics where
 The semantics extends the environment from variables `X` to all terms `Term X`.
 
 ```
-  infix 200 ⟦_⟧_ ⟦_⟧ᵥ_
+  infix 200 ⟦_⟧_
   ⟦_⟧_ : Term X → Env X → A
   ⟦ 0T ⟧ _ = 0R
   ⟦ var x ⟧ ϱ = ϱ x
@@ -243,18 +272,34 @@ The semantics extends the environment from variables `X` to all terms `Term X`.
   ⟦ p * q ⟧ ϱ = ⟦ p ⟧ ϱ *R ⟦ q ⟧ ϱ
 ```
 
+## Terms with finitely many variables
+
+We also define the semantics for terms over finitely many variables.
+
 ```
-  VEnv : ℕ → Set
-  VEnv n = Vec A n
+  Envᵥ : ℕ → Set
+  Envᵥ n = Vec A n
 
-  ⟦_⟧ᵥ_ : Term (Var n) → VEnv n → A
+  infix 200 ⟦_⟧ᵥ_
+  ⟦_⟧ᵥ_ : Term′ n → Envᵥ n → A
   ⟦ p ⟧ᵥ ϱ = ⟦ p ⟧ lookup ϱ
+```
 
-  ⟦_⟧⟨_,_,_,_⟩ : Term (Var 4) → A → A → A → A → A
+We introduce a convenient notation for the semantics of terms with four variables.
+
+```
+  ⟦_⟧⟨_,_,_,_⟩ : Term′ 4 → A → A → A → A → A
   ⟦ p ⟧⟨ a₀ , a₁ , a₂ , a₃ ⟩ = ⟦ p ⟧ᵥ (a₀ ∷ a₁ ∷ a₂ ∷ a₃ ∷ [])
+```
 
+## Properties of the semantics
+
+The semantics is invariant under the application of pointwise equivalent environments.
+Here invariance is understood w.r.t. equivalence `≈R` in the underlying ring.
+
+```
   infix 30 ⟦_⟧≈_
-  ⟦_⟧≈_ sem-cong :
+  ⟦_⟧≈_ :
     ∀ {ϱ₀ ϱ₁ : Env X} (p : Term X) →
     (∀ x → ϱ₀ x ≈R ϱ₁ x) →
     --------------------------------
@@ -265,11 +310,13 @@ The semantics extends the environment from variables `X` to all terms `Term X`.
   ⟦ c · p ⟧≈ ϱ₀≈ϱ₁ = R-refl ⟨ *R-cong ⟩ ⟦ p ⟧≈ ϱ₀≈ϱ₁
   ⟦ p + q ⟧≈ ϱ₀≈ϱ₁ = ⟦ p ⟧≈ ϱ₀≈ϱ₁ ⟨ +R-cong ⟩ ⟦ q ⟧≈ ϱ₀≈ϱ₁
   ⟦ p * q ⟧≈ ϱ₀≈ϱ₁ = ⟦ p ⟧≈ ϱ₀≈ϱ₁ ⟨ *R-cong ⟩ ⟦ q ⟧≈ ϱ₀≈ϱ₁
+```
 
-  sem-cong = ⟦_⟧≈_
+For convenience we specialise the above property to terms with four variables.
 
+```
   ⟦_⟧≈⟨_,_,_,_⟩ :
-    ∀ {a₀ a₁ a₂ a₃ b₀ b₁ b₂ b₃} (p : Term (Var 4)) →
+    ∀ {a₀ a₁ a₂ a₃ b₀ b₁ b₂ b₃} (p : Term′ 4) →
     a₀ ≈R b₀ → a₁ ≈R b₁ → a₂ ≈R b₂ → a₃ ≈R b₃ →
     -----------------------------------------------
     ⟦ p ⟧⟨ a₀ , a₁ , a₂ , a₃ ⟩ ≈R ⟦ p ⟧⟨ b₀ , b₁ , b₂ , b₃ ⟩
@@ -283,4 +330,48 @@ The semantics extends the environment from variables `X` to all terms `Term X`.
     go (suc zero) = a₁≈b₁
     go (suc (suc zero)) = a₂≈b₂
     go (suc (suc (suc zero))) = a₃≈b₃
+```
+
+# Polynomials
+
+In this section we relate terms to polynomials.
+
+```
+open import Preliminaries.PolyExpr R as P
+  using (PolyExpr; con; 0P; 1P)
+  renaming (mkVar to mkVarP; var to varP; ⟦_⟧_ to ⟦_⟧P_; _+_ to _+P_; _*_ to _*P_; _·_ to _·P_; _≈_ to _≈P_)
+
+toPolyExpr : Term X → PolyExpr X
+toPolyExpr 0T = 0P
+toPolyExpr (var x) = varP x
+toPolyExpr (c · p) = c ·P toPolyExpr p
+toPolyExpr (p + q) = toPolyExpr p +P toPolyExpr q
+toPolyExpr (p * q) = toPolyExpr p *P toPolyExpr q
+
+toPolyExpr-≡ :
+  ∀ (ϱ₀ : Subst X Y) (ϱ₁ : Subst X Y) →
+  (∀ x → ϱ₀ x ≡ ϱ₁ x) →
+  -----------------------------------------------
+  ∀ x → toPolyExpr (ϱ₀ x) ≡ toPolyExpr (ϱ₁ x)
+
+toPolyExpr-≡ ϱ₀ ϱ₁ ϱ≡ϱ′ x = cong toPolyExpr (ϱ≡ϱ′ x) 
+
+subst-PolyExpr : ∀ p (ϱ : Subst X Y) →
+  ----------------------------------------------------------------
+  P.subst (toPolyExpr ∘ ϱ) (toPolyExpr p) ≡ toPolyExpr (subst ϱ p)
+
+subst-PolyExpr 0T ϱ = refl
+subst-PolyExpr (var x) ϱ = refl
+subst-PolyExpr (p · q) ϱ = cong₂ P._*_ refl (subst-PolyExpr q ϱ)
+subst-PolyExpr (p + q) ϱ = cong₂ P._+_ (subst-PolyExpr p ϱ) (subst-PolyExpr q ϱ)
+subst-PolyExpr (p * q) ϱ = cong₂ P._*_ (subst-PolyExpr p ϱ) (subst-PolyExpr q ϱ)
+
+x₀ : PolyExpr (Fin (1 +ℕ n))
+x₀ = mkVarP 0
+
+y₀ : PolyExpr (Fin (2 +ℕ n))
+y₀ = mkVarP 1
+
+z₀ : PolyExpr (Fin (3 +ℕ n))
+z₀ = mkVarP 2
 ```

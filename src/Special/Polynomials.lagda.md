@@ -61,13 +61,13 @@ data _≈_ {X} : Term X → Term X → Set where
 ≈-isEquivalence : IsEquivalence (_≈_ {X})
 ≈-isEquivalence = record { refl = ≈-refl ; sym = ≈-sym ; trans = ≈-trans }
 
-_≈₄_ : Term (Var 4) → Term (Var 4) → Set
+_≈₄_ : Term′ 4 → Term′ 4 → Set
 p ≈₄ q = p ≈ q
 
-_≈₅_ : Term (Var 5) → Term (Var 5) → Set
+_≈₅_ : Term′ 5 → Term′ 5 → Set
 p ≈₅ q = p ≈ q
 
-_≈₆_ : Term (Var 6) → Term (Var 6) → Set
+_≈₆_ : Term′ 6 → Term′ 6 → Set
 p ≈₆ q = p ≈ q
 
 _≈₇_ : Term (Var 7) → Term (Var 7) → Set
@@ -368,16 +368,16 @@ subst-inv′ (p * q) ϱ₀≈ϱ₁ = subst-inv′ p ϱ₀≈ϱ₁ ⟨ *-cong ⟩
 -- extension of equivalence to vectors of polynomial expressions
 infix 4 _≈ᵥ_
 infixr 5 _∷-≈_
-data _≈ᵥ_ {X : Set} : ∀ {m : ℕ} → (ϱ η : VSubst m X) → Set where
+data _≈ᵥ_ {X : Set} : ∀ {m : ℕ} → (ϱ η : Substᵥ m X) → Set where
     []-≈ : [] ≈ᵥ []
-    _∷-≈_ : ∀ {m p q} {ϱ η : VSubst m X} (p≈q : p ≈ q) (ϱ≈η : ϱ ≈ᵥ η) → (p ∷ ϱ) ≈ᵥ (q ∷ η)
+    _∷-≈_ : ∀ {m p q} {ϱ η : Substᵥ m X} (p≈q : p ≈ q) (ϱ≈η : ϱ ≈ᵥ η) → (p ∷ ϱ) ≈ᵥ (q ∷ η)
 
-≈ᵥ-lookup : ∀ {ϱ η : VSubst n X} → ϱ ≈ᵥ η → ∀ x → lookup ϱ x ≈ lookup η x
+≈ᵥ-lookup : ∀ {ϱ η : Substᵥ n X} → ϱ ≈ᵥ η → ∀ x → lookup ϱ x ≈ lookup η x
 ≈ᵥ-lookup (p≈q ∷-≈ _) zero = p≈q
 ≈ᵥ-lookup (_ ∷-≈ ϱ≈η) (suc x) = ≈ᵥ-lookup ϱ≈η x
 
 subst-invᵥ :
-    ∀ {p q : TE n} (ϱ : VSubst n X) →
+    ∀ {p q : Term′ n} (ϱ : Substᵥ n X) →
     p ≈ q →
     ---------------------------------
     substᵥ ϱ p ≈ substᵥ ϱ q
@@ -385,7 +385,7 @@ subst-invᵥ :
 subst-invᵥ ϱ p≈q = subst-inv (lookup ϱ) p≈q
 
 subst-inv′ᵥ :
-    ∀ (p : TE n) {ϱ η : VSubst n X} →
+    ∀ (p : Term′ n) {ϱ η : Substᵥ n X} →
     ϱ ≈ᵥ η →
     ---------------------------------
     substᵥ ϱ p ≈ substᵥ η p

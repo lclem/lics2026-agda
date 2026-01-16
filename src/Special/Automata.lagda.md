@@ -18,18 +18,17 @@ open import Special.ProductRules
 module Special.Automata
     (R : CommutativeRing)
     (Σ : Set)
-    (productRule : ProductRule R)
-    (special : Special R productRule)
+    (P : ProductRule R)
+    (special : Special R P)
     where
 
 open import General.Terms R
 open import General.Products R Σ
-open import General.Automata R Σ productRule
+open import General.Automata R Σ P
 
 open import Special.Products R Σ
 
-open Product productRule hiding (_*_; *-cong)
-open ProductRule productRule
+open Product P hiding (_*_; *-cong)
 open ProductProperties special
 
 private variable X : Set
@@ -175,3 +174,4 @@ module _ where
                     ≈⟨⟩
                 Δ ↑ (p * r + q * r)
             ∎ where open EqP
+```

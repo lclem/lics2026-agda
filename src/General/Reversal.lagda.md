@@ -268,10 +268,9 @@ rev-end-· : Endomorphic-· rev
 # Product rule for reversal
 
 ```
-module Reversal (productRule : ProductRule) where
+module Reversal (P : ProductRule) where
 
-    open Product productRule -- renaming (⟦_⟧⟨_,_,_,_⟩ to)
-    open ProductRule productRule
+    open Product P -- renaming (⟦_⟧⟨_,_,_,_⟩ to)
 
     P-Rev : Set
     P-Rev = ∀ {i} f g a → δʳ a (f * g) ≈[ i ] ⟦ P ⟧⟨ f , δʳ a f , g , δʳ a g ⟩
@@ -284,7 +283,7 @@ then the equation `P-Rev` holds.
     module RevEnd→PU-Rev (rev-end : IsEndomorphism rev) where
 
         end-rev :
-            ∀ (p : Term (Var n)) (ϱ : SEnvᵥ n) →
+            ∀ (p : Term′ n) (ϱ : SEnvᵥ n) →
             ---------------------------------------
             rev (⟦ p ⟧ᵥ (map rev ϱ)) ≈[ i ] ⟦ p ⟧ᵥ ϱ
 
@@ -357,6 +356,6 @@ then `*`-finite series are closed under right derivatives.
 TODO: prove it
 
 ```
-    -- *-Fin-δʳ : *-Fin f k → ∀ b → *-Fin (δʳ b f) (m +ℕ m)
-    -- *-Fin-δʳ *-fin b = ?
+    -- P-fin-δʳ : P-fin f k → ∀ b → P-fin (δʳ b f) (m +ℕ m)
+    -- P-fin-δʳ *-fin b = ?
 ```

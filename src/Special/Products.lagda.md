@@ -36,14 +36,13 @@ We are interested in the following algebraic properties of produts of series.
 
 ```
 module ProductProperties 
-    {productRule : ProductRule}
-    (special : Special productRule)
+    {P : ProductRule}
+    (special : Special P)
 
     where
 
     open import General.Products R Σ
-    open Product productRule
-    open ProductRule productRule
+    open Product P
 
     *-Assoc : Size → Set
     *-Assoc i = ∀ (f g h : A ⟪ Σ ⟫) → (f * g) * h ≈[ i ] f * (g * h)
@@ -85,7 +84,7 @@ then we obtain a commutative algebra of series.
                 δ ((f * g) * h) a
                     ≈⟨⟩
                 ⟦ P ⟧⟨ f * g , ⟦ P ⟧⟨ f , δ f a , g , δ g a ⟩ , h , δ h a ⟩
-                    ≈⟨ sem-congᵥ P [ ≈-refl , eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} , ≈-refl , ≈-refl ] ⟨
+                    ≈⟨ ⟦ P ⟧≈ᵥ  [ ≈-refl , eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} , ≈-refl , ≈-refl ] ⟨
                 ⟦ P ⟧⟨ ⟦ x [*] y ⟧ᵥ ϱ , ⟦ [ P ]⟨ x , x′ , y , y′ ⟩ ⟧ᵥ ϱ , ⟦ z ⟧ᵥ ϱ , ⟦ z′ ⟧ᵥ ϱ ⟩
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟨
                 ⟦ [ P ]⟨ x [*] y , [ P ]⟨ x , x′ , y , y′ ⟩ , z , z′ ⟩ ⟧ᵥ ϱ
@@ -93,7 +92,7 @@ then we obtain a commutative algebra of series.
                 ⟦ [ P ]⟨ x , x′ , y [*] z , [ P ]⟨ y , y′ , z , z′ ⟩ ⟩ ⟧ᵥ ϱ
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟩
                 ⟦ P ⟧⟨ f , δ f a , g * h , ⟦ [ P ]⟨ y , y′ , z , z′ ⟩ ⟧ᵥ ϱ ⟩
-                    ≈⟨ sem-congᵥ P [ ≈-refl , ≈-refl , ≈-refl , eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ] ⟩
+                    ≈⟨ ⟦ P ⟧≈ᵥ [ ≈-refl , ≈-refl , ≈-refl , eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ] ⟩
                 ⟦ P ⟧⟨ f , δ f a , g * h , ⟦ P ⟧⟨ g , δ g a , h , δ h a ⟩ ⟩
                     ≈⟨⟩
                 δ (f * (g * h)) a

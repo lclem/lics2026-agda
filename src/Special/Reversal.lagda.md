@@ -12,7 +12,7 @@ open import General.ProductRules
 module Special.Reversal
     (R : CommutativeRing)
     (Σ : Set)
-    (productRule : ProductRule R)
+    (P : ProductRule R)
     where
 
 open import Size
@@ -26,9 +26,8 @@ open import General.Terms R renaming (_+_ to _[+]_; _*_ to _[*]_; _·_ to _[·]_
 open import General.Products R Σ
 open import General.Reversal R Σ
 
-open Product productRule
-open Reversal productRule
-open ProductRule productRule
+open Product P
+open Reversal P
 
 private variable
     i : Size
@@ -41,7 +40,7 @@ in the case of special products.
 ```
 -- -- module _ (f g : A ⟪ Σ ⟫) where
 open Inductive
-open import General.Automata R Σ productRule
+open import General.Automata R Σ P
 
 infix 8 _x[_]_
 data *X* : Set where
@@ -160,7 +159,7 @@ module _
             δʳ b (S ⟦ α ⟧ * S ⟦ β ⟧)
                 ≈⟨ ass-* _ _ _ ⟩
             ⟦ P ⟧ᵥ (S ⟦ α ⟧ ∷ δʳ b (S ⟦ α ⟧) ∷ S ⟦ β ⟧ ∷ δʳ b (S ⟦ β ⟧) ∷ [])
-                ≈⟨ sem-congᵥ P [ ≈-refl , lem b α , ≈-refl , lem b β ] ⟩
+                ≈⟨ ⟦ P ⟧≈ᵥ [ ≈-refl , lem b α , ≈-refl , lem b β ] ⟩
             ⟦ P ⟧ᵥ (S ⟦ α ⟧ ∷ S ⟦ Δʳ b ↑ α ⟧ ∷ S ⟦ β ⟧ ∷ S ⟦ Δʳ b ↑ β ⟧ ∷ [])
                 ≈⟨ sem-substᵥ S P (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
             S ⟦ [ P ]⟨ α , Δʳ b ↑ α , β , Δʳ b ↑ β ⟩ ⟧
@@ -267,7 +266,7 @@ module _
             ν (S ⟦ Δˡ b ↑ (α [*] β) ⟧) ≈⟨⟩
             ν (S ⟦ [ P ]⟨ α , Δˡ b ↑ α , β , Δˡ b ↑ β ⟩ ⟧) ≈⟨ ν-≈ (sem-substᵥ S P ϱˡ) ⟩
             ν (⟦ P ⟧⟨ S ⟦ α ⟧ , S ⟦ Δˡ b ↑ α ⟧ , S ⟦ β ⟧ , S ⟦ Δˡ b ↑ β ⟧ ⟩)
-                ≈⟨ eval-νᵥ P (_ ∷ _ ∷ _ ∷ _) ⟩
+                ≈⟨ ν-homᵥ P (_ ∷ _ ∷ _ ∷ _) ⟩
             T⟦ P ⟧⟨ ν (S ⟦ α ⟧) , ν (S ⟦ Δˡ b ↑ α ⟧) , ν (S ⟦ β ⟧) , ν (S ⟦ Δˡ b ↑ β ⟧) ⟩
                 ≈⟨⟩
             T⟦ P ⟧⟨ ν (S ⟦ α ⟧) , ν (δˡ b (S ⟦ α ⟧)) , ν (S ⟦ β ⟧) , ν (δˡ b (S ⟦ β ⟧)) ⟩
@@ -275,7 +274,7 @@ module _
             T⟦ P ⟧⟨ ν (S ⟦ α ⟧) , ν (δʳ b (S ⟦ α ⟧)) , ν (S ⟦ β ⟧) , ν (δʳ b (S ⟦ β ⟧)) ⟩
                 ≈⟨ ⟦ P ⟧≈⟨ R-refl , δʳ-Δʳ-ν b α , R-refl , δʳ-Δʳ-ν b β ⟩ ⟩ -- induction
             T⟦ P ⟧⟨ ν (S ⟦ α ⟧) , ν (S ⟦ Δʳ b ↑ α ⟧) , ν (S ⟦ β ⟧) , ν (S ⟦ Δʳ b ↑ β ⟧) ⟩
-                ≈⟨ eval-νᵥ P (_ ∷ _ ∷ _ ∷ _) ⟨
+                ≈⟨ ν-homᵥ P (_ ∷ _ ∷ _ ∷ _) ⟨
             ν (⟦ P ⟧⟨ S ⟦ α ⟧ , S ⟦ Δʳ b ↑ α ⟧ , S ⟦ β ⟧ , S ⟦ Δʳ b ↑ β ⟧ ⟩) ≈⟨ ν-≈ (sem-substᵥ S P ϱʳ) ⟨
             ν (S ⟦ [ P ]⟨ α , Δʳ b ↑ α , β , Δʳ b ↑ β ⟩ ⟧) ≈⟨⟩
             ν (S ⟦ Δʳ b ↑ (α [*] β) ⟧)

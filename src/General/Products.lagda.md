@@ -2,155 +2,239 @@
 title: Products of power series 🚧
 ---
 
+In this section we define products of formal series obeying a product rule.
+Our development is parametrised by a commutative ring `R` and an input alphabet `Σ`.
+
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base
-
-module General.Products
-    (R : CommutativeRing)
-    (Σ : Set)
-    where
+module General.Products (R : CommutativeRing) (Σ : Set) where
 
 open import Size
-private variable i : Size
-
 open import Preliminaries.Algebra R
 open import Preliminaries.Vector
-open import Preliminaries.PolyExpr R as P
-    using (PolyExpr; con)
-    renaming (⟦_⟧_ to ⟦_⟧P_)
 
 open import General.Series R Σ hiding (≡→≈)
+
+-- we need to rename term constructors to avoid name clashes
+-- with the corresponding series operations
 open import General.Terms R
     renaming (_+_ to _[+]_; _*_ to _[*]_; _·_ to _[·]_)
+
 open import General.ProductRules R
 
 private variable
+    i : Size
     m n : ℕ
     X Y : Set
-    f₀ f₁ f₂ f₃ f₄ f₅ : A ⟪ Σ ⟫ i
 ```
 
-Definition of the product operation.
+# `P`-products
+
+Let `P` be a product rule.
+We define a *`P`-product* of formal series as the unique binary operation satisfying the product rule `P`.
 
 ```
-module Product (productRule : ProductRule) where
-    open ProductRule productRule
-
-    mutual
-        infixr 7 _*_
-        _*_ : A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
-        ν (f * g) = ν f *R ν g
-        δ (f * g) a = ⟦ P ⟧⟨ f , δ f a , g , δ g a ⟩
-
-        infix 200 ⟦_⟧_ ⟦_⟧ᵥ_ ⟦_⟧⟨_⟩ ⟦_⟧⟨_,_,_,_⟩ -- ⟦_⟧⟨_,_,_,_,_,_⟩
-        ⟦_⟧_ : Term X → SEnv {i} X → A ⟪ Σ ⟫ i
-        ⟦ 0T ⟧ ϱ = 𝟘
-        ⟦ c [·] u ⟧ ϱ = c · ⟦ u ⟧ ϱ
-        ⟦ var x ⟧ ϱ = ϱ x
-        ⟦ p [+] q ⟧ ϱ = ⟦ p ⟧ ϱ + ⟦ q ⟧ ϱ
-        ⟦ p [*] q ⟧ ϱ = ⟦ p ⟧ ϱ * ⟦ q ⟧ ϱ
-
-        ⟦_⟧ᵥ_ : ∀ {n} → TE n → SEnvᵥ {i} n → A ⟪ Σ ⟫ i
-        ⟦ p ⟧ᵥ fs = ⟦ p ⟧ (lookup fs)
-
-        ⟦_⟧⟨_⟩ : TE 1 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
-        ⟦ p ⟧⟨ f ⟩ = ⟦ p ⟧ᵥ (f ∷ [])
-
-        ⟦_⟧⟨_,_,_,_⟩ : TE 4 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
-        ⟦ p ⟧⟨ f₀ , f₁ , f₂ , f₃ ⟩ = ⟦ p ⟧ᵥ (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ [])
-
-        ⟦_⟧⟨_,_,_,_,_,_⟩ : TE 6 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i →
-            A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
-        ⟦ p ⟧⟨ f₀ , f₁ , f₂ , f₃ , f₄ , f₅ ⟩ = ⟦ p ⟧ᵥ (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ f₄ ∷ f₅ ∷ [])
+module Product (P : ProductRule) where
 ```
 
-## Properties
+We simultaneously define the product `_*_`
+and the semantics of terms over series.
+This is necessary since we need to capture arbitrary product rules.
 
 ```
-    mutual
-        -- equivalent series enviroments yield equivalent series
-        infix 30 ⟦_⟧≈_
-        ⟦_⟧≈_ sem-cong :
-            ∀ {ϱ₀ ϱ₁ : SEnv X} (p : Term X) →
-            ϱ₀ ≈ϱ[ i ] ϱ₁ →
-            -----------------------------------
-            ⟦ p ⟧ ϱ₀ ≈[ i ] ⟦ p ⟧ ϱ₁
-
-        ⟦ 0T ⟧≈ _ = ≈-refl
-        ⟦ var x ⟧≈ ϱ₀≈ϱ₁ = ϱ₀≈ϱ₁ x
-        ⟦ c [·] p ⟧≈ ϱ₀≈ϱ₁ = R-refl ·≈ (⟦ p ⟧≈ ϱ₀≈ϱ₁)
-        ⟦ p [+] q ⟧≈ ϱ₀≈ϱ₁ = ⟦ p ⟧≈ ϱ₀≈ϱ₁ +≈ ⟦ q ⟧≈ ϱ₀≈ϱ₁
-        ⟦ p [*] q ⟧≈ ϱ₀≈ϱ₁ = ⟦ p ⟧≈ ϱ₀≈ϱ₁ *≈ ⟦ q ⟧≈ ϱ₀≈ϱ₁
-
-        sem-cong = ⟦_⟧≈_
-
-        sem-congᵥ :
-            ∀ {fs gs : SEnvᵥ n} (p : TE n) →
-            fs ≈ᵥ[ i ] gs → ⟦ p ⟧ᵥ fs ≈[ i ] ⟦ p ⟧ᵥ gs
-        sem-congᵥ p fs≈gs = sem-cong p (build-≈ϱ fs≈gs)
-
-        infix 20 _*≈_
-        _*≈_ *-cong : Congruent₂ (λ f g → f ≈[ i ] g) _*_
-        ν-≈ (f≈g *≈ h≈i) = *R-cong (ν-≈ f≈g) (ν-≈ h≈i)
-        δ-≈ (f≈g *≈ h≈i) a = sem-congᵥ P [ f≈g , δ-≈ f≈g a , h≈i , δ-≈ h≈i a ]
-
-        *-cong = _*≈_
+    infixr 7 _*_
+    _*_ : A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
+    ⟦_⟧_ : Term X → SEnv {i} X → A ⟪ Σ ⟫ i
 ```
 
-The operation of constant term extraction `ν` is a homomorphism
-from the series algebra to the underlying ring `R`.
+To make the case of the product rule more readable,
+we introduce a special notation for the semantics of terms with four variables
+
+```
+    ⟦_⟧⟨_,_,_,_⟩ : Term′ 4 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
+```
+
+The `P`-product `f * g` of two series `f ` and `g` is defined coinductively as follows.
+
+- At the constant term, it is just the product of constant terms.
+- The left derivative of a product is obtained by evaluating the product rule `P` on the input series and their derivatives.
+
+```
+    ν (f * g) = ν f *R ν g
+    δ (f * g) a = ⟦ P ⟧⟨ f , δ f a , g , δ g a ⟩
+```
+
+The semantics `⟦ u ⟧ ϱ` of a term `u` over a series environment `ϱ` is defined by structural induction on terms.
+In the last case, the definition depends on the product of series.
+
+```
+    ⟦ 0T ⟧ ϱ = 𝟘
+    ⟦ c [·] u ⟧ ϱ = c · ⟦ u ⟧ ϱ
+    ⟦ var x ⟧ ϱ = ϱ x
+    ⟦ u [+] v ⟧ ϱ = ⟦ u ⟧ ϱ + ⟦ v ⟧ ϱ
+    ⟦ u [*] v ⟧ ϱ = ⟦ u ⟧ ϱ * ⟦ v ⟧ ϱ
+```
+
+We also define the semantics of terms with `n` variables, together with a special syntax.
+
+```
+    ⟦_⟧ᵥ_ : ∀ {n} → Term′ n → SEnvᵥ {i} n → A ⟪ Σ ⟫ i
+    ⟦ p ⟧ᵥ fs = ⟦ p ⟧ (lookup fs)
+
+    ⟦ p ⟧⟨ f₀ , f₁ , f₂ , f₃ ⟩ = ⟦ p ⟧ᵥ (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ [])
+```
+
+It will also be convenient to have a special syntax for six variables.
+
+```
+    ⟦_⟧⟨_,_,_,_,_,_⟩ : Term′ 6 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i →
+        A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
+    ⟦ p ⟧⟨ f₀ , f₁ , f₂ , f₃ , f₄ , f₅ ⟩ = ⟦ p ⟧ᵥ (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ f₄ ∷ f₅ ∷ [])
+```
+
+# Invariance
+
+We show that the product and, more generally, the semantics of terms resepects equivalence of series.
+Again, we need a mutual corecursion.
+
+```
+    infix 20 _*≈_
+    _*≈_ *-cong : Congruent₂ (λ f g → f ≈[ i ] g) _*_
+    *-cong = _*≈_
+
+    infix 30 ⟦_⟧≈_ sem-cong
+    ⟦_⟧≈_ :
+        ∀ {ϱ₀ ϱ₁ : SEnv X} (p : Term X) →
+        ϱ₀ ≈ϱ[ i ] ϱ₁ →
+        ---------------------------------
+        ⟦ p ⟧ ϱ₀ ≈[ i ] ⟦ p ⟧ ϱ₁
+
+    sem-cong = ⟦_⟧≈_
+```
+
+We use a convenient syntax for terms with finitely many variables.
+
+```
+    infix 30 ⟦_⟧≈ᵥ_
+    ⟦_⟧≈ᵥ_ :
+        ∀ {fs gs : SEnvᵥ n} (p : Term′ n) →
+        fs ≈ᵥ[ i ] gs →
+        -----------------------------------
+        ⟦ p ⟧ᵥ fs ≈[ i ] ⟦ p ⟧ᵥ gs
+```
+
+We begin with invariance of the product.
+In the base case, we use invariance of the underlying ring multiplication.
+In the coinductive case, 
+
+```
+    ν-≈ (f≈g *≈ h≈i) = *R-cong (ν-≈ f≈g) (ν-≈ h≈i)
+    δ-≈ (f≈g *≈ h≈i) a = ⟦ P ⟧≈ᵥ [ f≈g , δ-≈ f≈g a , h≈i , δ-≈ h≈i a ]
+```
+
+Invariance of the semantics of terms is proved by structural induction,
+where the case of product refers to the above.
+        
+```
+    ⟦ 0T ⟧≈ _ = ≈-refl
+    ⟦ var x ⟧≈ ϱ₀≈ϱ₁ = ϱ₀≈ϱ₁ x
+    ⟦ c [·] p ⟧≈ ϱ₀≈ϱ₁ = R-refl ·≈ (⟦ p ⟧≈ ϱ₀≈ϱ₁)
+    ⟦ p [+] q ⟧≈ ϱ₀≈ϱ₁ = ⟦ p ⟧≈ ϱ₀≈ϱ₁ +≈ ⟦ q ⟧≈ ϱ₀≈ϱ₁
+    ⟦ p [*] q ⟧≈ ϱ₀≈ϱ₁ = ⟦ p ⟧≈ ϱ₀≈ϱ₁ *≈ ⟦ q ⟧≈ ϱ₀≈ϱ₁
+```
+
+The definition is concluded by the case of finitely-many variables.
+
+```     
+    ⟦ p ⟧≈ᵥ fs≈gs = ⟦ p ⟧≈ build-≈ϱ fs≈gs
+```
+
+# `nu` is a homomorphism {#lem:constant-term-homomorphism-lemma}
 
 ```
     open Semantics
-        renaming (⟦_⟧_ to T⟦_⟧_; ⟦_⟧ᵥ_ to T⟦_⟧ᵥ_; sem-cong to sem-congT)
+        -- we need to rename term semantics operations
+        -- to avoid name clashes
+        renaming (⟦_⟧_ to T⟦_⟧_; ⟦_⟧ᵥ_ to T⟦_⟧ᵥ_; ⟦_⟧≈_ to T⟦_⟧≈_)
+```
 
-    eval-ν :
+We show that the operation of constant term extraction `ν` is a homomorphism
+from the series algebra to the underlying ring `R`.
+
+```
+    ν-hom :
         ∀ (p : Term X) (ϱ : SEnv X) →
-        -------------------------------
+        -----------------------------
         ν (⟦ p ⟧ ϱ) ≈R T⟦ p ⟧ (ν ∘ ϱ)
-    
-    eval-ν 0T ϱ = R-refl
-    eval-ν (var x) ϱ = R-refl
-    eval-ν (c [·] q) ϱ = R-refl ⟨ *R-cong ⟩ eval-ν q ϱ
-    eval-ν (p [+] q) ϱ = eval-ν p ϱ ⟨ +R-cong ⟩ eval-ν q ϱ
-    eval-ν (p [*] q) ϱ = eval-ν p ϱ ⟨ *R-cong ⟩ eval-ν q ϱ
+```
 
-    eval-νᵥ :
-        ∀ (p : Term (Var n)) (ϱ : SEnvᵥ n) →
+The proof is by structural induction on terms.
+
+```   
+    ν-hom 0T ϱ = R-refl
+    ν-hom (var x) ϱ = R-refl
+    ν-hom (c [·] q) ϱ = R-refl ⟨ *R-cong ⟩ ν-hom q ϱ
+    ν-hom (p [+] q) ϱ = ν-hom p ϱ ⟨ +R-cong ⟩ ν-hom q ϱ
+    ν-hom (p [*] q) ϱ = ν-hom p ϱ ⟨ *R-cong ⟩ ν-hom q ϱ
+```
+
+We state a corresponding lemma for terms over finitely many variables.
+Its proof is by reduction to `ν-hom`.
+
+```
+    ν-homᵥ :
+        ∀ (p : Term′ n) (ϱ : SEnvᵥ n) →
         -------------------------------
         ν (⟦ p ⟧ᵥ ϱ) ≈R T⟦ p ⟧ᵥ (map ν ϱ)
 
-    eval-νᵥ p ϱ =
+    ν-homᵥ p ϱ =
         begin
             ν (⟦ p ⟧ᵥ ϱ)
-                ≈⟨ eval-ν p (lookup ϱ) ⟩
+                ≈⟨ ν-hom p (lookup ϱ) ⟩
             T⟦ p ⟧ (ν ∘ lookup ϱ)
-                ≈⟨ sem-congT p (λ x → ≡→≈ $ sym $ lookup-map ν ϱ x) ⟩
+                ≈⟨ T⟦ p ⟧≈ (λ x → ≡→≈ $ sym $ lookup-map ν ϱ x) ⟩
             T⟦ p ⟧ (lookup $ map ν ϱ)
                 ≈⟨⟩
             T⟦ p ⟧ᵥ (map ν ϱ)
         ∎ where open EqR
 ```
 
-Substitution and evalation commute.
+# Substitution and evaluation
+
+If we have a term `p` over variables `X`, a substitution from `X` to terms over `Y`,
+and a series environment `env` over `Y`, we can either
+
+- substitute and evaluate, obtaining `⟦ subst ϱ p ⟧ env `, or
+- evaluate in an updated environment, obtaining ⟦ p ⟧ (⟦_⟧ env ∘ ϱ).
+
+These two operations produce the same result.
 
 ```
     eval-subst :
         ∀ (p : Term X) {ϱ : Subst X Y} {env : SEnv Y} →
-        -------------------------------------------------
+        -----------------------------------------------
         ⟦ subst ϱ p ⟧ env ≈ ⟦ p ⟧ (⟦_⟧ env ∘ ϱ)
+```
 
+The proof is by structural induction on terms,
+relying on invariance properties of series operations.
+
+```
     eval-subst 0T = ≈-refl
     eval-subst (var x) = ≈-refl
     eval-subst (c [·] q) = R-refl ·≈ eval-subst q
     eval-subst (p [+] q) = eval-subst p +≈ eval-subst q
     eval-subst (p [*] q) = eval-subst p *≈ eval-subst q
+```
 
+We find it convenient to state a finite variable version of `eval-subst`,
+which is proved by reduction to the latter.
+
+```
     eval-substᵥ :
-        ∀ (p : TE m) {qs : VSubst m X} {fs : SEnv X} →
+        ∀ (p : Term′ m) {qs : Substᵥ m X} {fs : SEnv X} →
         ------------------------------------------------
         ⟦ substᵥ qs p ⟧ fs ≈ ⟦ p ⟧ᵥ (map (⟦_⟧ fs) qs)
 
@@ -161,7 +245,7 @@ Substitution and evalation commute.
             ⟦ subst (lookup qs) p ⟧ fs 
                 ≈⟨ eval-subst p {ϱ = lookup qs} {env = fs} ⟩
             ⟦ p ⟧ (λ x → ⟦ lookup qs x ⟧ fs)
-                ≈⟨ sem-cong p (≡→≈ϱ (lookup-map _ qs)) ⟨
+                ≈⟨ ⟦ p ⟧≈ (≡→≈ϱ (lookup-map _ qs)) ⟨
             ⟦ p ⟧ (lookup (map (⟦_⟧ fs) qs))
                 ≈⟨⟩
             ⟦ p ⟧ᵥ (map (λ q → ⟦ q ⟧ fs) qs)
@@ -170,12 +254,14 @@ Substitution and evalation commute.
 
 # Endomorphism lemma
 
+We define what it means for an endofunction on series `F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫`  to be an endomorphism.
+Informally, this means that `F` respects the series operations.
+
 ```
     open Properties
 
-    Endomorphic-* Endomorphic-ν : (F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫) {i : Size} → Set
+    Endomorphic-* : (F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫) {i : Size} → Set
     Endomorphic-* F {i} = ∀ f g → F (f * g) ≈[ i ] F f * F g
-    Endomorphic-ν F {i} = ∀ {f} → ν (F f) ≈R ν f
 
     record IsEndomorphism (F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫) {i : Size} : Set where
         field
@@ -186,15 +272,24 @@ Substitution and evalation commute.
 
     open IsEndomorphism public
 
-    -- endomorphism lemma
-    -- an endomorphism of the series ring commutes with the semantics of polynomial expressions
-    end :
-        ∀ {F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫} (p : Term X) {ϱ : SEnv X} →
-        IsEndomorphism F {i} →
-        ------------------------------------------------------
-        F (⟦ p ⟧ ϱ) ≈[ i ] ⟦ p ⟧ (F ∘ ϱ)
+    private variable F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫
+```
 
+We can then show that endomorphisms `F` commute with the semantics of terms. 
+
+```
+    end :
+        ∀ (p : Term X) {ϱ : SEnv X} →
+        IsEndomorphism F {i} →
+        -------------------------------
+        F (⟦ p ⟧ ϱ) ≈[ i ] ⟦ p ⟧ (F ∘ ϱ)
+```
+
+The proof is by structural induction on terms.
+
+```
     end 0T endF = endF .𝟘-end
+
     end (var x) _ = ≈-refl
 
     end {F = F} (c [·] p) {ϱ} endF =
@@ -235,12 +330,17 @@ Substitution and evalation commute.
                 ≈⟨⟩
             ⟦ p [*] q ⟧ (F ∘ ϱ)
         ∎ where open EqS
+```
 
+We state a corresponding finite-variable version,
+which is proved by reduction to `end`.
+
+```
 
     endᵥ :
-        ∀ {F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫} (p : TE n) (ϱ : SEnvᵥ n) →
+        ∀ (p : Term′ n) (ϱ : SEnvᵥ n) →
         IsEndomorphism F {i} →
-        ------------------------------------------------------
+        -----------------------------------
         F (⟦ p ⟧ᵥ ϱ) ≈[ i ] ⟦ p ⟧ᵥ (map F ϱ)
 
     endᵥ {F = F} p ϱ endF =
@@ -250,7 +350,7 @@ Substitution and evalation commute.
             F (⟦ p ⟧ (lookup ϱ))
                 ≈⟨ end p endF ⟩
             ⟦ p ⟧ (F ∘ (lookup ϱ))
-                ≈⟨ sem-cong p (≡→≈ϱ (lookup-map F ϱ)) ⟨
+                ≈⟨ ⟦ p ⟧≈ (≡→≈ϱ (lookup-map F ϱ)) ⟨
             ⟦ p ⟧ (lookup (map F ϱ))
                 ≈⟨⟩
             ⟦ p ⟧ᵥ (map F ϱ)
@@ -261,6 +361,15 @@ Substitution and evalation commute.
 
 ```
 open Examples Σ
+```
+
+In this section we instantiate the above development to the three [example product rules](../ProductRules/\#sec:product-rules-examples)
+for the Hadamard, shuffle, and infiltration products,
+and show that we recover the corresponding products.
+
+## Hadamard product
+
+```
 module Hadamard where
 
     open Product ruleHadamard
@@ -274,7 +383,11 @@ module Hadamard where
             δ f a ⊙ δ g a ≈⟨⟩
             δ (f ⊙ g) a
         ∎ where open EqS            
+```
 
+## Shuffle product
+
+```
 module Shuffle where
 
     open Product ruleShuffle
@@ -288,7 +401,11 @@ module Shuffle where
             δ f a ⧢ g + f ⧢ δ g a ≈⟨⟩
             δ (f ⧢ g) a
         ∎ where open EqS   
+```
 
+## Infiltration product
+
+```
 module Infiltration where
 
     open Product ruleInfiltration
@@ -297,9 +414,12 @@ module Infiltration where
     ν-≈ (agree f g) = R-refl
     δ-≈ (agree f g) a =
         begin
-            δ (f * g) a ≈⟨⟩
-            δ f a * g + f * δ g a + δ f a * δ g a ≈⟨ agree _ _ ⟨ +-cong ⟩ (agree _ _ ⟨ +-cong ⟩ agree _ _) ⟩
-            δ f a ↑ g + f ↑ δ g a + δ f a ↑ δ g a ≈⟨⟩
+            δ (f * g) a
+                ≈⟨⟩
+            δ f a * g + f * δ g a + δ f a * δ g a
+                ≈⟨ +-cong₃ (agree _ _) (agree _ _) (agree _ _) ⟩
+            δ f a ↑ g + f ↑ δ g a + δ f a ↑ δ g a
+                ≈⟨⟩
             δ (f ↑ g) a
         ∎ where open EqS   
 ```
