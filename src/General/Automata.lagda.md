@@ -4,7 +4,6 @@ title: "Automata 🚧"
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- --allow-unsolved-metas
 ```
 
 Let `P` be a product rule.

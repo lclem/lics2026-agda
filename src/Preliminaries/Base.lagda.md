@@ -44,7 +44,7 @@ open import Data.Nat
     renaming (_+_ to _+ℕ_; _*_ to _*ℕ_)
     public
 
-open import Data.Fin.Base using (Fin; zero; suc; fromℕ; fromℕ<; fromℕ<″; _↑ˡ_; inject≤) public
+open import Data.Fin.Base using (Fin; zero; suc; fromℕ; fromℕ<; fromℕ<″; _↑ˡ_; _↑ʳ_; inject≤) public
 
 open import Data.Vec
     using (Vec; []; _∷_; _++_; lookup; map; truncate; tabulate; fromList; concat)

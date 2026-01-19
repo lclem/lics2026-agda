@@ -332,12 +332,29 @@ We can prove a ternary version of the congruence property for addition.
   }
 ```
 
-We define what it means for a function on series to be an endomorphism with respect to addition and zero.
+```
+≈-Invariance : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → Set
+≈-Invariance F = ∀ {f g} → f ≈ g → F f ≈ F g
+```
+
+We define what it means for a function on series to respect addition and zero.
 
 ```
 Endomorphic-+ Endomorphic-𝟘 : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → Set
 Endomorphic-+ F = ∀ {i} f g → F (f + g) ≈[ i ] F f + F g
 Endomorphic-𝟘 F = ∀ {i} → F 𝟘 ≈[ i ] 𝟘
+```
+
+For instance, left derivatives respect to addition and zero.
+
+```
+δˡ-end-𝟘 : ∀ a → Endomorphic-𝟘 (δˡ a)
+ν-≈ (δˡ-end-𝟘 a) = R-refl
+δ-≈ (δˡ-end-𝟘 a) b = δˡ-end-𝟘 a
+
+δˡ-end-+ : ∀ a → Endomorphic-+ (δˡ a)
+ν-≈ (δˡ-end-+ a f g) = R-refl
+δ-≈ (δˡ-end-+ a f g) b = δˡ-end-+ b (δ f a) (δ g a)
 ```
 
 # Scalar multiplication
@@ -423,6 +440,14 @@ We define what it means for a map of series to respect scalar multiplication.
 ```
 Endomorphic-· : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → Set
 Endomorphic-· F = ∀ {i} c f → F (c · f) ≈[ i ] c · F f
+```
+
+For instance, left derivatives respect scalar multiplication.
+
+```
+δˡ-end-· : ∀ a → Endomorphic-· (δˡ a)
+ν-≈ (δˡ-end-· a c f) = R-refl
+δ-≈ (δˡ-end-· a c f) b = δˡ-end-· b c (δ f a)
 ```
 
 # Additive inverses

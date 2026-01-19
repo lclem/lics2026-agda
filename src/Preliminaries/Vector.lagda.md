@@ -53,6 +53,12 @@ lookup-∈ :
 lookup-∈ (here a≡x) = zero , a≡x
 lookup-∈ (there a∈as) with lookup-∈ a∈as
 ... | i , eq = suc i , eq
+
+lookup-zero-++ :
+    ∀ (as : Vec A (suc m)) (bs : Vec A n) →
+    lookup as zero ≡ lookup (as ++ bs) zero
+
+lookup-zero-++ (a ∷ as) bs = refl
 ```
 
 ```
@@ -63,6 +69,11 @@ lookup-∈ (there a∈as) with lookup-∈ a∈as
     with ∈ᵥ-++ {a = a} {as = as} {bs = bs} a∈as++bs
 ... | inj₁ a∈as = inj₁ (there a∈as)
 ... | inj₂ a∈bs = inj₂ a∈bs
+
+∈-map⁻ : {f : A → B} → b ∈ map f as → ∃[ a ] a ∈ as × b ≡ f a
+∈-map⁻ {as = a ∷ _} (here b≡fa) = a , here refl , b≡fa
+∈-map⁻ {as = _ ∷ as} (there b∈) with ∈-map⁻ b∈
+... | a , as∈as , b≡fa = a , there as∈as , b≡fa
 
 ∈-tabulate⁻ : ∀ {v} {f : Fin n → A} → v ∈ tabulate f → ∃ λ i → v ≡ f i
 ∈-tabulate⁻ (here px) = zero , px

@@ -94,6 +94,50 @@ It will also be convenient to have a special syntax for six variables.
     ⟦ p ⟧⟨ f₀ , f₁ , f₂ , f₃ , f₄ , f₅ ⟩ = ⟦ p ⟧ᵥ (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ f₄ ∷ f₅ ∷ [])
 ```
 
+# `Q`-extensions
+
+For future use, we formalise what it means for a unary operation `F` on series (such as left derivatives)
+to *satisfy* a product rule `Q`.
+
+```
+    infix 10 _satisfies_
+    _satisfies_ : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → ProductRule → Set
+    F satisfies Q = ∀ (f g : A ⟪ Σ ⟫) → F (f * g) ≈ ⟦ Q ⟧⟨ f , F f , g , F g ⟩
+```
+
+A *`Q`-extension* is a linear endofunction on series
+that respects equivalence of series and satisfies the product rule `Q`.
+
+```
+    infix 10 _IsExt_
+    record _IsExt_ (F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫) (Q : ProductRule) : Set where
+        field
+            ≈-ext : ≈-Invariance F
+            𝟘-ext : Endomorphic-𝟘 F
+            ·-ext : Endomorphic-· F
+            +-ext : Endomorphic-+ F
+            *-ext : F satisfies Q
+
+    open _IsExt_ public
+```
+
+This is designed so that, by definition,
+left derivatives are `P`-extensions.
+
+```
+    δˡ-sat-P : ∀ a → (δˡ a) satisfies P
+    δˡ-sat-P a f g = ≈-refl
+
+    δˡ-ext : ∀ a → (δˡ a) IsExt P
+    δˡ-ext a = record {
+        ≈-ext = \ x → δ-≈ x a ;
+        𝟘-ext = δˡ-end-𝟘 a ;
+        ·-ext = δˡ-end-· a ;
+        +-ext = δˡ-end-+ a ;
+        *-ext = δˡ-sat-P a
+        }
+```
+
 # Invariance
 
 We show that the product and, more generally, the semantics of terms resepects equivalence of series.
@@ -235,7 +279,7 @@ which is proved by reduction to the latter.
 ```
     eval-substᵥ :
         ∀ (p : Term′ m) {qs : Substᵥ m X} {fs : SEnv X} →
-        ------------------------------------------------
+        -------------------------------------------------
         ⟦ substᵥ qs p ⟧ fs ≈ ⟦ p ⟧ᵥ (map (⟦_⟧ fs) qs)
 
     eval-substᵥ p {qs} {fs} =
@@ -336,7 +380,6 @@ We state a corresponding finite-variable version,
 which is proved by reduction to `end`.
 
 ```
-
     endᵥ :
         ∀ (p : Term′ n) (ϱ : SEnvᵥ n) →
         IsEndomorphism F {i} →
