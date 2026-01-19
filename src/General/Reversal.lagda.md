@@ -29,6 +29,9 @@ private variable
     i : Size
     m n k ℓ : ℕ
     f g : A ⟪ Σ ⟫ i
+    ϱ : Vec (A ⟪ Σ ⟫) k
+    Q : ProductRule
+    F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫
 ```
 
 # Right derivative
@@ -282,30 +285,46 @@ rev-end-· : Endomorphic-· rev
     ∎ where open EqS
 ```
 
-# Product rules
+# Right derivatives, reversal, and product rules {#sec:rev-product_rule}
 
 In this section we study the connection between
 
-- product rules satisfied by right derivatives, and
 - reversal preserving the product operation.
+- right derivatives satisfying a product rule.
+
+To this end, we fix a product rule `P` in order to fix the `P`-product operation.
 
 ```
 module Reversal (P : ProductRule) where
 
     open Product P
-
-    δʳ-sat-P : Set
-    δʳ-sat-P = ∀ a → (δʳ a) satisfies P
 ```
 
-## From reversal to a product rule
+We introduce an abbreviation for the property that right derivatives satisfy an arbitrary product rule.
+
+```
+    δʳ-satisfies_ : ProductRule → Set
+    δʳ-satisfies Q = ∀ a → (δʳ a) satisfies Q
+```
+
+## Characterisation {#sec:rev-product_rule-characterisation}
+
+The main result of this section is the following characterisation
+
+```
+    rev-end↔δʳ-P : IsEndomorphism rev iff δʳ-satisfies P
+```
+
+We prove the two directions separately.
+
+## From reversal to a product rule {#sec:rev-to-product_rule}
 
 We show that if reversal is an endomorphism,
-then the equation `δʳ-sat-P` holds.
+then the right derivatives satisfy the same product rule `P` as left derivatives.
 
 ``` 
-    end→P-rev : (end : IsEndomorphism rev) → δʳ-sat-P
-    end→P-rev end a f g =
+    rev-end→δʳ-P : IsEndomorphism rev → δʳ-satisfies P
+    rev-end→δʳ-P end a f g =
         begin
             δʳ a (f * g)
                 ≈⟨ δʳ-rev-rev _ _ ⟩
@@ -323,21 +342,25 @@ then the equation `δʳ-sat-P` holds.
         ∎ where open EqS
 ```
 
-## From product rule to reversal
+## From product rule to reversal {#sec:product_rule-to-rev}
 
-Viceversa, if the equation `δʳ-sat-P` holds,
+Viceversa, if right derivatives satisfy the same product rule `P` as left derivatives,
 then reversal is an endomorphism.
 
 ```
-    P-rev→end : (p-rev : δʳ-sat-P) → IsEndomorphism rev {i}
-    P-rev→end p-rev = record {
+    δʳ-P→rev-end : δʳ-satisfies P → IsEndomorphism rev {i}
+    δʳ-P→rev-end p-rev = record {
         𝟘-end = rev-end-𝟘;
         ·-end = rev-end-·;
         +-end = rev-end-+;
         *-end = rev-end-*
         } where
+```
 
-        rev-end-* : Endomorphic-* rev {i}
+The additional size parameter `i` is used to enable Agda to witness productivity.
+
+```
+        rev-end-* : Endomorphic-* rev
         ν-≈ (rev-end-* f g) = R-refl
         δ-≈ (rev-end-* f g) a =
             begin
@@ -346,7 +369,7 @@ then reversal is an endomorphism.
                 rev (δʳ a (f * g))
                     ≈⟨ rev-cong (p-rev a f g) ⟩
                 rev ⟦ P ⟧⟨ f , δʳ a f , g , δʳ a g ⟩
-                    ≈⟨ endᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (P-rev→end p-rev)⟩
+                    ≈⟨ endᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (δʳ-P→rev-end p-rev)⟩
                 ⟦ P ⟧⟨ rev f , rev (δʳ a f) , rev g , rev (δʳ a g) ⟩
                     ≈⟨⟩
                 ⟦ P ⟧⟨ rev f , δˡ a (rev f) , rev g , δˡ a (rev g) ⟩
@@ -355,17 +378,34 @@ then reversal is an endomorphism.
             ∎ where open EqS
 ```
 
-## Unary operators satisfying a product rule
+The proof is concluded by putting together the two directions above.
 
-Let `F` be a unary operator on series.
-If `F` satisfy a product rule,
-then `F` of `⟦ u ⟧ᵥ ϱ`
-is a polynomial function of `ϱ` and its image under `F`.
+```
+    rev-end↔δʳ-P = rev-end→δʳ-P ,, δʳ-P→rev-end
+```
 
-### Primed variables
+# Unary operators satisfying a product rule {#sec:unary-operators-product-rules}
+
+Let `F` be a unary operator on series and let `Q` be a product rule.
+If `F` is a `Q`-extension, then we can extend the product rule to arbitrary terms.
+
+```
+    ext-lem :
+        ∀ ϱ →
+        F IsExt Q →
+        (u : Term′ k) →
+        -------------------------------------------
+        ∃[ v ] F (⟦ u ⟧ᵥ ϱ) ≈ ⟦ v ⟧ᵥ (ϱ ++ᵥ map F ϱ)
+```
+
+In order to prove the lemma,
+we will to introduce some auxiliary notions.
+
+## Primed variables
 
 We begin by defining a facility to extend variables and terms.
-If `x` is a variable, then `x ′` is a copy of `x` on the right.
+If `x` is a variable belonging to a set of `k` variables,
+then `x ′` is a (right) copy of `x` in a set of `ℓ + k` variables.
 
 ```
     infix 10 _′
@@ -407,91 +447,85 @@ We will use the following specialisation of `prime-lemma₀`.
         ∎ where open EqS
 ```
 
-### Extended terms
+## Extended terms
 
-We allow variables to appear in larger sets of variables.
-We keep the same index but in a larger finite set.
-
-```
-    infix 10 ′_
-    ′_ : Var k → Var (k +ℕ ℓ)
-    ′_ {ℓ = ℓ} x = x ↑ˡ ℓ
-```
-
-The following is the crucial property of `′ x`.
+We allow variables to appear in larger sets of variables,
+by keeping the same index but in a larger finite set.
+Thus if `x` is a variable in a set of `k` variables,
+then `′-var x` is the same variable in a set of `k + ℓ` variables. 
 
 ```
-    ext-var-lem :
+    ′-var : Var k → Var (k +ℕ ℓ)
+    ′-var {ℓ = ℓ} x = x ↑ˡ ℓ
+```
+
+The following is the crucial property of `′-var x`.
+
+```
+    ′-var-lem :
         ∀ (x : Var k) ϱ (η : Vec (A ⟪ Σ ⟫) ℓ) →
         --------------------------------------------
-        ⟦ var x ⟧ᵥ ϱ ≈ ⟦ var (′ x) ⟧ᵥ (ϱ ++ᵥ η)
+        ⟦ var x ⟧ᵥ ϱ ≈ ⟦ var (′-var x) ⟧ᵥ (ϱ ++ᵥ η)
 
-    ext-var-lem zero ϱ η =
+    ′-var-lem zero ϱ η =
         begin
             lookup ϱ zero
                 ≡⟨ lookup-zero-++ ϱ η ⟩
             lookup (ϱ ++ᵥ η) zero
         ∎ where open EqS
         
-    ext-var-lem (suc x) (_ ∷ ϱ) η = ext-var-lem x ϱ η
+    ′-var-lem (suc x) (_ ∷ ϱ) η = ′-var-lem x ϱ η
 ```
 
 We extend this operation to all terms.
 
 ```
-    ext : Term′ k → Term′ (k +ℕ k)
-    ext 0T = 0T
-    ext (var x) = var (′ x)
-    ext (c [·] u) = c [·] ext u
-    ext (u [+] v) = ext u [+] ext v
-    ext (u [*] v) = ext u [*] ext v
+    infix 30 ′_
+    ′_ : Term′ k → Term′ (k +ℕ k)
+    ′ 0T = 0T
+    ′ (var x) = var (′-var x)
+    ′ (c [·] u) = c [·] ′ u
+    ′ (u [+] v) = ′ u [+] ′ v
+    ′ (u [*] v) = ′ u [*] ′ v
 ```
 
-The crucial property is that the semantics of the extended term
+The crucial property is that the semantics of the extended term (in any environment extension)
 equals the semantics of the original one.
 
 ```
-    ext-lem :
+    ′-lem :
         ∀ (u : Term′ k) ϱ η →
         ------------------------------
-        ⟦ u ⟧ᵥ ϱ ≈ ⟦ ext u ⟧ᵥ (ϱ ++ᵥ η)
+        ⟦ u ⟧ᵥ ϱ ≈ ⟦ ′ u ⟧ᵥ (ϱ ++ᵥ η)
 
-    ext-lem 0T ϱ η = ≈-refl
+    ′-lem 0T ϱ η = ≈-refl
 
-    ext-lem (var x) ϱ η = ext-var-lem x ϱ η
+    ′-lem (var x) ϱ η = ′-var-lem x ϱ η
 
-    ext-lem (c [·] u) ϱ η
-        with ext-lem u ϱ η
+    ′-lem (c [·] u) ϱ η
+        with ′-lem u ϱ η
     ... | ass = R-refl ·≈ ass
 
-    ext-lem (u [+] v) ϱ η
-        with ext-lem u ϱ η | ext-lem v ϱ η
+    ′-lem (u [+] v) ϱ η
+        with ′-lem u ϱ η | ′-lem v ϱ η
     ... | ass-u | ass-v = ass-u +≈ ass-v
 
-    ext-lem (u [*] v) ϱ η
-        with ext-lem u ϱ η | ext-lem v ϱ η
+    ′-lem (u [*] v) ϱ η
+        with ′-lem u ϱ η | ′-lem v ϱ η
     ... | ass-u | ass-v = ass-u *≈ ass-v
 ```
 
-### `Q`-extensions
+## `Q`-extensions
 
-Let `Q` be a product rule and `F` a unary operator on series.
-If `F` is a `Q`-extension, then we can extend the product rule to arbitrary terms.
+We are finally ready to prove `ext-lem`.
 
-```
-    extension-lem :
-        ∀ ϱ {F Q} →
-        F IsExt Q →
-        (u : Term′ k) →
-        -------------------------------------------
-        ∃[ v ] F (⟦ u ⟧ᵥ ϱ) ≈ ⟦ v ⟧ᵥ (ϱ ++ᵥ map F ϱ)
-    
-    extension-lem ϱ isExt 0T = 0T ,, isExt .𝟘-ext
+```   
+    ext-lem ϱ isExt 0T = 0T ,, isExt .𝟘-ext
 
-    extension-lem ϱ isExt (var x) = var (x ′) ,, prime-lemma x _ ϱ
+    ext-lem ϱ isExt (var x) = var (x ′) ,, prime-lemma x _ ϱ
 
-    extension-lem ϱ {F} isExt (c [·] u)
-        with extension-lem ϱ isExt u
+    ext-lem {F = F} ϱ isExt (c [·] u)
+        with ext-lem ϱ isExt u
     ... | u′ ,, ass = c [·] u′ ,, it where
         it =
             begin
@@ -506,8 +540,8 @@ If `F` is a `Q`-extension, then we can extend the product rule to arbitrary term
                 ⟦ c [·] u′ ⟧ᵥ (ϱ ++ᵥ map F ϱ)
             ∎ where open EqS
 
-    extension-lem ϱ {F} isExt (u [+] v)
-        with extension-lem ϱ isExt u | extension-lem ϱ isExt v
+    ext-lem {F = F} ϱ isExt (u [+] v)
+        with ext-lem ϱ isExt u | ext-lem ϱ isExt v
     ... | u′ ,, ass-u | v′ ,, ass-v = (u′ [+] v′) ,, it where
 
             it = begin
@@ -522,15 +556,15 @@ If `F` is a `Q`-extension, then we can extend the product rule to arbitrary term
                 ⟦ u′ [+] v′ ⟧ᵥ (ϱ ++ᵥ map F ϱ)
                 ∎ where open EqS
 
-    extension-lem ϱ {F} {Q} isExt (u [*] v)
-        with extension-lem ϱ isExt u | extension-lem ϱ isExt v
+    ext-lem {F = F} {Q} ϱ isExt (u [*] v)
+        with ext-lem ϱ isExt u | ext-lem ϱ isExt v
     ... | u′ ,, ass-u | v′ ,, ass-v
-        = [ Q ]⟨ ext u , u′ , ext v , v′ ⟩ ,, it where
+        = [ Q ]⟨ ′ u , u′ , ′ v , v′ ⟩ ,, it where
 
         η = ϱ ++ᵥ map F ϱ
 
-        ext-u = ext-lem u ϱ (map F ϱ)
-        ext-v = ext-lem v ϱ (map F ϱ)
+        ext-u = ′-lem u ϱ (map F ϱ)
+        ext-v = ′-lem v ϱ (map F ϱ)
 
         it = begin
             F (⟦ u [*] v ⟧ᵥ ϱ)
@@ -539,9 +573,9 @@ If `F` is a `Q`-extension, then we can extend the product rule to arbitrary term
                 ≈⟨ isExt .*-ext _ _ ⟩
             ⟦ Q ⟧⟨ ⟦ u ⟧ᵥ ϱ , F (⟦ u ⟧ᵥ ϱ) , ⟦ v ⟧ᵥ ϱ , F (⟦ v ⟧ᵥ ϱ) ⟩
                 ≈⟨ ⟦ Q ⟧≈ᵥ [ ext-u , ass-u , ext-v , ass-v ] ⟩
-            ⟦ Q ⟧⟨ ⟦ ext u ⟧ᵥ η , ⟦ u′ ⟧ᵥ η , ⟦ ext v ⟧ᵥ η , ⟦ v′ ⟧ᵥ η ⟩
+            ⟦ Q ⟧⟨ ⟦ ′ u ⟧ᵥ η , ⟦ u′ ⟧ᵥ η , ⟦ ′ v ⟧ᵥ η , ⟦ v′ ⟧ᵥ η ⟩
                 ≈⟨ eval-substᵥ Q {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟨
-            ⟦ [ Q ]⟨ ext u , u′ , ext v , v′ ⟩ ⟧ᵥ η
+            ⟦ [ Q ]⟨ ′ u , u′ , ′ v , v′ ⟩ ⟧ᵥ η
             ∎ where open EqS
 ```
 
@@ -550,7 +584,7 @@ If `F` is a `Q`-extension, then we can extend the product rule to arbitrary term
 We show that if right derivatives satisfy *any* product rule (not necessarily `P`),
 then `P`-finite series are closed under right derivatives.
 
-In particular, by the previous section this is the case when reversal is an endomorphism.
+In particular, by the [previous section](#sec:rev-to-product_rule) this is the case when reversal is an endomorphism.
 
 ```
     open import Data.Product.Base using (∃; ∃-syntax; _,_)
@@ -559,35 +593,44 @@ In particular, by the previous section this is the case when reversal is an endo
     open import General.FinitelyGenerated R Σ P
 ```
 
+## General case
+
 We begin with a general lemma, showing that if `F` is a `Q`-extension
 and `f` is generated by `ϱ`,
 then `F f` is generated by the same set together with their images under `F`.
 
 ```
     F-closed :
-        ∀ {ϱ : Vec (A ⟪ Σ ⟫) k} {f} {F} {Q} →
         F IsExt Q →
         f ∈[ ϱ ] →
         -------------------------------------
         F f ∈[ ϱ ++ᵥ map F ϱ ]
+```
 
-    F-closed {ϱ = ϱ} {f} {F} {Q} isExt f∈[ϱ] = step₁ where
+The proof uses `ext-lem` from the [previous section](#sec:unary-operators-product-rules).
+
+```
+    F-closed {F = F} {Q = Q} {f = f} {ϱ = ϱ} isExt f∈[ϱ] = step₁ where
 
         ϱ′ = map F ϱ
         ϱ′′ = ϱ ++ᵥ ϱ′
 
         -- witnessing term of f ∈[ ϱ ]
+        α-all = extract _ _ f∈[ϱ]
+
         α : Term′ _
-        α = fst (extract _ _ f∈[ϱ])
+        α = fst α-all
 
         α-sound : f ≈ ⟦ α ⟧ᵥ ϱ
-        α-sound = snd (extract _ _ f∈[ϱ])
+        α-sound = snd α-all
     
+        β-all = ext-lem ϱ isExt α
+
         β : Term′ _
-        β = fst (extension-lem ϱ isExt α)
+        β = fst β-all
 
         β-sound : F (⟦ α ⟧ᵥ ϱ) ≈ ⟦ β ⟧ᵥ ϱ′′
-        β-sound = snd (extension-lem ϱ isExt α)
+        β-sound = snd β-all
 
         αβ-sound : F f ≈ ⟦ β ⟧ᵥ ϱ′′
         αβ-sound =
@@ -606,18 +649,24 @@ then `F f` is generated by the same set together with their images under `F`.
         step₁ = αβ-sound ≈∈ step₀
 ```
 
-We apply this lemma to show closure under right derivatives,
-whenever they satisfy *any* product rule (not necessarily `P`).
+## Right derivatives {#sec:closure-right-derivatives}
+
+We apply `F-closed` to show closure under right derivatives,
+whenever they satisfy *any* product rule `Q` (not necessarily `P`).
 
 ```
     δʳ-closed :
-        ∀ Q {b} {ϱ : Vec (A ⟪ Σ ⟫) k} {f} →
-        (∀ a → δʳ a satisfies Q) →
+        ∀ Q b →
+        δʳ-satisfies Q →
         f ∈[ ϱ ] →
         ----------------------------------
         δʳ b f ∈[ ϱ ++ᵥ map (δʳ b) ϱ ]
-    
-    δʳ-closed Q {b} δʳ-sat f∈[ϱ] = F-closed xt f∈[ϱ] where
+```
+
+The proof is just an application of `F-closed` with `F = δʳ b`.
+
+```
+    δʳ-closed Q b δʳ-sat f∈[ϱ] = F-closed xt f∈[ϱ] where
 
         xt : (δʳ b) IsExt Q
         xt = record {
@@ -628,19 +677,28 @@ whenever they satisfy *any* product rule (not necessarily `P`).
             *-ext = δʳ-sat b }
 ```
 
+## `P`-finiteness {#sec:right-derivatives-P-fin}
+
 Consequently, `P`-finite series are closed under right derivatives,
-whenever the latter satisfy a product rule.
+whenever the latter satisfy any product rule `Q`.
+For instance, this is the case when reversal is an endomorphism.
 This relies on the fact that left and right derivatives commute.
 
 ```
     P-fin-δʳ :
         ∀ Q →
-        (∀ a → δʳ a satisfies Q) →
+        δʳ-satisfies Q →
         P-fin f k →
-        ∀ b → 
-        --------------------------
+        ∀ b →
+        -----------------------
         P-fin (δʳ b f) (k +ℕ k)
+```
 
+The proof proceeds as follows.
+Let `fs` be the generators for `f`, and let `gs` be their right derivative.
+Then the right derivative of `f` is generated by `fs ++ᵥ gs`.
+
+```
     P-fin-δʳ {f = f} {k = k} Q p-δʳ F b =
         P-fin[ fs ++ᵥ gs , lem1 , lem2 ]
         where
@@ -650,7 +708,7 @@ This relies on the fact that left and right derivatives commute.
         gs = map (δʳ b) fs
 
         lem1 : δʳ b f ∈[ fs ++ᵥ gs ]
-        lem1 = δʳ-closed Q p-δʳ (memb F)
+        lem1 = δʳ-closed Q b p-δʳ (memb F)
 
         -- g ∈ gs means that g is of the form δʳ b h for some h ∈ fs
         wit : g ∈ gs → ∃[ h ] h ∈ fs × g ≡ δʳ b h
@@ -686,8 +744,28 @@ This relies on the fact that left and right derivatives commute.
             δˡh∈[fs] = closed F a h∈fs
 
             δʳδˡh∈[fs++gs] : δʳ b (δ h a) ∈[ fs ++ᵥ gs ]
-            δʳδˡh∈[fs++gs] = δʳ-closed Q p-δʳ δˡh∈[fs]
+            δʳδˡh∈[fs++gs] = δʳ-closed Q b p-δʳ δˡh∈[fs]
 
             δga∈[fs++gs] : δ g a ∈[ fs ++ᵥ gs ]
             δga∈[fs++gs] = δˡg≈δʳδˡh ≈∈ δʳδˡh∈[fs++gs]
+```
+
+## Putting it all together {#sec:rev-end-right-derivatives-P-fin}
+
+By combining all the results above,
+we have that if reversal is an endomorphism,
+then `P`-finite series are closed under right derivatives.
+
+Formally, we have the following
+
+```
+    rev-end→P-fin :
+        IsEndomorphism rev →
+        P-fin f k →
+        ∀ b →
+        -----------------------
+        P-fin (δʳ b f) (k +ℕ k)
+    
+    rev-end→P-fin rev-end f-P-fin b =
+        P-fin-δʳ P (rev-end→δʳ-P rev-end) f-P-fin b
 ```

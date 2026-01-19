@@ -8,8 +8,7 @@ motivating a general definition of a product rule.
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 
-open import Preliminaries.Base
-
+open import Preliminaries.Base hiding (_×_)
 module General.ProductRules (R : CommutativeRing) where
 
 open import Size

@@ -18,11 +18,11 @@ open import Relation.Binary.Structures public
 open import Relation.Binary.Definitions using (WeaklyDecidable) public
 open import Function.Base using (id; _∘_; _$_) public
 
+-- open import Function.Bundles using (_↔_) public
+
 open import Relation.Binary.PropositionalEquality
     using (_≡_; refl; cong; cong₂; sym; trans)
     renaming (isEquivalence to ≡-isEq) public
-
--- open ≡-Eq.≡-Reasoning public -- using (begin_; _≡⟨⟩_; step-≡; _∎)
 
 module ≡-Eq where
     open Relation.Binary.PropositionalEquality.≡-Reasoning public
@@ -34,8 +34,12 @@ open import Data.Empty public
 
 open import Data.Maybe.Base using (Maybe; just; nothing) public
 
-open import Data.Product using (∃) public
+open import Data.Product using (∃; _×_) public
 open import Data.Product.Base using (∃-syntax) renaming (_,_ to _,,_) public
+
+infix 4 _iff_
+_iff_ : (A B : Set) → Set
+A iff B = (A → B) × (B → A)
 
 open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎) public
 
