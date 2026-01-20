@@ -8,7 +8,7 @@ title:  🚧
 open import Preliminaries.Base
 import Preliminaries.Algebra
 
-module Preliminaries.PolyExpr.Naturals (R : CommutativeRing) where
+module Preliminaries.Naturals (R : CommutativeRing) where
 
 open import Preliminaries.Algebra R
 open import Data.Nat.Base

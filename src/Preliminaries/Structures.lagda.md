@@ -7,7 +7,7 @@ open import Relation.Binary.Core using (Rel)
 open import Relation.Binary.Bundles using (Setoid)
 open import Relation.Binary.Structures using (IsEquivalence)
 
-module Preliminaries.Algebra.Structures
+module Preliminaries.Structures
   {a ℓ} {A : Set a}  -- The underlying set
   (_≈_ : Rel A ℓ)    -- The underlying equality relation
   where

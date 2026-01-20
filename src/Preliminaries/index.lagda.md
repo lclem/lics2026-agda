@@ -4,7 +4,6 @@ title: "Preliminaries 🚧"
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- --allow-unsolved-metas
 
 module Preliminaries.index where
 ```
@@ -12,14 +11,12 @@ module Preliminaries.index where
 In this part we preliminariate.
 
 ```
-import Preliminaries.Integers
-import Preliminaries.PolyExpr
-import Preliminaries.PolyExpr.DecidableEquivalence
-import Preliminaries.Vector
+import Preliminaries.Base
 import Preliminaries.List
+import Preliminaries.Vector
 import Preliminaries.Equivalence
 import Preliminaries.Algebra
-import Preliminaries.Base
-
-import Relation.Binary.PropositionalEquality
+import Preliminaries.Integers
+import Preliminaries.PolyExpr
+import Preliminaries.DecidableEquivalence
 ```

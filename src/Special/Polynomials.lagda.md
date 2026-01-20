@@ -543,7 +543,7 @@ subst-inv′ᵥ p {ϱ} {η} ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
 -- ... | just p' | just q' = just $ p' * q'
 -- ... | _ | _ = nothing
 
--- open import Preliminaries.PolyExpr.Integers R
+-- open import Preliminaries.Integers R
 --     using (_≟′_)
 --     -- renaming (_≟_ to _≟′_)
 

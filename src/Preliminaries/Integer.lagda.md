@@ -6,7 +6,7 @@ title: 🚧
 open import Preliminaries.Base
 import Preliminaries.Algebra
 
-module Preliminaries.PolyExpr.Integer (R : CommutativeRing)
+module Preliminaries.Integer (R : CommutativeRing)
     where
 
 open import Algebra
@@ -42,7 +42,7 @@ import Data.Nat.Properties as ℕ
 open import Data.Integer.Base as ℤ using (ℤ; +_)
 open import Data.Integer.Properties as ℤ
 
-open import Preliminaries.PolyExpr.Homomorphism -- ℤ.+-*-commutativeRing R
+open import Preliminaries.Homomorphism -- ℤ.+-*-commutativeRing R
 ```
 
 The integers map homomorphically to every commutative ring.

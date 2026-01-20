@@ -6,7 +6,7 @@ title: Auxiliary lemmas 🚧
 -- {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base hiding (refl; sym; trans)
-module Preliminaries.Algebra.AuxiliaryLemmas (R : CommutativeRing) where
+module Preliminaries.AuxiliaryLemmas (R : CommutativeRing) where
 
 open import Algebra
 open CommutativeRing R

@@ -9,7 +9,7 @@ open import Preliminaries.Base
 module Preliminaries.Algebra (R : CommutativeRing) where
 
 open import Algebra renaming (CommutativeRing to CR) public
-open import Preliminaries.Algebra.Structures using (IsCommutativeRingWithoutOne) public
+open import Preliminaries.Structures using (IsCommutativeRingWithoutOne) public
 
 module _ where
 

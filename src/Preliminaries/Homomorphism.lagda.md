@@ -7,7 +7,7 @@ title: 🚧
 
 open import Preliminaries.Base
 
-module Preliminaries.PolyExpr.Homomorphism
+module Preliminaries.Homomorphism
     (R : CommutativeRing)
     (S : CommutativeRing)
     where
@@ -81,7 +81,7 @@ module _
     where
 
     open IsRingHom isRingHom
-    open import Preliminaries.Algebra.AuxiliaryLemmas S
+    open import Preliminaries.AuxiliaryLemmas S
     open import Preliminaries.Equivalence isEquivalenceS
 
     -‿hom : ∀ a → φ (-R a) ≈S (-S (φ a))

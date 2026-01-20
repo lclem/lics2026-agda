@@ -8,7 +8,7 @@ title: Decidability of equivalence of polynomial expressions 🚧
 open import Preliminaries.Base
 import Preliminaries.Algebra
 
-module Preliminaries.PolyExpr.DecidableEquivalence
+module Preliminaries.DecidableEquivalence
     (R : CommutativeRing)
     (_R≟_ : let open Preliminaries.Algebra R in WeaklyDecidable _≈R_)
     where
@@ -22,7 +22,7 @@ private variable
     m n : ℕ
 
 module AuxLem {n : ℕ} where
-    open import Preliminaries.Algebra.AuxiliaryLemmas (PECommRing {n}) public
+    open import Preliminaries.AuxiliaryLemmas (PECommRing {n}) public
 
 open AuxLem
 ```
