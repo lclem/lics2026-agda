@@ -23,7 +23,8 @@ In [FinitelyGenerated](../FinitelyGenerated) we study the resulting notion of *`
 and in [Automata](../Automata) we study *`P`-automata*.
 This culminates with a proof of the [coincidence](../Automata#sec:coincidence) of `P`-finite series and series recognized by `P`-automata.
 
-Finally, in [Reversal](../Reversal) we study right derivatives and reversals of formal series.
+Finally, in [Reversal](../Reversal) we study right derivatives and reversals of formal series,
+and in [ReversalEnd](../ReversalEnd) we study what happens when reversal is an endomorphism.
 
 ```
 import General.Series
@@ -33,4 +34,5 @@ import General.Products
 import General.FinitelyGenerated
 import General.Automata
 import General.Reversal
+import General.ReversalEnd
 ```

@@ -2,6 +2,13 @@
 title: Reversal endomorphism 🚧
 ---
 
+In this section we provide a characterisation of when reversal is an endomorphism of the series algebra.
+When this is the case, [we show](#sec:rev-end-right-derivatives-P-fin)
+that `P`-finite series are closed under right derivatives.
+We then discuss an [automata-based characterisation](#sec:automata).
+
+Our developement is parametrised by a product rule `P`.
+
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 
@@ -43,9 +50,6 @@ In this section we study the connection between
 - reversal preserving the product operation.
 - right derivatives satisfying a product rule.
 
-To this end, we fix a product rule `P` in order to fix the `P`-product operation.
-
-
 We introduce an abbreviation for the property that right derivatives satisfy an arbitrary product rule.
 
 ```
@@ -68,7 +72,7 @@ We prove the two directions separately.
 We show that if reversal is an endomorphism,
 then the right derivatives satisfy the same product rule `P` as left derivatives.
 
-``` 
+```
 rev-end→δʳ-P : IsEndomorphism rev → δʳ-satisfies P
 rev-end→δʳ-P end a f g =
     begin
@@ -171,7 +175,7 @@ prime-lemma₀ x [] η = ≈-refl
 prime-lemma₀ x (_ ∷ ϱ) η = prime-lemma₀ x ϱ η
 ```
 
-We will use the following specialisation of `prime-lemma₀`.
+We will use the following specialisation of !ref(prime-lemma₀).
 
 ```
 prime-lemma :
@@ -205,7 +209,7 @@ then `′-var x` is the same variable in a set of `k + ℓ` variables.
 ′-var {ℓ = ℓ} x = x ↑ˡ ℓ
 ```
 
-The following is the crucial property of `′-var x`.
+The following is the crucial property of !ref(′-var x).
 
 ```
 ′-var-lem :
@@ -263,7 +267,7 @@ equals the semantics of the original one.
 
 ## `Q`-extensions
 
-We are finally ready to prove `ext-lem`.
+We are finally ready to prove !ref(ext-lem).
 
 ```   
 ext-lem ϱ isExt 0T = 0T ,, isExt .𝟘-ext
@@ -330,7 +334,8 @@ ext-lem {G = G} {Q} ϱ isExt (u [*] v)
 We show that if right derivatives satisfy *any* product rule (not necessarily `P`),
 then `P`-finite series are closed under right derivatives.
 
-In particular, by the [previous section](#sec:rev-to-product_rule) this is the case when reversal is an endomorphism.
+In particular, by !ref(rev-end↔δʳ-P) in the [previous section](#sec:rev-to-product_rule)
+this is the case when reversal is an endomorphism.
 
 ```
 open import Data.Product.Base using (∃; ∃-syntax; _,_)
@@ -353,7 +358,7 @@ G-closed :
     G f ∈[ ϱ ++ᵥ map G ϱ ]
 ```
 
-The proof uses `ext-lem` from the [previous section](#sec:unary-operators-product-rules).
+The proof uses !ref(ext-lem) from the [previous section](#sec:unary-operators-product-rules).
 
 ```
 G-closed {G = G} {Q = Q} {f = f} {ϱ = ϱ} isExt f∈[ϱ] = step₁ where
@@ -397,7 +402,7 @@ G-closed {G = G} {Q = Q} {f = f} {ϱ = ϱ} isExt f∈[ϱ] = step₁ where
 
 ## Right derivatives {#sec:closure-right-derivatives}
 
-We apply `G-closed` to show closure under right derivatives,
+We apply !ref(G-closed) to show closure under right derivatives,
 whenever they satisfy *any* product rule `Q` (not necessarily `P`).
 
 ```
@@ -409,7 +414,7 @@ whenever they satisfy *any* product rule `Q` (not necessarily `P`).
     δʳ b f ∈[ ϱ ++ᵥ map (δʳ b) ϱ ]
 ```
 
-The proof is just an application of `G-closed` with `G = δʳ b`.
+The proof is just an application of !ref(G-closed) with `G = δʳ b`.
 
 ```
 δʳ-closed Q b δʳ-sat f∈[ϱ] = G-closed xt f∈[ϱ] where
@@ -516,14 +521,17 @@ rev-end→P-fin rev-end f-P-fin b =
     P-fin-δʳ P (rev-end→δʳ-P rev-end) f-P-fin b
 ```
 
-# Automata-based characterisation
+# Automaton-based characterisation {#sec:automata}
+
+In this section we characterise !ref(δʳ-satisfies P) with `P`-automata.
+It will provide a stepping stone towards showing decidability 
 
 ```
 open Inductive
 open import General.Automata R Σ P
 ```
 
-## Automaton for right derivatives
+## Automaton for left and right derivatives
 
 ```
 infix 8 _x[_]_
@@ -538,6 +546,8 @@ S : TermAut *X*
 F S (u x[ f ] v) = f ⟨ u ++ reverse v ⟩
 Δ S = Δˡ
 ```
+
+## Properties of the automaton {#sec:automaton:properties}
 
 ```
 var-lemma-coeff :
@@ -558,8 +568,11 @@ var-lemma-coeff u f v (a ∷ w) =
             ≡⟨ cong (λ w → f ⟨ w ⟩) (∷ʳ-++-++ u a w (reverse v)) ⟩
         f ⟨ u ++ a ∷ w ++ reverse v ⟩
     ∎ where open ≡-Eq
+```
 
--- semantics of a variable
+The construction of the automaton `S` is meant to satisfy the following property.
+
+```
 var-lemma : ∀ u f v →
     ----------------------------------------
     S ⟦ var (u x[ f ] v) ⟧ ≈ δˡ* u (δʳ* v f)
@@ -575,7 +588,7 @@ var-lemma u f v = series-ext λ w → EqR.≡→≈ (helper w) where
         ∎ where open ≡-Eq
 ```
 
-We will use the following special case of `var-lemma`.
+We will use the following special case of !ref(var-lemma).
 
 ```
 var-lemma-simple : ∀ f → S ⟦ var (ε x[ f ] ε) ⟧ ≈ f
@@ -584,7 +597,7 @@ var-lemma-simple f = var-lemma ε f ε
 
 ## Equivalent conditions
 
-We introduce two additional conditions and we show their equivalence to `δʳ-satisfies P`.
+We introduce two additional conditions and we show their equivalence to !ref(δʳ-satisfies P).
 
 The first condition relates right derivatives and `Δʳ`.
 The additional size parameter is used to enable Agda to witness productivity.
@@ -602,7 +615,19 @@ is invariant under swapping `Δʳ` and `Δˡ`.
 Δʳ-Δˡ = ∀ a b α → S ⟦ Δʳ b ↑ (Δˡ a ↑ α) ⟧ ≈ S ⟦ Δˡ a ↑ (Δʳ b ↑ α) ⟧
 ```
 
-### First equivalence proof {#sec:product_rule-equivalence-1}
+We now show the following equivalences.
+
+```
+automata-char-lemma : IsEndomorphism rev iff δʳ-Δʳ × δʳ-Δʳ iff Δʳ-Δˡ
+```
+
+### First equivalence {#sec:product_rule-equivalence-1}
+
+We begin with the first half of !ref(automata-char-lemma).
+We show that !ref(δʳ-Δʳ) is equivalent to !ref(δʳ-satisfies P),
+and then use  !ref(rev-end↔δʳ-P) to conclude.
+
+We prove two implications.
 
 ```
 δʳP→δʳ-Δʳ : δʳ-satisfies P → δʳ-Δʳ
@@ -678,6 +703,8 @@ is invariant under swapping `Δʳ` and `Δˡ`.
     ∎ where open EqS
 ```
 
+We now prove the other direction.
+
 ```
 δʳ-Δʳ→δʳP : δʳ-Δʳ → δʳ-satisfies P
 δʳ-Δʳ→δʳP ass b f g =
@@ -703,9 +730,9 @@ is invariant under swapping `Δʳ` and `Δˡ`.
     ∎ where open EqS 
 ```
 
-### Second equivalence proof {#sec:product_rule-equivalence-2}
+### Second equivalence {#sec:product_rule-equivalence-2}
 
-We show that condition `δʳ-Δʳ` implies `Δʳ-Δˡ`.
+We show that condition !ref(δʳ-Δʳ) implies !ref(Δʳ-Δˡ).
 This is very easy, since left and right derivatives commute.
 
 ```
@@ -721,9 +748,9 @@ This is very easy, since left and right derivatives commute.
     ∎ where open EqS
 ```
 
-### Third equivalence proof {#sec:product_rule-equivalence-3}
+### Third equivalence {#sec:product_rule-equivalence-3}
 
-We show the converse to `δʳ-Δʳ→Δʳ-Δˡ` above.
+We show the converse to !ref(δʳ-Δʳ→Δʳ-Δˡ) above.
 
 ```
 open Semantics renaming (⟦_⟧_ to T⟦_⟧_; ⟦_⟧⟨_,_,_,_⟩ to T⟦_⟧⟨_,_,_,_⟩)
@@ -835,3 +862,8 @@ We can finally show that `Δʳ-Δˡ` implies `δʳ-Δʳ`.
     ∎ where open EqS
 ```
 
+We now prove !ref(automata-char-lemma).
+
+```
+automata-char-lemma = (δʳP→δʳ-Δʳ ∘ rev-end→δʳ-P , δʳ-P→rev-end ∘ δʳ-Δʳ→δʳP) , (δʳ-Δʳ→Δʳ-Δˡ , Δʳ-Δˡ→δʳ-Δʳ)
+```
