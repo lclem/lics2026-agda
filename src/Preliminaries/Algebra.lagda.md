@@ -11,6 +11,9 @@ module Preliminaries.Algebra (R : CommutativeRing) where
 open import Algebra renaming (CommutativeRing to CR) public
 open import Preliminaries.Structures using (IsCommutativeRingWithoutOne) public
 
+private variable
+    ℓ m : Level
+
 module _ where
 
     open CR R renaming (refl to R-refl; sym to R-sym; trans to R-trans)
@@ -200,7 +203,9 @@ open CR R renaming
     +-isMonoid to +R-isMonoid;
     +-isGroup to +R-isGroup;
     +-isAbelianGroup to +R-isAbelianGroup;
+    *-isSemigroup to *R-isSemigroup;
     *-isMonoid to *R-isMonoid;
+    *-isCommutativeSemigroup to *R-isCommutativeSemigroup;
     *-isCommutativeMonoid to *R-isCommutativeMonoid;
     isRing to R-isRing;
     isRingWithoutOne to R-isRingWithoutOne;
@@ -209,7 +214,7 @@ open CR R renaming
 ```
 
 ```
-Op₁₁ : ∀ {ℓ} → Set ℓ → Set ℓ → Set ℓ
+Op₁₁ : Set ℓ → Set ℓ → Set ℓ
 Op₁₁ A B = A → B → B
 
 module _ {M : Set} (_≈_ : M → M → Set) where
@@ -225,20 +230,33 @@ module _ {M : Set} (_≈_ : M → M → Set) where
 
         field
             +-isAbelianGroup : IsAbelianGroup _≈_ _+_ 0# -_
-
             ·-cong : ∀ {c d} {x y} → c ≈R d → x ≈ y → (c · x) ≈ (d · y)
             distribˡ : ∀ x y z → (x · (y + z)) ≈ ((x · y) + (x · z))
             distribʳ : ∀ x y z → ((y +R z) · x) ≈ ((y · x) + (z · x))
             combatible : ∀ x y z → ((x *R y) · z) ≈ (x · (y · z))
             identity : ∀ x → (1R · x) ≈ x
 
-    -- associative, commutative, unital algebra
+    -- isCommutativeSemiring : IsCommutativeSemiring + * 0# 1#
+    -- isCommutativeSemiring = record
+    --     { isSemiring = isSemiring
+    --     ; *-comm = *-comm
+    --     }
+
+    -- open IsCommutativeSemiring isCommutativeSemiring public
+    --     using
+    --     ( isCommutativeSemiringWithoutOne
+    --     ; *-isCommutativeMagma
+    --     ; *-isCommutativeSemigroup
+    --     ; *-isCommutativeMonoid
+    --     )
+
+    -- associative, commutative algebra
     record IsAlgebra
-        (_+_ _*_ : Op₂ M) (-_ : Op₁ M) (0# 1# : M)
+        (_+_ _*_ : Op₂ M) (-_ : Op₁ M) (0# : M)
         (_·_ : A → M → M) : Set where
 
         field
-            isRing : IsCommutativeRing _≈_ _+_ _*_ -_ 0# 1#            
+            isCommutativeRingWithoutOne : IsCommutativeRingWithoutOne _≈_ _+_ _*_ -_ 0#       
             isLeftModule : IsLeftModule _+_ -_ 0# _·_
             compatible : ∀ x y z → ((x · y) * z) ≈ (x · (y * z))
 
@@ -250,22 +268,21 @@ module _ {M : Set} (_≈_ : M → M → Set) where
 
         module _ where
 
-            open IsRing
+            open IsRingWithoutOne
             open IsAbelianGroup
             
             ≈-ring :
                 ∀ {_+_ _*_ _*′_ : Op₂ M} { -_ : Op₁ M}
-                {0# 1# : M} →
-                IsRing _≈_ _+_ _*_ -_ 0# 1#  →
+                {0# : M} →
+                IsRingWithoutOne _≈_ _+_ _*_ -_ 0# →
                 (∀ x y → (x * y) ≈ (x *′ y)) →
                 --------------------------------------
-                IsRing _≈_ _+_ _*′_ -_ 0# 1#
+                IsRingWithoutOne _≈_ _+_ _*′_ -_ 0#
 
-            ≈-ring {_+_} {_*_} {_*′_} { -_ } {0#} {1#} ring *≈*′ = record
+            ≈-ring {_+_} {_*_} {_*′_} { -_ } {0#} ring *≈*′ = record
                 { +-isAbelianGroup = +-isAbelianGroup ring
                 ; *-cong = *-cong′
                 ; *-assoc = *-assoc′
-                ; *-identity = *-identityˡ′ ,, *-identityʳ′
                 ; distrib = distribˡ′ ,, distribʳ′
                 } where
 
@@ -297,26 +314,6 @@ module _ {M : Set} (_≈_ : M → M → Set) where
                         x *′ (y *′ z)
                     ∎
 
-                *-identityˡ′ : ∀ x → (1# *′ x) ≈ x
-                *-identityˡ′ x =
-                    begin
-                        1# *′ x
-                            ≈⟨ *≈*′ _ _ ⟨
-                        1# * x
-                            ≈⟨ fst (ring .*-identity) _ ⟩
-                        x
-                    ∎
-
-                *-identityʳ′ : ∀ x → (x *′ 1#) ≈ x
-                *-identityʳ′ x =
-                    begin
-                        x *′ 1#
-                            ≈⟨ *≈*′ _ _ ⟨
-                        x * 1#
-                            ≈⟨ snd (ring .*-identity) _ ⟩
-                        x
-                    ∎
-
                 distribˡ′ : ∀ x y z → (x *′ (y + z)) ≈ ((x *′ y) + (x *′ z))
                 distribˡ′ x y z =
                     begin
@@ -343,18 +340,18 @@ module _ {M : Set} (_≈_ : M → M → Set) where
 
         open IsLeftModule
         open IsAlgebra
-        open IsCommutativeRing
+        open IsCommutativeRingWithoutOne
 
-        ≈-commring :
+        ≈-commrng :
             ∀ {_+_ _*_ _*′_ : Op₂ M} { -_ : Op₁ M}
-            {0# 1# : M} →
-            IsCommutativeRing _≈_ _+_ _*_ -_ 0# 1#  →
+            {0# : M} →
+            IsCommutativeRingWithoutOne _≈_ _+_ _*_ -_ 0# →
             (∀ x y → (x * y) ≈ (x *′ y)) →
             --------------------------------------
-            IsCommutativeRing _≈_ _+_ _*′_ -_ 0# 1#
+            IsCommutativeRingWithoutOne _≈_ _+_ _*′_ -_ 0#
 
-        ≈-commring {_+_} {_*_} {_*′_} ring *≈*′ = record {
-            isRing = ≈-ring (ring .isRing) *≈*′ ;
+        ≈-commrng {_+_} {_*_} {_*′_} ring *≈*′ = record {
+            isRingWithoutOne = ≈-ring (ring .isRingWithoutOne) *≈*′ ;
             *-comm = *-comm′ } where
 
             *-comm′ : ∀ x y → (x *′ y) ≈ (y *′ x)
@@ -372,13 +369,13 @@ module _ {M : Set} (_≈_ : M → M → Set) where
         ≈-algebra :
             ∀ {_+_ _*_ _*′_ : Op₂ M} { -_ : Op₁ M}
             {0# 1# : M} {_·_ : A → M → M} →
-            IsAlgebra _+_ _*_ -_ 0# 1# _·_ →
+            IsAlgebra _+_ _*_ -_ 0# _·_ →
             (∀ x y → (x * y) ≈ (x *′ y)) →
             --------------------------------------
-            IsAlgebra _+_ _*′_ -_ 0# 1# _·_
+            IsAlgebra _+_ _*′_ -_ 0# _·_
 
         ≈-algebra {_+_} {_*_} {_*′_} {_·_ = _·_} alg *≈*′ = record {
-            isRing = ≈-commring (alg .isRing) *≈*′ ;
+            isCommutativeRingWithoutOne = ≈-commrng (alg .isCommutativeRingWithoutOne) *≈*′ ;
             isLeftModule = alg .isLeftModule;
             compatible = compatible′ } where
 

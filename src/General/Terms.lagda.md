@@ -335,30 +335,31 @@ For convenience we specialise the above property to terms with four variables.
 # Polynomials
 
 In this section we relate terms to polynomials.
+Intuitively, a term is a polynomial expression without a constant term.
 
 ```
 open import Preliminaries.PolyExpr R as P
   using (PolyExpr; con; 0P; 1P)
   renaming (mkVar to mkVarP; var to varP; ⟦_⟧_ to ⟦_⟧P_; _+_ to _+P_; _*_ to _*P_; _·_ to _·P_; _≈_ to _≈P_)
 
-toPolyExpr : Term X → PolyExpr X
-toPolyExpr 0T = 0P
-toPolyExpr (var x) = varP x
-toPolyExpr (c · p) = c ·P toPolyExpr p
-toPolyExpr (p + q) = toPolyExpr p +P toPolyExpr q
-toPolyExpr (p * q) = toPolyExpr p *P toPolyExpr q
+term→poly : Term X → PolyExpr X
+term→poly 0T = 0P
+term→poly (var x) = varP x
+term→poly (c · p) = c ·P term→poly p
+term→poly (p + q) = term→poly p +P term→poly q
+term→poly (p * q) = term→poly p *P term→poly q
 
-toPolyExpr-≡ :
+term→poly-≡ :
   ∀ (ϱ₀ : Subst X Y) (ϱ₁ : Subst X Y) →
   (∀ x → ϱ₀ x ≡ ϱ₁ x) →
   -----------------------------------------------
-  ∀ x → toPolyExpr (ϱ₀ x) ≡ toPolyExpr (ϱ₁ x)
+  ∀ x → term→poly (ϱ₀ x) ≡ term→poly (ϱ₁ x)
 
-toPolyExpr-≡ ϱ₀ ϱ₁ ϱ≡ϱ′ x = cong toPolyExpr (ϱ≡ϱ′ x) 
+term→poly-≡ ϱ₀ ϱ₁ ϱ≡ϱ′ x = cong term→poly (ϱ≡ϱ′ x) 
 
 subst-PolyExpr : ∀ p (ϱ : Subst X Y) →
   ----------------------------------------------------------------
-  P.subst (toPolyExpr ∘ ϱ) (toPolyExpr p) ≡ toPolyExpr (subst ϱ p)
+  P.subst (term→poly ∘ ϱ) (term→poly p) ≡ term→poly (subst ϱ p)
 
 subst-PolyExpr 0T ϱ = refl
 subst-PolyExpr (var x) ϱ = refl

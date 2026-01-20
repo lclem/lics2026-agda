@@ -3,11 +3,9 @@ title: Basic common definitions 🚧
 ---
 
 ```
--- {-# OPTIONS --sized-types #-}
-
 module Preliminaries.Base where
 
-open import Agda.Primitive
+open import Agda.Primitive using (Level; lzero) renaming (_⊔_ to _⊔ℓ_) public
 open import Agda.Builtin.Sigma using (fst; snd) public
 open import Agda.Builtin.Bool using (Bool; true; false) public
 
@@ -17,8 +15,6 @@ open import Relation.Binary.Core public
 open import Relation.Binary.Structures public
 open import Relation.Binary.Definitions using (WeaklyDecidable) public
 open import Function.Base using (id; _∘_; _$_) public
-
--- open import Function.Bundles using (_↔_) public
 
 open import Relation.Binary.PropositionalEquality
     using (_≡_; refl; cong; cong₂; sym; trans)

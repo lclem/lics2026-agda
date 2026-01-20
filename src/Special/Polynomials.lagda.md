@@ -1,6 +1,9 @@
 ---
-title: "Special product rules 🚧"
+title: "Polynomials 🚧"
 ---
+
+In this section we introduce an natural equivalence on terms turning them into polynomial expressions (without constant term)
+and we study their properties.
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
@@ -17,13 +20,13 @@ open import Preliminaries.PolyExpr R as P
 open P.AlgebraicProperties using () renaming (+-identityˡ to +P-identityˡ)
 
 open import General.Terms R
-
 ```
-# Equivalence of polynomial expressions
 
-We introduce a natural equivalence relation on polynomial expressions
+# Equivalence of terms
+
+We introduce a natural equivalence relation on terms
 capturing commutativity, associativity, and distributivity of addition and multiplication.
-This equivalence turns the set of polynomial expressions into a commutative algebra over `R`.
+This equivalence turns the set of terms into a commutative algebra over `R`.
 
 ```
 infix 4 _≈_ _≈₄_ _≈₅_ _≈₆_ _≈₇_ _≈₉_
@@ -32,14 +35,19 @@ private variable
     c d : A
     p q r p₀ p₁ q₀ q₁ r₀ r₁ : Term X
     n : ℕ
+```
 
+Formally, two terms `p` and `q` are equivalent, written `p ≈ q`,
+if they satisfy any of the following rules.
+
+```
 data _≈_ {X} : Term X → Term X → Set where
 
     ≈-refl : p ≈ p
     ≈-sym : p ≈ q → q ≈ p
     ≈-trans : p ≈ q → q ≈ r → p ≈ r
 
-    ·-cong : (c≈d : c ≈R d) (p≈q : p ≈ q) → c · p ≈ d · q
+    ·-cong : c ≈R d → p ≈ q → c · p ≈ d · q
     ·-one : ∀ p → 1R · p ≈ p
     ·-+-distrib : ∀ c p q → c · (p + q) ≈ c · p + c · q
     +-·-distrib : ∀ p c d → (c +R d) · p ≈ c · p + d · p
@@ -55,12 +63,24 @@ data _≈_ {X} : Term X → Term X → Set where
     *-cong : p₀ ≈ p₁ → q₀ ≈ q₁ → p₀ * q₀ ≈ p₁ * q₁
     *-assoc : ∀ p q r → (p * q) * r ≈ p * (q * r)
     *-comm : ∀ p q → p * q ≈ q * p
-
     *-distribʳ : ∀ p q r → (q + r) * p ≈ (q * p) + (r * p)
+```
 
+A polynomial over a commutative ring without constant term is precisely an equivalence class of terms of modulo `_≈_`.
+Clearly, !ref(_≈_) is an equivalence relation.
+
+```
 ≈-isEquivalence : IsEquivalence (_≈_ {X})
 ≈-isEquivalence = record { refl = ≈-refl ; sym = ≈-sym ; trans = ≈-trans }
 
+module EqP {X : Set} where
+    open import Preliminaries.Equivalence (≈-isEquivalence {X})
+    open Eq public
+```
+
+To help the type checker, we introduce specialized versions of `_≈_` for terms over finitely many variables.
+
+```
 _≈₄_ : Term′ 4 → Term′ 4 → Set
 p ≈₄ q = p ≈ q
 
@@ -75,49 +95,17 @@ p ≈₇ q = p ≈ q
 
 _≈₉_ : Term (Var 9) → Term (Var 9) → Set
 p ≈₉ q = p ≈ q
-
-≈-toPolyExpr :
-    ∀ {X} {p q : Term X} →
-    p ≈ q →
-    ----------------------------
-    toPolyExpr p ≈P toPolyExpr q
-
-≈-toPolyExpr = go where
-    go : p ≈ q → toPolyExpr p ≈P toPolyExpr q
-
-    go ≈-refl = P-refl
-    go (≈-sym p≈q) = P.≈-sym (go p≈q)
-    go (≈-trans p≈q q≈r) = P.≈-trans (go p≈q) (go q≈r)
-    go (·-cong c≈d p≈q) = P.*-cong (≈-con c≈d) (go p≈q)
-    go (·-one p) = *-oneˡ (toPolyExpr p) where open P.AlgebraicProperties
-    go (·-+-distrib c p q) = *-distrˡ _ _ _ where open P.AlgebraicProperties
-    go (+-·-distrib p c d) = P.con-*-distrʳ _ _ _
-    go (·-*-distrib c p q) = P.*-assoc _ _ _
-    go (*-·-distrib c d p) = P.con-*-assoc _ _ _
-    go (+-cong p≈p′ q≈q′) = P.+-cong (go p≈p′) (go q≈q′)
-    go (+-zeroʳ p) = P.+-zeroʳ _
-    go (+-assoc p q r) = P.+-assoc _ _ _
-    go (+-comm p q) = P.+-comm _ _
-    go (+-invʳ p) = P.+-invʳ _
-    go (*-cong p≈p′ q≈q′) = P.*-cong (go p≈p′) (go q≈q′)
-    go (*-assoc p q r) = P.*-assoc _ _ _
-    go (*-comm p q) = P.*-comm _ _
-    go (*-distribʳ p q r) = P.*-distrʳ _ _ _
-```
-
-A polynomial over a commutative ring is precisely an equivalence class of modulo `_≈_`.
-
-```
-module EqP {X : Set} where
-    open import Preliminaries.Equivalence (≈-isEquivalence {X})
-    open Eq public
 ```
 
 ## Algebraic properties
 
 ```
 module AlgebraicProperties where
+```
 
+### Additive structure
+
+```
     +-zeroˡ : ∀ (p : Term X) → 0T + p ≈ p
     +-zeroˡ p =
         begin
@@ -147,8 +135,6 @@ module AlgebraicProperties where
     -‿cong = ·-cong R-refl
 ```
 
-### Additive structure
-
 ```
     +-isMonoid : ∀ {X} → IsMonoid (_≈_ {X}) _+_ 0T
     +-isMonoid = record {
@@ -161,7 +147,9 @@ module AlgebraicProperties where
         };
         identity = record { fst = +-zeroˡ; snd = +-zeroʳ }
         }
+```
 
+```
     +-isGroup : IsGroup (_≈_ {X}) _+_ 0T (-_)
     +-isGroup = record {
         isMonoid = +-isMonoid;
@@ -174,19 +162,21 @@ module AlgebraicProperties where
         isGroup = +-isGroup;
         comm = +-comm
         }
-
-    -- TODO: for some misterious reason this one does not work
-    -- isLeftModule : IsLeftModule (_≈_ {X}) _+_ -_ 0T _·_
-    -- isLeftModule = record
-    --     { +-isAbelianGroup = +-isAbelianGroup
-    --     ; distribˡ = ·-+-distrib
-    --     ; distribʳ = +-·-distrib
-    --     ; combatible = *-·-distrib
-    --     ; identity = ·-one
-    --     }
 ```
 
-### Multiplicative structure
+```
+    isLeftModule : IsLeftModule (_≈_ {X}) _+_ -_ 0T _·_
+    isLeftModule = record
+        { +-isAbelianGroup = +-isAbelianGroup
+        ; ·-cong = ·-cong
+        ; distribˡ = ·-+-distrib
+        ; distribʳ = +-·-distrib
+        ; combatible = *-·-distrib
+        ; identity = ·-one
+        }
+```
+
+## Multiplicative structure
 
 ```
     *-distribˡ : (p q r : Term X) →
@@ -200,33 +190,26 @@ module AlgebraicProperties where
         ∎ where open EqP
 ```
 
+Terms form a commutative semigroup under multiplication.
+It is not a monoid since we do not require a multiplicative identity.
 
 ```
-    -- this is rather a commutative semigroup
+    *-isSemigroup : IsSemigroup (_≈_ {X}) _*_
+    *-isSemigroup = record {
+        isMagma = record {
+            isEquivalence = ≈-isEquivalence;
+            ∙-cong = *-cong
+        };
+        assoc = *-assoc
+        }
 
-    -- *-identity : Identity (_≈_ {X}) 1T _*_
-    -- *-identity = record { fst = *-oneˡ; snd = *-oneʳ }
-
-    -- *-isMonoid : IsMonoid (_≈_ {X}) _*_ 1T
-    -- *-isMonoid = record {
-    --     isSemigroup = record {
-    --     isMagma = record {
-    --         isEquivalence = ≈-isEquivalence;
-    --         ∙-cong = *-cong
-    --     };
-    --     assoc = *-assoc
-    --     };
-    --     identity = *-identity
-    --     }
-
-    -- *-isCommutativeMonoid : ∀ {X} → IsCommutativeMonoid (_≈_ {X}) _*_ 1T
-    -- *-isCommutativeMonoid = record { isMonoid = *-isMonoid; comm = *-comm }
+    *-isCommutativeSemigroup : ∀ {X} → IsCommutativeSemigroup (_≈_ {X}) _*_
+    *-isCommutativeSemigroup = record { isSemigroup = *-isSemigroup; comm = *-comm }
 ```
 
-### Ring structure
+## Ring structure
 
 ```
-    -- rather a nonunintal ring...
     isRingWithoutOne : IsRingWithoutOne (_≈_ {X}) _+_ _*_ -_ 0T
     isRingWithoutOne = record
         { +-isAbelianGroup = +-isAbelianGroup
@@ -235,37 +218,30 @@ module AlgebraicProperties where
         ; distrib = record {fst = *-distribˡ; snd = *-distribʳ}
         }
 
-    -- isCommutativeRing : IsCommutativeRing (_≈_ {X}) _+_ _*_ -_ 0T 1T
-    -- isCommutativeRing = record { isRing = isRing; *-comm = *-comm }
+    isCommutativeRingWithoutOne : IsCommutativeRingWithoutOne (_≈_ {X}) _+_ _*_ -_ 0T
+    isCommutativeRingWithoutOne = record { isRingWithoutOne = isRingWithoutOne; *-comm = *-comm }
+```
 
-    -- isAlgebra : IsAlgebra (_≈_ {X}) _+_ _*_ -_ 0T 1T _·_
-    -- isAlgebra = record {
-    --     isRing = isCommutativeRing
-    --     ; isLeftModule = isLeftModule
-    --     ; compatible = ·-*-distrib }
-    
-    -- isRing.zeroˡ
-    -- PolyExprCommRing : Set → CommutativeRing
-    -- PolyExprCommRing X = record
-    --     { Carrier = Term X
-    --     ; _≈_ = (_≈_ {X})
-    --     ; _+_ = _+_
-    --     ; _*_ = _*_
-    --     ; -_ = -_
-    --     ; 0# = 0T
-    --     ; 1# = 1T
-    --     ; isCommutativeRing = isCommutativeRing
-    --     }
+## Algebra structure
+
+Summarising, terms with the equivalence `_≈_` form an associative commutative algebra over `R`.
+
+```
+    isAlgebra : IsAlgebra (_≈_ {X}) _+_ _*_ -_ 0T _·_
+    isAlgebra = record {
+        isCommutativeRingWithoutOne = isCommutativeRingWithoutOne
+        ; isLeftModule = isLeftModule
+        ; compatible = ·-*-distrib }
 ```
 
 These two properties follow from the ring structure.
 
 ```
-    -- *-zeroˡ : ∀ (p : Term X) → 0T * p ≈ 0T
-    -- *-zeroˡ {X} = CR.zeroˡ (PolyExprCommRing X)
+    *-zeroˡ : ∀ (p : Term X) → 0T * p ≈ 0T
+    *-zeroˡ = zeroˡ where open IsRingWithoutOne isRingWithoutOne
 
-    -- *-zeroʳ : ∀ (p : Term X) → p * 0T ≈ 0T
-    -- *-zeroʳ {X} = CR.zeroʳ (PolyExprCommRing X)
+    *-zeroʳ : ∀ (p : Term X) → p * 0T ≈ 0T
+    *-zeroʳ = zeroʳ where open IsRingWithoutOne isRingWithoutOne
 
     +-expand :
         ∀ (p : Term X) →
@@ -310,7 +286,7 @@ open AlgebraicProperties
 
 ## Properties of substitution
 
-Substitution preserves equivalence of polynomial expressions.
+Substitution preserves equivalence of terms.
 This comes in two flavours.
 First of all, equivalent expressions are equivalent after substitution.
 
@@ -325,32 +301,30 @@ subst-inv _ ≈-refl = ≈-refl
 subst-inv _ (≈-sym p≈q) = ≈-sym (subst-inv _ p≈q)
 subst-inv _ (≈-trans p≈r r≈q) = ≈-trans (subst-inv _ p≈r) (subst-inv _ r≈q)
 
--- subst-inv ϱ (≈-var x) = lem-toPolyExpr _
-
-subst-inv ϱ (·-cong c≈d p≈q) = ·-cong c≈d (subst-inv ϱ p≈q)
+subst-inv ϱ (·-cong c≈d p≈q) = c≈d ⟨ ·-cong ⟩ subst-inv ϱ p≈q
 subst-inv ϱ (·-one p) = ·-one (subst ϱ p)
 subst-inv ϱ (·-+-distrib c p q) = ·-+-distrib _ _ _
 subst-inv ϱ (+-·-distrib p c d) = +-·-distrib _ _ _
 subst-inv ϱ (·-*-distrib c p q) = ·-*-distrib _ _ _
 subst-inv ϱ (*-·-distrib c d p) = *-·-distrib _ _ _
 
-subst-inv _ (+-cong p₀≈p₁ q₀≈q₁) = +-cong (subst-inv _ p₀≈p₁) (subst-inv _ q₀≈q₁)
+subst-inv _ (+-cong p₀≈p₁ q₀≈q₁) = subst-inv _ p₀≈p₁ ⟨ +-cong ⟩ subst-inv _ q₀≈q₁
 subst-inv _ (+-zeroʳ p) = +-zeroʳ (subst _ p)
 subst-inv _ (+-assoc p q r) = +-assoc (subst _ p) (subst _ q) (subst _ r)
 subst-inv _ (+-comm p q) = +-comm (subst _ p) (subst _ q)
 subst-inv _ (+-invʳ p) = +-invʳ (subst _ p)
 
-subst-inv _ (*-cong p≈q p≈q₁) = *-cong (subst-inv _ p≈q) (subst-inv _ p≈q₁)
+subst-inv _ (*-cong p≈q p≈q₁) = subst-inv _ p≈q ⟨ *-cong ⟩ subst-inv _ p≈q₁
 subst-inv _ (*-assoc p q r) = *-assoc (subst _ p) (subst _ q) (subst _ r)
 subst-inv _ (*-comm p q) = *-comm (subst _ p) (subst _ q)
 subst-inv _ (*-distribʳ p q r) = *-distribʳ (subst _ p) (subst _ q) (subst _ r)
 ```
 
-Second, applying equivalent substitutions yield equivalent expressions.
+Second, applying equivalent substitutions yields equivalent expressions.
 
 ```
 private variable
-    ϱ ϱ₀ ϱ₁ : Subst X Y
+    ϱ₀ ϱ₁ : Subst X Y
 
 subst-inv′ :
     ∀ p → (∀ x → ϱ₀ x ≈ ϱ₁ x) →
@@ -364,49 +338,150 @@ subst-inv′ (p + q) ϱ₀≈ϱ₁ = subst-inv′ p ϱ₀≈ϱ₁ ⟨ +-cong ⟩
 subst-inv′ (p * q) ϱ₀≈ϱ₁ = subst-inv′ p ϱ₀≈ϱ₁ ⟨ *-cong ⟩ subst-inv′ q ϱ₀≈ϱ₁
 ```
 
+## Vectors of equivalences
+
 ```
--- extension of equivalence to vectors of polynomial expressions
+private variable
+    ϱ η : Substᵥ n X
+
 infix 4 _≈ᵥ_
 infixr 5 _∷-≈_
 data _≈ᵥ_ {X : Set} : ∀ {m : ℕ} → (ϱ η : Substᵥ m X) → Set where
     []-≈ : [] ≈ᵥ []
-    _∷-≈_ : ∀ {m p q} {ϱ η : Substᵥ m X} (p≈q : p ≈ q) (ϱ≈η : ϱ ≈ᵥ η) → (p ∷ ϱ) ≈ᵥ (q ∷ η)
+    _∷-≈_ : ∀ {p q} (p≈q : p ≈ q) (ϱ≈η : ϱ ≈ᵥ η) → (p ∷ ϱ) ≈ᵥ (q ∷ η)
 
 ≈ᵥ-lookup : ∀ {ϱ η : Substᵥ n X} → ϱ ≈ᵥ η → ∀ x → lookup ϱ x ≈ lookup η x
 ≈ᵥ-lookup (p≈q ∷-≈ _) zero = p≈q
 ≈ᵥ-lookup (_ ∷-≈ ϱ≈η) (suc x) = ≈ᵥ-lookup ϱ≈η x
+```
 
+```
 subst-invᵥ :
     ∀ {p q : Term′ n} (ϱ : Substᵥ n X) →
     p ≈ q →
-    ---------------------------------
+    ------------------------------------
     substᵥ ϱ p ≈ substᵥ ϱ q
 
 subst-invᵥ ϱ p≈q = subst-inv (lookup ϱ) p≈q
+```
 
+```
 subst-inv′ᵥ :
-    ∀ (p : Term′ n) {ϱ η : Substᵥ n X} →
+    ∀ (p : Term′ n) →
     ϱ ≈ᵥ η →
-    ---------------------------------
+    -----------------------
     substᵥ ϱ p ≈ substᵥ η p
 
-subst-inv′ᵥ p {ϱ} {η} ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
+subst-inv′ᵥ {ϱ = ϱ} {η} p ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
+```
+
+# Relation to polynomial expressions
+
+In this section we relate terms modulo `_≈_` to polynomial expressions.
+We begin by showing that converting terms to polynomial expressions
+respects term equivalence `_≈_`.
+
+```
+≈-term→poly :
+    ∀ {X} {p q : Term X} →
+    p ≈ q →
+    ----------------------------
+    term→poly p ≈P term→poly q
+
+≈-term→poly = go where
+
+    go : p ≈ q → term→poly p ≈P term→poly q
+    go ≈-refl = P-refl
+    go (≈-sym p≈q) = P.≈-sym (go p≈q)
+    go (≈-trans p≈q q≈r) = P.≈-trans (go p≈q) (go q≈r)
+    go (·-cong c≈d p≈q) = P.*-cong (≈-con c≈d) (go p≈q)
+    go (·-one p) = *-oneˡ (term→poly p) where open P.AlgebraicProperties
+    go (·-+-distrib c p q) = *-distrˡ _ _ _ where open P.AlgebraicProperties
+    go (+-·-distrib p c d) = P.con-*-distrʳ _ _ _
+    go (·-*-distrib c p q) = P.*-assoc _ _ _
+    go (*-·-distrib c d p) = P.con-*-assoc _ _ _
+    go (+-cong p≈p′ q≈q′) = P.+-cong (go p≈p′) (go q≈q′)
+    go (+-zeroʳ p) = P.+-zeroʳ _
+    go (+-assoc p q r) = P.+-assoc _ _ _
+    go (+-comm p q) = P.+-comm _ _
+    go (+-invʳ p) = P.+-invʳ _
+    go (*-cong p≈p′ q≈q′) = P.*-cong (go p≈p′) (go q≈q′)
+    go (*-assoc p q r) = P.*-assoc _ _ _
+    go (*-comm p q) = P.*-comm _ _
+    go (*-distribʳ p q r) = P.*-distrʳ _ _ _
+```
+
+An *integral term* is a term without scalar multiplication.
+Therefore such a term does not use constants from the underling ring `R`.
+
+```
+private data IntegralTerm {X : Set} : Term X → Set where
+    0T : IntegralTerm 0T
+    var : ∀ x → IntegralTerm (var x)
+    _+_ : ∀ {p q} → IntegralTerm p → IntegralTerm q → IntegralTerm (p + q)
+    _*_ : ∀ {p q} → IntegralTerm p → IntegralTerm q → IntegralTerm (p * q)
+```
+
+We can convert to terms only those polynomial expressions that do not have a constant term.
+
+```
+private data IntPolyExpr {X : Set} : PolyExpr X → Set where
+    0IP : IntPolyExpr 0P
+    var : ∀ x → IntPolyExpr (var x)
+    _+_ : ∀ {p q} → IntPolyExpr p → IntPolyExpr q → IntPolyExpr (p +P q)
+    _*_ : ∀ {p q} → IntPolyExpr p → IntPolyExpr q → IntPolyExpr (p *P q)
+```
+
+The polynomials that we get when converting from integral terms, are integral polynomials.
+
+```
+iterm→poly :
+    ∀ {u : Term X} →
+    IntegralTerm u →
+    -------------------------
+    IntPolyExpr (term→poly u)
+
+iterm→poly 0T = 0IP
+iterm→poly (var x) = var x
+iterm→poly (iu + iv) = iterm→poly iu + iterm→poly iv
+iterm→poly (iu * iv) = iterm→poly iu * iterm→poly iv
 ```
 
 ```
--- TODO: this needs to be adjusted to polynomial expressions without constant term (origin intercepting)
+poly→term : {p : PolyExpr X} → IntPolyExpr p → Term X
+poly→term 0IP = 0T
+poly→term (var x) = var x
+poly→term (ip + iq) = poly→term ip + poly→term iq
+poly→term (ip * iq) = poly→term ip * poly→term iq
+```
 
--- fromPolyExpr : PolyExpr X → Term X
--- fromPolyExpr (P.con c) = conT c
--- fromPolyExpr (P.var x) = var x
--- fromPolyExpr (p +P q) = fromPolyExpr p + fromPolyExpr q
--- fromPolyExpr (p *P q) = fromPolyExpr p * fromPolyExpr q
+```
+-- translate-help : 
 
--- translate :
---     ∀ (p q : PolyExpr X) →
---     p ≈P q →
---     -------------------------------
---     fromPolyExpr p ≈ fromPolyExpr q
+translate :
+    ∀ {p q : PolyExpr X}
+    (ip : IntPolyExpr p)
+    (iq : IntPolyExpr q) →
+    p ≈P q →
+    ---------------------------
+    poly→term ip ≈ poly→term iq
+
+translate ip iq P.≈-refl = {!   !}
+translate ip iq (P.≈-sym p≈q) = ≈-sym (translate iq ip p≈q)
+translate ip iq (P.≈-trans p≈r r≈q) = ≈-trans (translate _ {!   !} p≈r) (translate _ _ r≈q)
+translate ip iq (P.≈-con x₁) = {!   !}
+translate ip iq (P.+-cong p≈q p≈q₁) = {!   !}
+translate ip iq (P.+-con c d) = {!   !}
+translate ip iq (P.+-zeroʳ p) = {!   !}
+translate ip iq (P.+-assoc p q r) = {!   !}
+translate ip iq (P.+-comm p q) = {!   !}
+translate ip iq (P.+-invʳ p) = {!   !}
+translate ip iq (P.*-cong p≈q p≈q₁) = {!   !}
+translate ip iq (P.*-con c d) = {!   !}
+translate ip iq (P.*-oneʳ p) = {!   !}
+translate ip iq (P.*-assoc p q r) = {!   !}
+translate ip iq (P.*-comm p q) = {!   !}
+translate ip iq (P.*-distrʳ p q r) = {!   !}
 
 -- translate p q P.≈-refl = ≈-refl
 -- translate p q (P.≈-sym p≈q) = ≈-sym (translate q p p≈q)
@@ -426,11 +501,11 @@ subst-inv′ᵥ p {ϱ} {η} ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
 
 -- translate p q (P.+-zeroʳ .q) =
 --     begin
---         fromPolyExpr q + conT 0R
+--         poly→term q + conT 0R
 --             ≈⟨ +-cong ≈-refl (·-zero _) ⟩
---         fromPolyExpr q + 0T
+--         poly→term q + 0T
 --             ≈⟨ +-zeroʳ _ ⟩
---         fromPolyExpr q
+--         poly→term q
 --     ∎ where open EqP
 
 -- translate _ _ (P.+-assoc _ _ _) = +-assoc _ _ _
@@ -438,11 +513,11 @@ subst-inv′ᵥ p {ϱ} {η} ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
 
 -- translate _ _ (P.+-invʳ p) =
 --     begin
---         fromPolyExpr p + ((-R 1R) · 1T) * fromPolyExpr p
+--         poly→term p + ((-R 1R) · 1T) * poly→term p
 --             ≈⟨ ≈-refl ⟨ +-cong ⟩ ·-one-* _ _ ⟩
---         fromPolyExpr p + (-R 1R) · fromPolyExpr p
+--         poly→term p + (-R 1R) · poly→term p
 --             ≈⟨⟩
---         fromPolyExpr p - fromPolyExpr p
+--         poly→term p - poly→term p
 --             ≈⟨ +-invʳ _ ⟩
 --         0T
 --             ≈⟨ ·-zero _ ⟨
@@ -473,32 +548,32 @@ subst-inv′ᵥ p {ϱ} {η} ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
 
 -- translate _ _ (P.*-oneʳ q) =
 --     begin
---         fromPolyExpr q * conT 1R
+--         poly→term q * conT 1R
 --             ≈⟨⟩
---         fromPolyExpr q * (1R · 1T)
+--         poly→term q * (1R · 1T)
 --             ≈⟨ ≈-refl ⟨ *-cong ⟩ (·-one _) ⟩
---         fromPolyExpr q * 1T
+--         poly→term q * 1T
 --             ≈⟨ *-oneʳ _ ⟩
---         fromPolyExpr q
+--         poly→term q
 --     ∎ where open EqP
 
 -- translate _ _ (P.*-assoc p q r) = *-assoc _ _ _
 -- translate _ _ (P.*-comm p q) = *-comm _ _
 
 -- translate _ _ (P.*-distrʳ p q r) = *-distribʳ _ _ _
+```
 
--- -- forbid scalar multiplication
--- private data IntegralTerm {X : Set} : Term X → Set where
---     0T : IntegralTerm 0T
---     var : ∀ x → IntegralTerm (var x)
---     _+_ : ∀ {p q} → IntegralTerm p → IntegralTerm q → IntegralTerm (p + q)
---     _*_ : ∀ {p q} → IntegralTerm p → IntegralTerm q → IntegralTerm (p * q)
+```
+sound :
+    ∀ {u : Term X}
+    (iu : IntegralTerm u) →
+    ---------------------------
+    u ≈ poly→term (iterm→poly iu)
 
--- sound :
---     {p : Term X} →
---     IntegralTerm p →
---     -------------------------------
---     p ≈ fromPolyExpr (toPolyExpr p)
+sound 0T = ≈-refl
+sound (var x) = ≈-refl
+sound (iu + iv) = +-cong (sound iu) (sound iv)
+sound (iu * iv) = *-cong (sound iu) (sound iv)
 
 -- sound 0T =
 --     begin
@@ -511,81 +586,86 @@ subst-inv′ᵥ p {ϱ} {η} ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
 -- sound (p + q) = +-cong (sound p) (sound q)
 -- sound (p * q) = *-cong (sound p) (sound q)
 
--- transfer :
---     ∀ (p q : Term X) →
---     IntegralTerm p →
---     IntegralTerm q →
---     toPolyExpr p ≈P toPolyExpr q →
---     ------------------------------
---     p ≈ q
+transfer :
+    ∀ {u v : Term X}
+    (iu : IntegralTerm u)
+    (iv : IntegralTerm v) →
+    term→poly u ≈P term→poly v →
+    ----------------------------
+    u ≈ v
 
--- transfer p q ip iq eq =
---     begin
---         p
---             ≈⟨ sound ip ⟩
---         fromPolyExpr (toPolyExpr p)
---             ≈⟨ translate _ _ eq ⟩
---         fromPolyExpr (toPolyExpr q)
---             ≈⟨ sound iq ⟨
---         q
---     ∎ where open EqP
+transfer {u = u} {v} iu iv p≈q =
+    begin
+        u
+            ≈⟨ sound iu ⟩
+        poly→term (iterm→poly iu)
+            ≈⟨ translate _ _ p≈q ⟩
+        poly→term (iterm→poly iv)
+            ≈⟨ sound iv ⟨
+        v
+    ∎ where open EqP
+```
 
--- isIntegralTerm? : WeaklyDecidable₁ (IntegralTerm {X})
--- isIntegralTerm? 0T = just 0T
--- isIntegralTerm? (var x) = just $ var x
--- isIntegralTerm? (_ · _) = nothing
--- isIntegralTerm? (p + q)
---     with isIntegralTerm? p | isIntegralTerm? q
--- ... | just p' | just q' = just $ p' + q'
--- ... | _ | _ = nothing
--- isIntegralTerm? (p * q)
---     with isIntegralTerm? p | isIntegralTerm? q
--- ... | just p' | just q' = just $ p' * q'
--- ... | _ | _ = nothing
+Being an integral term is a (weakly) decidable property.
 
--- open import Preliminaries.Integers R
---     using (_≟′_)
---     -- renaming (_≟_ to _≟′_)
+```
+isIntegralTerm? : WeaklyDecidable₁ (IntegralTerm {X})
+isIntegralTerm? 0T = just 0T
+isIntegralTerm? (var x) = just $ var x
+isIntegralTerm? (_ · _) = nothing
+isIntegralTerm? (p + q)
+    with isIntegralTerm? p | isIntegralTerm? q
+... | just p' | just q' = just $ p' + q'
+... | _ | _ = nothing
+isIntegralTerm? (p * q)
+    with isIntegralTerm? p | isIntegralTerm? q
+... | just p' | just q' = just $ p' * q'
+... | _ | _ = nothing
+```
 
--- integralTransfer :
---     ∀ {p : Term X} →
---     IntegralTerm p →
---     -------------------------------
---     IntegralPolyExpr (toPolyExpr p)
+```
+open import Preliminaries.Integers R
+    using (_≟′_)
+    -- renaming (_≟_ to _≟′_)
 
--- integralTransfer 0T = con0
--- integralTransfer 1T = con1
--- integralTransfer (var x) = var x
--- integralTransfer (ip + iq) = integralTransfer ip P.+ integralTransfer iq
--- integralTransfer (ip * iq) = integralTransfer ip P.* integralTransfer iq
+integralTransfer :
+    ∀ {p : Term X} →
+    IntegralTerm p →
+    -------------------------------
+    IntegralPolyExpr (term→poly p)
 
--- infix 4 _≟_ _≟₄_ _≟₅_ _≟₆_ _≟₇_ _≟₉_
--- _≟_ : ∀ {n} → WeaklyDecidable (_≈_ {Fin n})
--- p ≟ q
---     with isIntegralTerm? p | isIntegralTerm? q
--- ... | nothing | _ = nothing
--- ... | _ | nothing = nothing
--- ... | just ip | just iq
---     with integralTransfer ip | integralTransfer iq
--- ... | ip′ | iq′
---     with ip′ ≟′ iq′    
--- ... | just eq = just (transfer _ _ ip iq eq)
--- ... | nothing = nothing
+integralTransfer 0T = con0
+integralTransfer (var x) = var x
+integralTransfer (ip + iq) = integralTransfer ip P.+ integralTransfer iq
+integralTransfer (ip * iq) = integralTransfer ip P.* integralTransfer iq
 
--- _≟₄_ : WeaklyDecidable (_≈₄_)
--- p ≟₄ q = p ≟ q
+infix 4 _≟_ _≟₄_ _≟₅_ _≟₆_ _≟₇_ _≟₉_
+_≟_ : ∀ {n} → WeaklyDecidable (_≈_ {Fin n})
+p ≟ q
+    with isIntegralTerm? p | isIntegralTerm? q
+... | nothing | _ = nothing
+... | _ | nothing = nothing
+... | just ip | just iq
+    with integralTransfer ip | integralTransfer iq
+... | ip′ | iq′
+    with ip′ ≟′ iq′    
+... | just eq = just (transfer ip iq eq)
+... | nothing = nothing
 
--- _≟₅_ : WeaklyDecidable (_≈₅_)
--- p ≟₅ q = p ≟ q
+_≟₄_ : WeaklyDecidable (_≈₄_)
+p ≟₄ q = p ≟ q
 
--- _≟₆_ : WeaklyDecidable (_≈₆_)
--- p ≟₆ q = p ≟ q
+_≟₅_ : WeaklyDecidable (_≈₅_)
+p ≟₅ q = p ≟ q
 
--- _≟₇_ : WeaklyDecidable (_≈₇_)
--- p ≟₇ q = p ≟ q
+_≟₆_ : WeaklyDecidable (_≈₆_)
+p ≟₆ q = p ≟ q
 
--- _≟₉_ : WeaklyDecidable (_≈₉_)
--- p ≟₉ q = p ≟ q
+_≟₇_ : WeaklyDecidable (_≈₇_)
+p ≟₇ q = p ≟ q
+
+_≟₉_ : WeaklyDecidable (_≈₉_)
+p ≟₉ q = p ≟ q
 
 -- equivTest : Term (Fin n) → Term (Fin n) → Bool
 -- equivTest p q 
