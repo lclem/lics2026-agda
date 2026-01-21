@@ -411,52 +411,65 @@ respects term equivalence `_≈_`.
     go (*-distribʳ p q r) = P.*-distrʳ _ _ _
 ```
 
-An *integral term* is a term without scalar multiplication.
-Therefore such a term does not use constants from the underling ring `R`.
-
 ```
 private data IntegralTerm {X : Set} : Term X → Set where
-    0T : IntegralTerm 0T
+    -- 0T : IntegralTerm 0T
     var : ∀ x → IntegralTerm (var x)
     _+_ : ∀ {p q} → IntegralTerm p → IntegralTerm q → IntegralTerm (p + q)
     _*_ : ∀ {p q} → IntegralTerm p → IntegralTerm q → IntegralTerm (p * q)
-```
 
-We can convert to terms only those polynomial expressions that do not have a constant term.
-
-```
 private data IntPolyExpr {X : Set} : PolyExpr X → Set where
-    0IP : IntPolyExpr 0P
+    -- 0IP : IntPolyExpr 0P
     var : ∀ x → IntPolyExpr (var x)
     _+_ : ∀ {p q} → IntPolyExpr p → IntPolyExpr q → IntPolyExpr (p +P q)
     _*_ : ∀ {p q} → IntPolyExpr p → IntPolyExpr q → IntPolyExpr (p *P q)
-```
 
-The polynomials that we get when converting from integral terms, are integral polynomials.
-
-```
 iterm→poly :
     ∀ {u : Term X} →
     IntegralTerm u →
     -------------------------
     IntPolyExpr (term→poly u)
 
-iterm→poly 0T = 0IP
+-- iterm→poly 0T = 0IP
 iterm→poly (var x) = var x
 iterm→poly (iu + iv) = iterm→poly iu + iterm→poly iv
 iterm→poly (iu * iv) = iterm→poly iu * iterm→poly iv
-```
 
-```
-poly→term : {p : PolyExpr X} → IntPolyExpr p → Term X
-poly→term 0IP = 0T
-poly→term (var x) = var x
-poly→term (ip + iq) = poly→term ip + poly→term iq
-poly→term (ip * iq) = poly→term ip * poly→term iq
-```
+poly→term : PolyExpr X → Term (Maybe X)
+poly→term (con c) = c · var nothing
+poly→term (var x) = var (just x)
+poly→term (p P.+ q) = poly→term p + poly→term q
+poly→term (p P.* q) = poly→term p * poly→term q
 
-```
--- translate-help : 
+translate-help-1 :
+    ∀ {p q : PolyExpr X} →
+    IntPolyExpr p →
+    p ≈P q →
+    -----------------------
+    IntPolyExpr q
+
+translate-help-2 :
+    ∀ {p q : PolyExpr X} →
+    IntPolyExpr q →
+    p ≈P q →
+    -----------------------
+    IntPolyExpr p
+
+translate-help-1 ip P.≈-refl = ip
+translate-help-1 ip (P.≈-sym p≈q) = translate-help-2 ip p≈q
+translate-help-1 ip (P.≈-trans p≈q p≈q₁) = translate-help-1 (translate-help-1 ip p≈q) p≈q₁
+translate-help-1 (ip + ip′) (P.+-cong p≈p′ q≈q′) = translate-help-1 ip p≈p′ + translate-help-1 ip′ q≈q′
+translate-help-1 (ip + _) (P.+-zeroʳ _) = ip
+translate-help-1 ((ip + iq) + ir) (P.+-assoc p q r) = ip + (iq + ir)
+translate-help-1 (ip + iq) (P.+-comm p q) = iq + ip
+translate-help-1 (_ + (() * _)) (P.+-invʳ p)
+translate-help-1 ip (P.*-cong p≈q p≈q₁) = {!   !}
+translate-help-1 ip (P.*-oneʳ _) = {!   !}
+translate-help-1 ip (P.*-assoc p q r) = {!   !}
+translate-help-1 ip (P.*-comm p q) = {!   !}
+translate-help-1 ip (P.*-distrʳ p q r) = {!   !}
+
+translate-help-2 ip p≈q = {!   !}
 
 translate :
     ∀ {p q : PolyExpr X}
@@ -464,127 +477,99 @@ translate :
     (iq : IntPolyExpr q) →
     p ≈P q →
     ---------------------------
-    poly→term ip ≈ poly→term iq
+    poly→term p ≈ poly→term q
 
-translate ip iq P.≈-refl = {!   !}
+translate ip iq P.≈-refl = ≈-refl
 translate ip iq (P.≈-sym p≈q) = ≈-sym (translate iq ip p≈q)
-translate ip iq (P.≈-trans p≈r r≈q) = ≈-trans (translate _ {!   !} p≈r) (translate _ _ r≈q)
-translate ip iq (P.≈-con x₁) = {!   !}
-translate ip iq (P.+-cong p≈q p≈q₁) = {!   !}
-translate ip iq (P.+-con c d) = {!   !}
-translate ip iq (P.+-zeroʳ p) = {!   !}
-translate ip iq (P.+-assoc p q r) = {!   !}
-translate ip iq (P.+-comm p q) = {!   !}
-translate ip iq (P.+-invʳ p) = {!   !}
-translate ip iq (P.*-cong p≈q p≈q₁) = {!   !}
-translate ip iq (P.*-con c d) = {!   !}
-translate ip iq (P.*-oneʳ p) = {!   !}
-translate ip iq (P.*-assoc p q r) = {!   !}
-translate ip iq (P.*-comm p q) = {!   !}
-translate ip iq (P.*-distrʳ p q r) = {!   !}
+translate ip iq (P.≈-trans p≈r r≈q) = ≈-trans (translate ip (translate-help-1 ip p≈r) p≈r) (translate (translate-help-1 ip p≈r) iq r≈q)
+translate (ip + ip′) (iq + iq′) (P.+-cong p≈p′ q≈q′) = +-cong (translate ip iq  p≈p′) (translate ip′ iq′ q≈q′)
+translate ip iq (P.+-zeroʳ _) = {!   !} -- ok
+translate ip iq (P.+-assoc p q r) = +-assoc _ _ _
+translate ip iq (P.+-comm p q) = +-comm _ _
+translate (ip * ip′) (iq * iq′) (P.*-cong p≈p′ q≈q′) = *-cong  (translate ip iq p≈p′) (translate ip′ iq′ q≈q′)
+translate (ip * ()) iq (P.*-oneʳ _) -- = {!   !}
+translate ip iq (P.*-assoc p q r) = *-assoc _ _ _
+translate ip iq (P.*-comm p q) = *-comm _ _
+translate ip iq (P.*-distrʳ p q r) = *-distribʳ _ _ _
 
--- translate p q P.≈-refl = ≈-refl
--- translate p q (P.≈-sym p≈q) = ≈-sym (translate q p p≈q)
--- translate p q (P.≈-trans p≈r r≈q) = ≈-trans (translate _ _ p≈r) (translate _ _ r≈q)
--- translate (con c) (con d) (≈-con c≈d) = ·-cong c≈d ≈-refl
--- translate _ _ (P.+-cong p≈p′ q≈q′) = +-cong (translate _ _ p≈p′) (translate  _ _ q≈q′)
--- translate p q (+-con c d) =
---     begin
---         conT (c +R d)
---             ≈⟨⟩ 
---         (c +R d) · 1T
---             ≈⟨ +-·-distrib _ _ _ ⟩ 
---         c · 1T + d · 1T
---             ≈⟨⟩ 
---         conT c + conT d
---     ∎ where open EqP
+justt : Term X → Term (Maybe X)
+justt 0T = 0T
+justt (var x) = var (just x)
+justt (c · p) = c · justt p
+justt (p + q) = justt p + justt q
+justt (p * q) = justt p * justt q
 
--- translate p q (P.+-zeroʳ .q) =
---     begin
---         poly→term q + conT 0R
---             ≈⟨ +-cong ≈-refl (·-zero _) ⟩
---         poly→term q + 0T
---             ≈⟨ +-zeroʳ _ ⟩
---         poly→term q
---     ∎ where open EqP
+justt-Integral :
+    ∀ {u : Term X} →
+    IntegralTerm u →
+    ----------------------
+    IntegralTerm (justt u)
 
--- translate _ _ (P.+-assoc _ _ _) = +-assoc _ _ _
--- translate _ _ (P.+-comm _ _) = +-comm _ _
+justt-Integral (var x) = var (just x)
+justt-Integral (iu + iv) = justt-Integral iu + justt-Integral iv
+justt-Integral (iu * iv) = justt-Integral iu * justt-Integral iv
 
--- translate _ _ (P.+-invʳ p) =
---     begin
---         poly→term p + ((-R 1R) · 1T) * poly→term p
---             ≈⟨ ≈-refl ⟨ +-cong ⟩ ·-one-* _ _ ⟩
---         poly→term p + (-R 1R) · poly→term p
---             ≈⟨⟩
---         poly→term p - poly→term p
---             ≈⟨ +-invʳ _ ⟩
---         0T
---             ≈⟨ ·-zero _ ⟨
---         conT 0R
---     ∎ where open EqP
+justtt-lem1 :
+    ∀ {u : Term X} {v : Term (Maybe X)} →
+    IntegralTerm u →
+    justt u ≈ v →
+    ------------------
+    ∃[ t ] v ≡ justt t
 
--- translate _ _ (P.*-cong p₀≈p₁ q₀≈q₁) =
---     (translate _ _ p₀≈p₁) ⟨ *-cong ⟩ (translate _ _ q₀≈q₁)
+justtt-lem2 :
+    ∀ {u : Term X} {v : Term (Maybe X)} →
+    IntegralTerm u →
+    v ≈ justt u →
+    ------------------
+    ∃[ t ] v ≡ justt t
 
--- translate p q (*-con c d) =
---     begin
---         conT (c *R d)
---             ≈⟨⟩
---         (c *R d) · 1T
---             ≈⟨ ·-cong R-refl (*-oneʳ _) ⟨
---         (c *R d) · (1T * 1T)
---             ≈⟨ *-·-distrib _ _ _ ⟩
---         c · (d · (1T * 1T))
---             ≈⟨ ·-cong R-refl (·-*-distrib _ _ _) ⟨
---         c · ((d · 1T) * 1T)
---             ≈⟨ ·-cong R-refl (*-comm _ _) ⟩
---         c · (1T * (d · 1T))
---             ≈⟨ ·-*-distrib _ _ _ ⟨
---         (c · 1T) * (d · 1T)
---             ≈⟨⟩
---         conT c * conT d
---     ∎ where open EqP
+justtt-lem1 (var x) ≈-refl = var x ,, refl
+justtt-lem1 (var x) (≈-sym ass) = justtt-lem2 (var x) ass
+justtt-lem1 (var x) (≈-trans ass ass₁) = {!   !}
+justtt-lem1 (iu + iv) ass = {!   !}
+justtt-lem1 (iu * iv) ass = {!   !}
 
--- translate _ _ (P.*-oneʳ q) =
---     begin
---         poly→term q * conT 1R
---             ≈⟨⟩
---         poly→term q * (1R · 1T)
---             ≈⟨ ≈-refl ⟨ *-cong ⟩ (·-one _) ⟩
---         poly→term q * 1T
---             ≈⟨ *-oneʳ _ ⟩
---         poly→term q
---     ∎ where open EqP
+justtt-lem2 = {!   !}
 
--- translate _ _ (P.*-assoc p q r) = *-assoc _ _ _
--- translate _ _ (P.*-comm p q) = *-comm _ _
+justtt-sound :
+    ∀ {u v : Term X} →
+    IntegralTerm u →
+    IntegralTerm v →
+    justt u ≈ justt v →
+    -------------------
+    u ≈ v
 
--- translate _ _ (P.*-distrʳ p q r) = *-distribʳ _ _ _
-```
+justtt-sound iu iv u≈v = {!   !}
 
-```
 sound :
-    ∀ {u : Term X}
-    (iu : IntegralTerm u) →
+    ∀ {u : Term X} →
+    IntegralTerm u →
     ---------------------------
-    u ≈ poly→term (iterm→poly iu)
+    justt u ≈ poly→term (term→poly u)
 
-sound 0T = ≈-refl
+-- sound 0T = ≈-sym (·-zero _)
 sound (var x) = ≈-refl
 sound (iu + iv) = +-cong (sound iu) (sound iv)
 sound (iu * iv) = *-cong (sound iu) (sound iv)
 
--- sound 0T =
---     begin
---         0T ≈⟨ ·-zero _ ⟨
---         0R · 1T
---     ∎ where open EqP   
+transfer′ :
+    ∀ {u v : Term X}
+    (iu : IntegralTerm u)
+    (iv : IntegralTerm v) →
+    term→poly u ≈P term→poly v →
+    ----------------------------
+    justt u ≈ justt v
 
--- sound (var x) = ≈-refl
-    
--- sound (p + q) = +-cong (sound p) (sound q)
--- sound (p * q) = *-cong (sound p) (sound q)
+transfer′ {u = u} {v} iu iv p≈q =
+    begin
+        justt u
+            ≈⟨ sound iu ⟩
+        poly→term (term→poly u)
+            ≈⟨ translate (iterm→poly iu) (iterm→poly iv) p≈q ⟩
+        poly→term (term→poly v)
+            ≈⟨ sound iv ⟨
+        justt v
+    ∎ where open EqP
 
 transfer :
     ∀ {u v : Term X}
@@ -594,23 +579,23 @@ transfer :
     ----------------------------
     u ≈ v
 
-transfer {u = u} {v} iu iv p≈q =
-    begin
-        u
-            ≈⟨ sound iu ⟩
-        poly→term (iterm→poly iu)
-            ≈⟨ translate _ _ p≈q ⟩
-        poly→term (iterm→poly iv)
-            ≈⟨ sound iv ⟨
-        v
-    ∎ where open EqP
+transfer {u = u} {v} iu iv p≈q = {!   !}
+    -- begin
+    --     u
+    --         ≈⟨ sound iu ⟩
+    --     poly→term (term→poly u)
+    --         ≈⟨ translate ? ? p≈q ⟩
+    --     poly→term (term→poly v)
+    --         ≈⟨ sound iv ⟨
+    --     v
+    -- ∎ where open EqP
 ```
 
 Being an integral term is a (weakly) decidable property.
 
 ```
 isIntegralTerm? : WeaklyDecidable₁ (IntegralTerm {X})
-isIntegralTerm? 0T = just 0T
+isIntegralTerm? 0T = nothing -- just 0T
 isIntegralTerm? (var x) = just $ var x
 isIntegralTerm? (_ · _) = nothing
 isIntegralTerm? (p + q)
@@ -634,7 +619,7 @@ integralTransfer :
     -------------------------------
     IntegralPolyExpr (term→poly p)
 
-integralTransfer 0T = con0
+-- integralTransfer 0T = con0
 integralTransfer (var x) = var x
 integralTransfer (ip + iq) = integralTransfer ip P.+ integralTransfer iq
 integralTransfer (ip * iq) = integralTransfer ip P.* integralTransfer iq
