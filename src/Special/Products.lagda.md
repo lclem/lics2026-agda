@@ -2,6 +2,9 @@
 title: "Special products 🚧"
 ---
 
+In this section we show that special product rules induce associative commutative algebras of series.
+In fact, over the rationals the converse is true (and easy to see), however we do not prove this in Agda.
+
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 -- --allow-unsolved-metas
@@ -32,18 +35,20 @@ private variable
     m n : ℕ
 ```
 
-We are interested in the following algebraic properties of produts of series.
+# Series algebras
+
+In the following, we fix a product rule `P` that is special.
 
 ```
-module ProductProperties 
-    {P : ProductRule}
-    (special : Special P)
-
-    where
-
+module ProductProperties {P : ProductRule} (special : Special P) where
     open import General.Products R Σ
     open Product P
+```
 
+We define the axioms of associative commutative algebras for series.
+The additional size parameter helps with termination.
+
+```
     *-Assoc : Size → Set
     *-Assoc i = ∀ (f g h : A ⟪ Σ ⟫) → (f * g) * h ≈[ i ] f * (g * h)
 
@@ -61,21 +66,20 @@ module ProductProperties
 
     ·-*-Distrib : Size → Set
     ·-*-Distrib i = ∀ (c : A) (f g : A ⟪ Σ ⟫) → (c · f) * g ≈[ i ] c · (f * g)
-
-    -- these two already hold (by definition of scalar multiplication and sum)
-    -- +-·-Distr : Size → Set
-    -- +-·-Distr i = ∀ (c d : A) (f : A ⟪ Σ ⟫) → (c +R d) · f ≈[ i ] c · f + d · f
-
-    -- *-·-Distr : Size → Set
-    -- *-·-Distr i = ∀ (c d : A) (f : A ⟪ Σ ⟫) → (c *R d) · f ≈[ i ] c · (d · f)
 ```
 
+This is the main result of this section.
 We show that whenever the product specification is special,
-then we obtain a commutative algebra of series.
+then we obtain an associative commutative algebra of series.
+The proof is by a mutual recursion.
 
 ```
     mutual
-        
+```
+
+## Associativity
+
+```
         *-assoc : *-Assoc i
         ν-≈ (*-assoc f g h) = *R-assoc (ν f) (ν g) (ν h)
         δ-≈ (*-assoc f g h) a =
@@ -88,7 +92,7 @@ then we obtain a commutative algebra of series.
                 ⟦ P ⟧⟨ ⟦ x [*] y ⟧ᵥ ϱ , ⟦ [ P ]⟨ x , x′ , y , y′ ⟩ ⟧ᵥ ϱ , ⟦ z ⟧ᵥ ϱ , ⟦ z′ ⟧ᵥ ϱ ⟩
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟨
                 ⟦ [ P ]⟨ x [*] y , [ P ]⟨ x , x′ , y , y′ ⟩ , z , z′ ⟩ ⟧ᵥ ϱ
-                    ≈⟨ invariance (P-assoc special) ⟩
+                    ≈⟨ sem-inv (P-assoc special) ⟩
                 ⟦ [ P ]⟨ x , x′ , y [*] z , [ P ]⟨ y , y′ , z , z′ ⟩ ⟩ ⟧ᵥ ϱ
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟩
                 ⟦ P ⟧⟨ f , δ f a , g * h , ⟦ [ P ]⟨ y , y′ , z , z′ ⟩ ⟧ᵥ ϱ ⟩
@@ -97,7 +101,11 @@ then we obtain a commutative algebra of series.
                     ≈⟨⟩
                 δ (f * (g * h)) a
                 ∎ where open EqS
+```
 
+## Commutativity
+
+```
         *-comm : *-Comm i
         ν-≈ (*-comm f g) = *R-comm (ν f) (ν g)
         δ-≈ (*-comm f g) a =
@@ -106,12 +114,16 @@ then we obtain a commutative algebra of series.
                 ⟦ P ⟧ᵥ ϱ
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟨
                 ⟦ [ P ]⟨ x , x′ , y , y′ ⟩ ⟧ᵥ ϱ
-                    ≈⟨ invariance (P-comm special) ⟩
+                    ≈⟨ sem-inv (P-comm special) ⟩
                 ⟦ [ P ]⟨ y , y′ , x , x′ ⟩ ⟧ᵥ ϱ
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟩
                 ⟦ P ⟧⟨ g , δ g a , f , δ f a ⟩
                 ∎ where open EqS
+```
 
+## Distributivity
+
+```
         *-distribʳ : Distribʳ i
         ν-≈ (*-distribʳ f g h) = R-distribʳ (ν f) (ν g) (ν h)
         δ-≈ (*-distribʳ h f g) a =
@@ -122,7 +134,7 @@ then we obtain a commutative algebra of series.
                 ⟦ P ⟧⟨ ⟦ x [+] y ⟧ᵥ ϱ , ⟦ x′ [+] y′ ⟧ᵥ ϱ , ⟦ z ⟧ᵥ ϱ , ⟦ z′ ⟧ᵥ ϱ ⟩
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []} ⟨
                 ⟦ [ P ]⟨ x [+] y , x′ [+] y′ , z , z′ ⟩ ⟧ᵥ ϱ
-                    ≈⟨ invariance (P-distr special) ⟩
+                    ≈⟨ sem-inv (P-add special) ⟩
                 ⟦ [ P ]⟨ x , x′ , z , z′ ⟩ [+] [ P ]⟨ y , y′ , z , z′ ⟩ ⟧ᵥ ϱ
                     ≈⟨  (eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ []}
                             ⟨ +-cong ⟩
@@ -157,7 +169,7 @@ then we obtain a commutative algebra of series.
                 ⟦ P ⟧⟨ ⟦ c [·] x ⟧ᵥ ϱ , ⟦ c [·] x′ ⟧ᵥ ϱ , ⟦ y ⟧ᵥ ϱ , ⟦ y′ ⟧ᵥ ϱ ⟩
                     ≈⟨ eval-substᵥ P {_ ∷ _ ∷ _ ∷ _ ∷ _} ⟨
                 ⟦ [ P ]⟨ c [·] x , c [·] x′ , y , y′ ⟩ ⟧ᵥ ϱ
-                    ≈⟨ invariance (P-compat special c) ⟩
+                    ≈⟨ sem-inv (P-compat special c) ⟩
                 ⟦ c [·] [ P ]⟨ x , x′ , y , y′ ⟩ ⟧ᵥ ϱ
                     ≈⟨⟩
                 c · ⟦ [ P ]⟨ x , x′ , y , y′ ⟩ ⟧ᵥ ϱ
@@ -168,68 +180,81 @@ then we obtain a commutative algebra of series.
                     ≈⟨⟩
                 δ (c · (f * g)) a
             ∎ where open EqS
+```
 
-        -- the semantics of polynomial expressions is invariant under the equivalence
-        -- generated by associativity, commutativity, and distributivity
-        -- (provided that the product has the same properties)
-        invariance :
+## Semantic invariance
+
+Finally, the semantics of terms is invariant.
+
+```
+        sem-inv :
             ∀ {p q : Term X} {ϱ : SEnv X} →
             p P.≈ q →
             ---------------------------------
             ⟦ p ⟧ ϱ ≈[ i ] ⟦ q ⟧ ϱ
         
-        invariance P.≈-refl = ≈-refl
-        invariance (P.≈-sym w) = ≈-sym (invariance w)
-        invariance (P.≈-trans u v)= ≈-trans (invariance u) (invariance v)
-        invariance (P.·-cong c≈d p≈q) = ·-cong c≈d (invariance p≈q)
-        invariance (P.·-one _) = ·-one _
-        invariance (P.·-+-distrib c p q)  = ·-+-distrib _ _ _ where open Properties
-        invariance (P.+-·-distrib p c d)  = +-·-distrib _ _ _ where open Properties
-        invariance (P.·-*-distrib c p q)  = ·-*-distrib _ _ _
-        invariance (P.*-·-distrib c d p)  = *-·-distrib _ _ _ where open Properties
-        invariance (P.+-cong P0≈P1 Q0≈Q1) = +-cong (invariance P0≈P1) (invariance Q0≈Q1)
-        invariance (P.+-zeroʳ p) = +-identityʳ _
-        invariance (P.+-assoc p q r) = +-assoc _ _ _
-        invariance (P.+-comm p q) = +-comm _ _
-        invariance (P.+-invʳ p) = -‿inverseʳ _
-        invariance (P.*-cong P0≈P1 Q0≈Q1) = *-cong (invariance P0≈P1) (invariance Q0≈Q1)
-        invariance (P.*-assoc _ _ _) = *-assoc _ _ _
-        invariance (P.*-comm _ _) = *-comm _ _
-        invariance (P.*-distribʳ _ _ _) = *-distribʳ _ _ _
+        sem-inv P.≈-refl = ≈-refl
+        sem-inv (P.≈-sym w) = ≈-sym (sem-inv w)
+        sem-inv (P.≈-trans u v)= ≈-trans (sem-inv u) (sem-inv v)
+        sem-inv (P.·-cong c≈d p≈q) = ·-cong c≈d (sem-inv p≈q)
+        sem-inv (P.·-one _) = ·-one _
+        sem-inv (P.·-+-distrib c p q)  = ·-+-distrib _ _ _ where open Properties
+        sem-inv (P.+-·-distrib p c d)  = +-·-distrib _ _ _ where open Properties
+        sem-inv (P.·-*-distrib c p q)  = ·-*-distrib _ _ _
+        sem-inv (P.*-·-distrib c d p)  = *-·-distrib _ _ _ where open Properties
+        sem-inv (P.+-cong P0≈P1 Q0≈Q1) = +-cong (sem-inv P0≈P1) (sem-inv Q0≈Q1)
+        sem-inv (P.+-zeroʳ p) = +-identityʳ _
+        sem-inv (P.+-assoc p q r) = +-assoc _ _ _
+        sem-inv (P.+-comm p q) = +-comm _ _
+        sem-inv (P.+-invʳ p) = -‿inverseʳ _
+        sem-inv (P.*-cong P0≈P1 Q0≈Q1) = *-cong (sem-inv P0≈P1) (sem-inv Q0≈Q1)
+        sem-inv (P.*-assoc _ _ _) = *-assoc _ _ _
+        sem-inv (P.*-comm _ _) = *-comm _ _
+        sem-inv (P.*-distribʳ _ _ _) = *-distribʳ _ _ _
+```
 
-    -- TODO: remove identity
-    -- *-isMonoid : IsMonoid _≈_ _*_ 𝟙
-    -- *-isMonoid = record {
-    --         isSemigroup = record {
-    --             isMagma = record {
-    --                 isEquivalence = isEquivalence-≈;
-    --                 ∙-cong = *-cong
-    --                 };
-    --             assoc = *-assoc
-    --             };
-    --         identity = *-identity
-    --     }
+## Algebra structure
 
-    -- isRing : IsRing _≈_ _+_ _*_ -_ 𝟘 𝟙
-    -- isRing = record
-    --     { +-isAbelianGroup = +-isAbelianGroup
-    --     ; *-cong = *-cong
-    --     ; *-assoc = *-assoc
-    --     ; *-identity = *-identity
-    --     ; distrib = record { fst = *-distribˡ ; snd = *-distribʳ }
-    --     }
+We now put together the properties above.
+First of all, multiplication endows the set of series with a semigroup structure.
 
-    -- isCommutativeRing : IsCommutativeRing _≈_ _+_ _*_ -_ 𝟘 𝟙
-    -- isCommutativeRing = record {
-    --         isRing = isRing ;
-    --         *-comm = *-comm 
-    --     }
+```
+    *-isSemigroup : IsSemigroup _≈_ _*_
+    *-isSemigroup = record {
+        isMagma = record {
+            isEquivalence = isEquivalence-≈;
+            ∙-cong = *-cong
+            };
+        assoc = *-assoc
+        }
+```
 
-    -- isSeriesAlgebra : IsAlgebra _≈_ _+_ _*_ -_ 𝟘 𝟙 _·_
-    -- isSeriesAlgebra = record {
-    --       isRing = isCommutativeRing
-    --     ; isLeftModule = isLeftModule
-    --     ; compatible = ·-*-distrib }
+In turn, this provides a (commutative) ring structure, perhaps without an identity.
+
+```
+    isRingWithoutOne : IsRingWithoutOne _≈_ _+_ _*_ -_ 𝟘
+    isRingWithoutOne = record
+        { +-isAbelianGroup = +-isAbelianGroup
+        ; *-cong = *-cong
+        ; *-assoc = *-assoc
+        ; distrib = record { fst = *-distribˡ ; snd = *-distribʳ }
+        }
+
+    isCommutativeRingWithoutOne : IsCommutativeRingWithoutOne _≈_ _+_ _*_ -_ 𝟘
+    isCommutativeRingWithoutOne = record {
+            isRingWithoutOne = isRingWithoutOne ;
+            *-comm = *-comm 
+        }
+```
+
+Finally, we obtain an associative commutative algebra structure.
+
+```
+    isSeriesAlgebra : IsAlgebra _≈_ _+_ _*_ -_ 𝟘 _·_
+    isSeriesAlgebra = record {
+          isCommutativeRingWithoutOne = isCommutativeRingWithoutOne
+        ; isLeftModule = isLeftModule
+        ; compatible = ·-*-distrib }
 ```
 
 # Applications

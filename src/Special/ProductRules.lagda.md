@@ -25,6 +25,10 @@ record Special (P : ProductRule) : Set where
 
     field
 
+        P-add :
+            [ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≈₆
+            [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩
+        
         P-assoc :
             [ P ]⟨ x * y , [ P ]⟨ x , x′ , y , y′ ⟩ ,  z , z′ ⟩ ≈₆
             [ P ]⟨ x , x′ , y * z , [ P ]⟨ y , y′ , z , z′ ⟩ ⟩
@@ -33,9 +37,6 @@ record Special (P : ProductRule) : Set where
             [ P ]⟨ x , x′ , y , y′ ⟩ ≈₄
             [ P ]⟨ y , y′ , x , x′ ⟩
 
-        P-distr :
-            [ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≈₆
-            [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩
 
         -- P-compat :
         --     [ P ]⟨ z * x , z * x′ , y , y′ ⟩ ≈₅
@@ -62,33 +63,6 @@ record Special (P : ProductRule) : Set where
         --     c · [ P ]⟨ x , x′ , y , y′ ⟩
         -- ∎ where open EqP
 
-    -- this follows!! 
-    -- P-ideal : [ P ]⟨ x , x′ , 0T , 0T ⟩ ≈₄ 0T
-    -- P-ideal =
-    --     let ϱ = x ∷ x′ ∷ 0T ∷ 0T ∷ [] in
-    --     begin
-    --         [ P ]⟨ x , x′ , 0T , 0T ⟩
-    --             ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟨
-    --         [ [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ x , x′ , 0T , 0T ⟩
-    --             ≈⟨ subst-invᵥ (_ ∷ _ ∷ _ ∷ _ ∷ []) P-comm ⟩
-    --         [ [ P ]⟨ y , y′ , x , x′ ⟩ ]⟨ x , x′ , 0T , 0T ⟩
-    --             ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟩
-    --         [ P ]⟨ 0T , 0T , x , x′ ⟩
-    --             ≈⟨ (subst-inv′ᵥ P (*-zeroˡ _ ∷-≈ *-zeroˡ _ ∷-≈ ≈-refl ∷-≈ ≈-refl ∷-≈ []-≈)) ⟨
-    --         [ P ]⟨ 0T * y , 0T * y′ , x , x′ ⟩
-    --             ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
-    --         [ [ P ]⟨ z * x , z * x′ , y , y′ ⟩ ]⟨ y , y′ , x , x′ , 0T ⟩
-    --             ≈⟨ subst-invᵥ (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ []) P-compat ⟩
-    --         [ z * [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ y , y′ , x , x′ , 0T ⟩
-    --             ≈⟨⟩
-    --         0T * [ [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ y , y′ , x , x′ , 0T ⟩
-    --             ≈⟨ *-zeroˡ _ ⟩
-    --         0T
-    --     ∎ where open EqP
-
-    -- this does not follow, as shown by P = xy (which is assoc, comm, distr)
-    -- [ P ]⟨ x , 0T , y , 0T ⟩ ≈₄ 0T
-
 open Special public
 
 -- need ≟₆ to decide the following
@@ -108,11 +82,11 @@ open Special public
 --         [ P ]⟨ y , y′ , x , x′ ⟩) ≡ just proof
 --     P-comm-special = _ ,, refl
     
---     P-distr-special :
+--     P-add-special :
 --         ∃ λ proof → 
 --         ([ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≟₆
 --         [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩) ≡ just proof
---     P-distr-special = _ ,, refl
+--     P-add-special = _ ,, refl
 
 --     P-compat-special :
 --         ∃ λ proof → 
@@ -136,11 +110,11 @@ open Special public
 --         [ P ]⟨ y , y′ , x , x′ ⟩) ≡ just proof
 --     P-comm-special = _ ,, refl
     
---     P-distr-special :
+--     P-add-special :
 --         ∃ λ proof → 
 --         ([ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≟₆
 --         [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩) ≡ just proof
---     P-distr-special = _ ,, refl
+--     P-add-special = _ ,, refl
 
 --     P-compat-special :
 --         ∃ λ proof → 
@@ -164,11 +138,11 @@ open Special public
 --         [ P ]⟨ y , y′ , x , x′ ⟩) ≡ just proof
 --     P-comm-special = _ ,, refl
     
---     P-distr-special :
+--     P-add-special :
 --         ∃ λ proof → 
 --         ([ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≟₆
 --         [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩) ≡ just proof
---     P-distr-special = _ ,, refl
+--     P-add-special = _ ,, refl
 
 --     P-compat-special :
 --         ∃ λ proof → 
@@ -181,7 +155,7 @@ open Special public
 --         { P-oneʳ = fst P-one-special
 --         ; P-assoc = fst P-assoc-special
 --         ; P-comm = fst P-comm-special
---         ; P-distr = fst P-distr-special
+--         ; P-add = fst P-add-special
 --         ; P-compat = fst P-compat-special
 --         }
 
@@ -202,11 +176,11 @@ open Special public
 --         [ P ]⟨ y , y′ , x , x′ ⟩) ≡ just proof
 --     P-comm-special = _ ,, refl
     
---     P-distr-special :
+--     P-add-special :
 --         ∃ λ proof → 
 --         ([ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≟₆
 --         [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩) ≡ just proof
---     P-distr-special = _ ,, refl
+--     P-add-special = _ ,, refl
 
 --     P-compat-special :
 --         ∃ λ proof → 
@@ -219,7 +193,7 @@ open Special public
 --         { P-oneʳ = fst P-one-special
 --         ; P-assoc = fst P-assoc-special
 --         ; P-comm = fst P-comm-special
---         ; P-distr = fst P-distr-special
+--         ; P-add = fst P-add-special
 --         ; P-compat = fst P-compat-special
 --         }
 
@@ -239,11 +213,11 @@ open Special public
 --         [ P ]⟨ y , y′ , x , x′ ⟩) ≡ just proof
 --     P-comm-special = _ ,, refl
     
---     P-distr-special :
+--     P-add-special :
 --         ∃ λ proof → 
 --         ([ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≟₆
 --         [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩) ≡ just proof
---     P-distr-special = _ ,, refl
+--     P-add-special = _ ,, refl
 
 --     P-compat-special :
 --         ∃ λ proof → 
@@ -256,7 +230,7 @@ open Special public
 --         { P-oneʳ = fst P-one-special
 --         ; P-assoc = fst P-assoc-special
 --         ; P-comm = fst P-comm-special
---         ; P-distr = fst P-distr-special
+--         ; P-add = fst P-add-special
 --         ; P-compat = fst P-compat-special
 --         }
 
@@ -288,11 +262,11 @@ open Special public
 --         [ P ]⟨ y , y′ , x , x′ ⟩) ≡ just proof
 --     P-comm-special = _ ,, refl
     
---     P-distr-special :
+--     P-add-special :
 --         ∃ λ proof → 
 --         ([ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≟₆
 --         [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩) ≡ just proof
---     P-distr-special = _ ,, refl
+--     P-add-special = _ ,, refl
 
 --     P-compat-special :
 --         ∃ λ proof → 
@@ -305,7 +279,7 @@ open Special public
 --         { P-oneʳ = fst P-one-special
 --         ; P-assoc = fst P-assoc-special
 --         ; P-comm = fst P-comm-special
---         ; P-distr = fst P-distr-special
+--         ; P-add = fst P-add-special
 --         ; P-compat = fst P-compat-special
 --         }
 
@@ -331,11 +305,11 @@ open Special public
 --         [ P ]⟨ y , y′ , x , x′ , z ⟩) ≡ just proof
 --     P-comm-special = _ ,, refl
     
---     P-distr-special :
+--     P-add-special :
 --         ∃ λ proof → 
 --         ([ P ]⟨ x + y , x′ + y′ , z , z′ , t ⟩ ≟₇
 --         [ P ]⟨ x , x′ , z , z′ , t ⟩ + [ P ]⟨ y , y′ , z , z′ , t ⟩) ≡ just proof
---     P-distr-special = _ ,, refl
+--     P-add-special = _ ,, refl
 
 --     P-compat-special :
 --         ∃ λ proof → 
