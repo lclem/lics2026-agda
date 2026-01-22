@@ -51,6 +51,7 @@ open import Data.Vec
     public
 
 open import Data.Vec.Relation.Unary.Any as Any using (Any; here; there) public
+open import Data.Vec.Relation.Unary.All as All using (All; []; _∷_) renaming (lookup to All-lookup; map to All-map) public
 
 open import Data.Vec.Membership.Propositional.Properties
     using (∈-++⁺ˡ; ∈-++⁺ʳ; ∈-tabulate⁺; ∈-lookup) public

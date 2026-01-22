@@ -51,13 +51,13 @@ record Special (P : ProductRule) : Set where
         --     [ P ]⟨ c · x , c · x′ , y , y′ ⟩
         --         ≈⟨ subst-inv′ᵥ P (·-one-* _ _ ∷-≈ ·-one-* _ _ ∷-≈ ≈-refl ∷-≈ ≈-refl ∷-≈ []-≈) ⟨
         --     [ P ]⟨ (c · 1T) * x , (c · 1T) * x′ , y , y′ ⟩
-        --         ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
+        --         ≡⟨ substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
         --     [ [ P ]⟨ z * x , z * x′ , y , y′ ⟩ ]⟨ x , x′ , y , y′ , c · 1T ⟩
         --         ≈⟨ subst-invᵥ (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ []) P-compat ⟩
         --     [ z * [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ x , x′ , y , y′ , c · 1T ⟩ 
         --         ≈⟨⟩
         --     (c · 1T) * [ [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ x , x′ , y , y′ , c · 1T ⟩ 
-        --         ≡⟨ cong ((c · 1T) *_) (subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ [])) ⟩
+        --         ≡⟨ cong ((c · 1T) *_) (substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ [])) ⟩
         --     (c · 1T) * [ P ]⟨ x , x′ , y , y′ ⟩
         --         ≈⟨ ·-one-* _ _ ⟩
         --     c · [ P ]⟨ x , x′ , y , y′ ⟩

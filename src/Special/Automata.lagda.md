@@ -64,13 +64,13 @@ invariance Δ = go where
             Δ ↑ ((c · p) * q)
                 ≈⟨⟩
             [ P ]⟨ c · p , c · Δ ↑ p , q , Δ ↑ q ⟩
-                ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
+                ≡⟨ substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
             [ [ P ]⟨ c · x , c · x′ , y , y′ ⟩ ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
                 ≈⟨ subst-invᵥ (_ ∷ _ ∷ _ ∷ _ ∷ []) (P-compat special c) ⟩
             [ c · [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
                 ≈⟨⟩
             c · [ [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
-                ≡⟨ cong (_·_ c) (subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ [])) ⟩
+                ≡⟨ cong (_·_ c) (substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ [])) ⟩
             c · [ P ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
                 ≈⟨⟩
             Δ ↑ (c · p * q)
@@ -97,15 +97,15 @@ invariance Δ = go where
             Δ ↑ ((p * q) * r)
                 ≈⟨⟩
             [ P ]⟨ p * q , [ P ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩ , r , Δ ↑ r ⟩
-                ≈⟨ subst-inv′ᵥ P (≈-refl ∷-≈ ≡→≈ (subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ _ ∷ [])) ∷-≈ ≈-refl ∷-≈ ≈-refl ∷-≈ []-≈) ⟨
+                ≈⟨ subst-inv′ᵥ P (≈-refl ∷-≈ ≡→≈ (substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ _ ∷ [])) ∷-≈ ≈-refl ∷-≈ ≈-refl ∷-≈ []-≈) ⟨
             [ P ]⟨ [ x * y ]ᵥ ϱ , [ [ P ]⟨ x , x′ , y , y′ ⟩ ]ᵥ ϱ , [ z ]ᵥ ϱ , [ z′ ]ᵥ ϱ ⟩
-                ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟨
+                ≡⟨ substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟨
             [ [ P ]⟨ x * y , [ P ]⟨ x , x′ , y , y′ ⟩ ,  z , z′ ⟩ ]ᵥ ϱ
                 ≈⟨ subst-invᵥ (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ _ ∷ []) (P-assoc special) ⟩
             [ [ P ]⟨ x , x′ , y * z , [ P ]⟨ y , y′ , z , z′ ⟩ ⟩ ]ᵥ ϱ
-                ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟩
+                ≡⟨ substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟩
             [ P ]⟨ [ x ]ᵥ ϱ , [ x′ ]ᵥ ϱ , [ y * z ]ᵥ ϱ , [ [ P ]⟨ y , y′ , z , z′ ⟩ ]ᵥ ϱ ⟩
-                ≈⟨ subst-inv′ᵥ P (≈-refl ∷-≈ ≈-refl ∷-≈ ≈-refl ∷-≈ ≡→≈ (subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ _ ∷ [])) ∷-≈ []-≈) ⟩
+                ≈⟨ subst-inv′ᵥ P (≈-refl ∷-≈ ≈-refl ∷-≈ ≈-refl ∷-≈ ≡→≈ (substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ _ ∷ [])) ∷-≈ []-≈) ⟩
             [ P ]⟨ p , Δ ↑ p , q * r , [ P ]⟨ q , Δ ↑ q , r , Δ ↑ r ⟩ ⟩
                 ≈⟨⟩
             Δ ↑ (p * (q * r))
@@ -118,11 +118,11 @@ invariance Δ = go where
             Δ ↑ (p * q)
                 ≈⟨⟩
             [ P ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
-                ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
+                ≡⟨ substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟨
             [ [ P ]⟨ x , x′ , y , y′ ⟩ ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
                 ≈⟨ subst-invᵥ (_ ∷ _ ∷ _ ∷ _ ∷ []) (P-comm special) ⟩
             [ [ P ]⟨ y , y′ , x , x′ ⟩ ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
-                ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟩
+                ≡⟨ substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (_ ∷ _ ∷ _ ∷ _ ∷ []) ⟩
             [ P ]⟨ q , Δ ↑ q , p , Δ ↑ p ⟩
                 ≈⟨⟩
             Δ ↑ (q * p)
@@ -136,13 +136,13 @@ invariance Δ = go where
             [ P ]⟨ p + q , Δ ↑ p + Δ ↑ q , r , Δ ↑ r ⟩
                 ≈⟨⟩
             [ P ]⟨ [ x + y ]ᵥ ϱ , [ x′ + y′ ]ᵥ ϱ , [ z ]ᵥ ϱ , [ z′ ]ᵥ ϱ ⟩
-                ≡⟨ subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟨
+                ≡⟨ substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ ⟨
             [ [ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ]ᵥ ϱ
                 ≈⟨ subst-invᵥ (_ ∷ _ ∷ _ ∷ _ ∷ _ ∷ _ ∷ []) (P-add special) ⟩
             [ [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩ ]ᵥ ϱ
                 ≈⟨⟩
             [ [ P ]⟨ x , x′ , z , z′ ⟩ ]ᵥ ϱ + [ [ P ]⟨ y , y′ , z , z′ ⟩ ]ᵥ ϱ
-                ≡⟨ cong₂ _+_ (subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ) (subst-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ) ⟩
+                ≡⟨ cong₂ _+_ (substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ) (substᵥ-substᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) ϱ) ⟩
             [ P ]⟨ p , Δ ↑ p , r , Δ ↑ r ⟩ + [ P ]⟨ q , Δ ↑ q , r , Δ ↑ r ⟩
                 ≈⟨⟩
             Δ ↑ (p * r + q * r)

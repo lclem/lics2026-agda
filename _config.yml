@@ -6,10 +6,10 @@ license: Creative Commons Attribution 4.0 International License
 license-file: https://creativecommons.org/licenses/by/4.0/
 
 authors:
-  - name: Lorenzo Clemente
-    email: clementelorenzo@gmail.com
-    corresponding: true
-    github_username: lclem
+  - name: XXX
+    # email: clementelorenzo@gmail.com
+    # corresponding: true
+    #github_username: lclem
 
 repository: lclem/lics2026-agda
 branch: main
