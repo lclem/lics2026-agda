@@ -538,6 +538,7 @@ infix 8 _x[_]_
 data *X* : Set where
     _x[_]_ : (u : Σ *) (f : A ⟪ Σ ⟫) (v : Σ *) → *X*
 
+
 Δˡ Δʳ : (a : Σ) → *X* → Term *X*
 Δˡ a (u x[ f ] v) = var ((u ∷ʳ a) x[ f ] v)
 Δʳ b (u x[ f ] v) = var (u x[ f ] (v ∷ʳ b))
