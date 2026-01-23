@@ -110,7 +110,7 @@ _⟦_⟧ : TermAut X → Term X → A ⟪ Σ ⟫
 δ (S ⟦ α ⟧) a = S ⟦ Δ S a ↑ α ⟧
 ```
 
-## Homomorphism lemma
+## Homomorphism lemma {#sec:homomorphism}
 
 We show that the semantics of a `P`-automaton is a homomorphism from terms to series.
 This does not rely on any assumption on the product rule `P`.
