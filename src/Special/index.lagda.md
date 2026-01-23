@@ -5,7 +5,6 @@ title: "Main results"
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 
-
 module Special.index where
 ```
 
