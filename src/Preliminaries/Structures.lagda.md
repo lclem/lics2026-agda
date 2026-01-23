@@ -12,9 +12,6 @@ module Preliminaries.Structures
   (_≈_ : Rel A ℓ)    -- The underlying equality relation
   where
 
--- The file is divided into sections depending on the arities of the
--- components of the algebraic structure.
-
 open import Algebra.Core using (Op₁; Op₂)
 open import Algebra.Definitions _≈_
 import Algebra.Consequences.Setoid as Consequences
