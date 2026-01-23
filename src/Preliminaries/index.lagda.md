@@ -16,7 +16,4 @@ import Preliminaries.List
 import Preliminaries.Vector
 import Preliminaries.Equivalence
 import Preliminaries.Algebra
-import Preliminaries.Integers
-import Preliminaries.PolyExpr
-import Preliminaries.DecidableEquivalence
 ```

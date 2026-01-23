@@ -4,13 +4,11 @@ title: "Special product rules"
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base
 module Special.ProductRules (R : CommutativeRing) where
 
 open import Preliminaries.Algebra R
-open import Preliminaries.PolyExpr R using (con)
 open import General.Terms R
 open import General.ProductRules R
 open import Special.Polynomials R

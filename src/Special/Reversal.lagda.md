@@ -4,7 +4,6 @@ title: Reversal of formal series
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base hiding (_++_)
 open import General.ProductRules
@@ -18,9 +17,6 @@ module Special.Reversal
 open import Size
 open import Preliminaries.List
 open import Preliminaries.Algebra R
-open import Preliminaries.PolyExpr R
-    using (PolyExpr; con)
-    renaming (subst to P-subst; ⟦_⟧_ to P⟦_⟧_)
 
 open import General.Series R Σ
 open import General.Terms R renaming (_+_ to _[+]_; _*_ to _[*]_; _·_ to _[·]_) hiding (x; y; z; t)

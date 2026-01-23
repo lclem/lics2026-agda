@@ -3,8 +3,6 @@ title: Auxiliary lemmas
 ---
 
 ```
--- {-# OPTIONS --allow-unsolved-metas #-}
-
 open import Preliminaries.Base hiding (refl; sym; trans)
 module Preliminaries.AuxiliaryLemmas (R : CommutativeRing) where
 

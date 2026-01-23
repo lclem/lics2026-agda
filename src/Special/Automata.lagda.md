@@ -4,12 +4,11 @@ title: "Definition"
 
 For special product rules,
 the semantics of term automata is invariant under term equivalence.
-In other words, term automata are polynomial automatam,
+In other words, term automata are polynomial automata,
 that is, automata whose states are bona-fide polynomials.
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base
 open import General.ProductRules

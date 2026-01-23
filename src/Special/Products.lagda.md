@@ -18,8 +18,6 @@ module Special.Products
     where
 
 open import Preliminaries.Algebra R
-open import Preliminaries.PolyExpr R
-    using (con; var; ≈-eval₀)
 
 open import General.Series R Σ
 open import General.Terms R

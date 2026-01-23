@@ -3,8 +3,6 @@ title:
 ---
 
 ```
--- {-# OPTIONS --allow-unsolved-metas #-}
-
 open import Preliminaries.Base
 import Preliminaries.Algebra
 

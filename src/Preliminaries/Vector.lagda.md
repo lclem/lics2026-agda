@@ -5,8 +5,6 @@ title: Vectors
 In this section we do vectors.
 
 ```
--- {-# OPTIONS --allow-unsolved-metas #-}
-
 module Preliminaries.Vector where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym)

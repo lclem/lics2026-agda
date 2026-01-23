@@ -7,18 +7,11 @@ and we study their properties.
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base
 module Special.Polynomials (R : CommutativeRing) where
 
 open import Preliminaries.Algebra R
-open import Preliminaries.PolyExpr R as P
-    using (PolyExpr; IntegralPolyExpr; 1P; 0P; con; ≈-con; +-con; *-con; con0; con1; var)
-    renaming (_≈_ to _≈P_; _+_ to _+P_; _-_ to _-P_; _·_ to _·P_ ; _*_ to _*P_; ≈-refl to P-refl; module EqP to EqP′)
-
-open P.AlgebraicProperties using () renaming (+-identityˡ to +P-identityˡ)
-
 open import General.Terms R
 ```
 
@@ -373,40 +366,4 @@ subst-inv′ᵥ :
     substᵥ ϱ p ≈ substᵥ η p
 
 subst-inv′ᵥ {ϱ = ϱ} {η} p ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
-```
-
-# Relation to polynomial expressions
-
-In this section we relate terms modulo `_≈_` to polynomial expressions.
-We begin by showing that converting terms to polynomial expressions
-respects term equivalence `_≈_`.
-
-```
-≈-term→poly :
-    ∀ {X} {p q : Term X} →
-    p ≈ q →
-    ----------------------------
-    term→poly p ≈P term→poly q
-
-≈-term→poly = go where
-
-    go : p ≈ q → term→poly p ≈P term→poly q
-    go ≈-refl = P-refl
-    go (≈-sym p≈q) = P.≈-sym (go p≈q)
-    go (≈-trans p≈q q≈r) = P.≈-trans (go p≈q) (go q≈r)
-    go (·-cong c≈d p≈q) = P.*-cong (≈-con c≈d) (go p≈q)
-    go (·-one p) = *-oneˡ (term→poly p) where open P.AlgebraicProperties
-    go (·-+-distrib c p q) = *-distrˡ _ _ _ where open P.AlgebraicProperties
-    go (+-·-distrib p c d) = P.con-*-distrʳ _ _ _
-    go (·-*-distrib c p q) = P.*-assoc _ _ _
-    go (*-·-distrib c d p) = P.con-*-assoc _ _ _
-    go (+-cong p≈p′ q≈q′) = P.+-cong (go p≈p′) (go q≈q′)
-    go (+-zeroʳ p) = P.+-zeroʳ _
-    go (+-assoc p q r) = P.+-assoc _ _ _
-    go (+-comm p q) = P.+-comm _ _
-    go (+-invʳ p) = P.+-invʳ _
-    go (*-cong p≈p′ q≈q′) = P.*-cong (go p≈p′) (go q≈q′)
-    go (*-assoc p q r) = P.*-assoc _ _ _
-    go (*-comm p q) = P.*-comm _ _
-    go (*-distribʳ p q r) = P.*-distrʳ _ _ _
 ```
