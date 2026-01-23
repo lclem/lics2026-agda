@@ -1,10 +1,9 @@
 ---
-title: "General results 🚧"
+title: "General results"
 ---
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- --allow-unsolved-metas
 
 module General.index where
 ```

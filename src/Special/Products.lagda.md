@@ -1,5 +1,5 @@
 ---
-title: "Special products 🚧"
+title: "Special products"
 ---
 
 In this section we show that special product rules induce associative commutative algebras of series.
@@ -7,7 +7,7 @@ In fact, over the rationals the converse is true (and easy to see), however we d
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- --allow-unsolved-metas
+
 
 open import Size
 open import Preliminaries.Base

@@ -1,5 +1,5 @@
 ---
-title: "Series 🚧"
+title: "Series"
 ---
 
 # Formal series

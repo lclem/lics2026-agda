@@ -1,5 +1,5 @@
 ---
-title: Vectors 🚧
+title: Vectors
 ---
 
 In this section we do vectors.

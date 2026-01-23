@@ -1,5 +1,5 @@
 ---
-title: Products of power series 🚧
+title: Products of power series
 ---
 
 In this section we define products of formal series obeying a product rule.

@@ -1,10 +1,10 @@
 ---
-title: "Main results 🚧"
+title: "Main results"
 ---
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- --allow-unsolved-metas
+
 
 module Special.index where
 ```

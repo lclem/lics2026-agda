@@ -1,5 +1,5 @@
 ---
-title: "Definition 🚧"
+title: "Definition"
 ---
 
 For special product rules,

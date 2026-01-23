@@ -1,5 +1,5 @@
 ---
-title: "Terms 🚧"
+title: "Terms"
 ---
 
 In this section we define the syntax of terms and their semantics.

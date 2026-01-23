@@ -1,5 +1,5 @@
 ---
-title: Products rules 🚧
+title: Products rules
 ---
 
 In this section we illustrate some examples of product rules of formal series,

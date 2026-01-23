@@ -1,5 +1,5 @@
 ---
-title: "`P`-finite series 🚧"
+title: "`P`-finite series"
 ---
 
 ```

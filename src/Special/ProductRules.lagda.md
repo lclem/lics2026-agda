@@ -1,5 +1,5 @@
 ---
-title: "Special product rules 🚧"
+title: "Special product rules"
 ---
 
 ```

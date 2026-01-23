@@ -1,5 +1,5 @@
 ---
-title: Decidability of equivalence of polynomial expressions over the integers 🚧
+title: Decidability of equivalence of polynomial expressions over the integers
 ---
 
 ```

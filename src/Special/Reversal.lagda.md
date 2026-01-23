@@ -1,5 +1,5 @@
 ---
-title: Reversal of formal series 🚧
+title: Reversal of formal series
 ---
 
 ```
@@ -145,28 +145,33 @@ module Assumptions (a b : Σ) where
     Δʳa (c [·] γ) = c [·] Δʳa γ
     Δʳa (γ [+] δ) = Δʳa γ [+] Δʳa δ
     Δʳa (γ [*] δ) = [ P ]⟨ a→ab γ , Δʳa γ , a→ab δ , Δʳa δ ⟩
+```
 
+```
 ΔʳΔˡ-var : Set
 ΔʳΔˡ-var =
     ∀ a b →
     let open Assumptions a b in
     --------------------------
     Δʳa (Δˡε (var y [*] var z)) P≈ Δˡb (Δʳε (var y [*] var z))
+```
 
-ΔʳΔˡ-var′ : Set
-ΔʳΔˡ-var′ =
-    ∀ a b f g →
-    -----------------------------------------------------------
-    Δʳ b ↑ (Δˡ a ↑ (var (ε x[ f ] ε) [*] var (ε x[ g ] ε))) P≈
-    Δˡ a ↑ (Δʳ b ↑ (var (ε x[ f ] ε) [*] var (ε x[ g ] ε)))
 ```
 module _ (special : Special P) where
 
     open import Special.Automata R Σ P special
+```
 
+# Proof of `ΔʳΔˡ → ⟦ΔʳΔˡ⟧` {#sec:proof:1}
+
+```
     ΔʳΔˡ→⟦ΔʳΔˡ⟧ : ΔʳΔˡ → ⟦ΔʳΔˡ⟧
     ΔʳΔˡ→⟦ΔʳΔˡ⟧ ass a b α = semantic-invariance S (ass a b α)
+```
 
+# Proof of `ΔʳΔˡ-var → ΔʳΔˡ` {#sec:proof:2}
+
+```
     ΔʳΔˡ-var→ΔʳΔˡ : ΔʳΔˡ-var → ΔʳΔˡ
     ΔʳΔˡ-var→ΔʳΔˡ ass-var a b = go where
 

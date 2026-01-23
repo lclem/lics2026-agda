@@ -1,5 +1,5 @@
 ---
-title: "Automata 🚧"
+title: "Automata"
 ---
 
 ```

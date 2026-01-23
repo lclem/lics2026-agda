@@ -1,5 +1,5 @@
 ---
-title: Decidability of equivalence of polynomial expressions 🚧
+title: Decidability of equivalence of polynomial expressions
 ---
 
 ```

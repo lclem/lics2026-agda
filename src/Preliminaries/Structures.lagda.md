@@ -1,5 +1,5 @@
 ---
-title: Auxiliary algebraic structures 🚧
+title: Auxiliary algebraic structures
 ---
 
 ```

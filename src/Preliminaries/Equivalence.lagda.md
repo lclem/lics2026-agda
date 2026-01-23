@@ -1,5 +1,5 @@
 ---
-title: Algebraic preliminaries 🚧
+title: Algebraic preliminaries
 ---
 
 ```

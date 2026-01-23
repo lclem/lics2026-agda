@@ -1,5 +1,5 @@
 ---
-title: "Preliminaries 🚧"
+title: "Preliminaries"
 ---
 
 ```

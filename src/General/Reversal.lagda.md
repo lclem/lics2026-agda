@@ -1,5 +1,5 @@
 ---
-title: Reversal of formal series 🚧
+title: Reversal of formal series
 ---
 
 In this section we define right derivatives and reversal of formal series,

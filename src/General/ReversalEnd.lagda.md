@@ -1,5 +1,5 @@
 ---
-title: Reversal endomorphism 🚧
+title: Reversal endomorphism
 ---
 
 In this section we provide a characterisation of when reversal is an endomorphism of the series algebra.

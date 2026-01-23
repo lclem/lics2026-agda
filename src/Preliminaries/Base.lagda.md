@@ -1,5 +1,5 @@
 ---
-title: Basic common definitions 🚧
+title: Basic common definitions
 ---
 
 ```

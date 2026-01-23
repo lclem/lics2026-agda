@@ -1,5 +1,5 @@
 ---
-title: Auxiliary lemmas 🚧
+title: Auxiliary lemmas
 ---
 
 ```

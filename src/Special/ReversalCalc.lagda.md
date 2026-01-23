@@ -1,5 +1,5 @@
 ---
-title: Reversal of formal series 🚧
+title: Reversal of formal series
 ---
 
 This was used to automatically prove the reversal homomorphism property for simple product rules

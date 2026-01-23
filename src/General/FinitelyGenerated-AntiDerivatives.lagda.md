@@ -1,5 +1,5 @@
 ---
-title: "Anti-derivatives of `P`-finite series 🚧"
+title: "Anti-derivatives of `P`-finite series"
 ---
 
 ```

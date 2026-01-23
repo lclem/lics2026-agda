@@ -1,5 +1,5 @@
 ---
-title: "Polynomials 🚧"
+title: "Polynomials"
 ---
 
 In this section we introduce an natural equivalence on terms turning them into polynomial expressions (without constant term)

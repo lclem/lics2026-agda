@@ -1,5 +1,5 @@
 ---
-title: Polynomial expressions 🚧
+title: Polynomial expressions
 ---
 
 In this section we define polynomial expressions over a commutative ring `R`,

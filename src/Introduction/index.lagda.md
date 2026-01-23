@@ -7,7 +7,7 @@ title: "Introduction"
 module Introduction.index where
 ```
 
-This document is a support Agda formalisation for the paper [@Clemente:arXiv:2026].
+This document is a support Agda formalisation a paper currently under review.
 We develop a fragment of the theory of formal series in noncommuting variables and their algebraic properties.
 Our approach is coinductive, using Agda's sized types and guardedness features.
 
