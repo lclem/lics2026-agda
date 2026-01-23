@@ -11,9 +11,10 @@ module Preliminaries.index where
 In this part we preliminariate.
 
 ```
-import Preliminaries.Base
-import Preliminaries.Lists
-import Preliminaries.Vector
-import Preliminaries.Equivalence
 import Preliminaries.Algebra
+import Preliminaries.Base
+import Preliminaries.Equivalence
+import Preliminaries.Lists
+import Preliminaries.Structures
+import Preliminaries.Vector
 ```
