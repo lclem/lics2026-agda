@@ -3,8 +3,6 @@ title: Algebraic preliminaries
 ---
 
 ```
-{-# OPTIONS --allow-unsolved-metas #-}
-
 open import Preliminaries.Base
 module Preliminaries.Algebra (R : CommutativeRing) where
 

@@ -7,7 +7,6 @@ In this section we define the syntax of terms and their semantics.
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 {-# OPTIONS --backtracking-instance-search --instance-search-depth 1 #-}
-{-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base
 module General.Terms (R : CommutativeRing) where
