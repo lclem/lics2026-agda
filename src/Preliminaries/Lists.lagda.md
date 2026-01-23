@@ -6,7 +6,7 @@ title: List preliminaries
 ```
 {-# OPTIONS --sized-types #-}
 
-module Preliminaries.List where
+module Preliminaries.Lists where
 
 open import Preliminaries.Base hiding (_++_)
 open import Preliminaries.Equivalence

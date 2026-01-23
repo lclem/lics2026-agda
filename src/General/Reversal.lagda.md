@@ -48,7 +48,7 @@ We define the homomorphic extension `δʳ*` of the right derivative to all finit
 
 ```
 module _ where
-    open import Preliminaries.List
+    open import Preliminaries.Lists
 
       -- homomorphic extension to all words
     δʳ* : Σ * → A ⟪ Σ ⟫ → A ⟪ Σ ⟫

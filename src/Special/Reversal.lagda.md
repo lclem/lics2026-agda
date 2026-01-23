@@ -15,7 +15,7 @@ module Special.Reversal
     where
 
 open import Size
-open import Preliminaries.List
+open import Preliminaries.Lists
 open import Preliminaries.Algebra R
 
 open import General.Series R Σ

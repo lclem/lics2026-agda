@@ -12,7 +12,7 @@ In this part we preliminariate.
 
 ```
 import Preliminaries.Base
-import Preliminaries.List
+import Preliminaries.Lists
 import Preliminaries.Vector
 import Preliminaries.Equivalence
 import Preliminaries.Algebra

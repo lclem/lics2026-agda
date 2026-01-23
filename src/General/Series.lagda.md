@@ -546,7 +546,7 @@ isLeftModule = record
 
 ```
 module Inductive where
-  open import Preliminaries.List public
+  open import Preliminaries.Lists public
 ```
 
 Classically, formal series are defined as functions
