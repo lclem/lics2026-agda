@@ -9,7 +9,7 @@ title: Reversal of formal series 🚧
 open import Preliminaries.Base hiding (_++_)
 open import General.ProductRules
 
-module Special.Reversal
+module Special.Reversal-ext
     (R : CommutativeRing)
     (Σ : Set)
     (P : ProductRule R)
@@ -145,6 +145,9 @@ module Assumptions (a b : Σ) where
     Δʳa (c [·] γ) = c [·] Δʳa γ
     Δʳa (γ [+] δ) = Δʳa γ [+] Δʳa δ
     Δʳa (γ [*] δ) = [ P ]⟨ a→ab γ , Δʳa γ , a→ab δ , Δʳa δ ⟩
+    
+    -- t : Term εXε
+    -- t = var y [*] var z
 
 ΔʳΔˡ-var : Set
 ΔʳΔˡ-var =
@@ -159,6 +162,165 @@ module Assumptions (a b : Σ) where
     -----------------------------------------------------------
     Δʳ b ↑ (Δˡ a ↑ (var (ε x[ f ] ε) [*] var (ε x[ g ] ε))) P≈
     Δˡ a ↑ (Δʳ b ↑ (var (ε x[ f ] ε) [*] var (ε x[ g ] ε)))
+
+module Test a b f g where
+
+    open Assumptions a b
+
+    ρε : Term εXε → Term *X*
+    ρε 0T = 0T
+    ρε (var y) = var (ε x[ f ] ε)
+    ρε (var z) = var (ε x[ g ] ε)
+    ρε (c [·] γ) = c [·] ρε γ
+    ρε (γ [+] δ) = ρε γ [+] ρε δ
+    ρε (γ [*] δ) = ρε γ [*] ρε δ
+
+    ρa : Term aX → Term *X*
+    ρa 0T = 0T
+    ρa (var y) = var (ε x[ f ] ε)
+    ρa (var ay) = var ((a ∷ ε) x[ f ] ε)
+    ρa (var z) = var (ε x[ g ] ε)
+    ρa (var az) = var ((a ∷ ε) x[ g ] ε)
+    ρa (c [·] γ) = c [·] ρa γ
+    ρa (γ [+] δ) = ρa γ [+] ρa δ
+    ρa (γ [*] δ) = ρa γ [*] ρa δ
+
+    ρab : Term aXb → Term *X*
+    ρab 0T = 0T
+    ρab (var y) = var (ε x[ f ] ε)
+    ρab (var ay) = var ((a ∷ ε) x[ f ] ε)
+    ρab (var yb) = var (ε x[ f ] (b ∷ ε))
+    ρab (var ayb) = var ((a ∷ ε) x[ f ] (b ∷ ε))
+    ρab (var z) = var (ε x[ g ] ε)
+    ρab (var az) = var ((a ∷ ε) x[ g ] ε)
+    ρab (var zb) = var (ε x[ g ] (b ∷ ε))
+    ρab (var azb) = var ((a ∷ ε) x[ g ] (b ∷ ε))
+    ρab (c [·] γ) = c [·] ρab γ
+    ρab (γ [+] δ) = ρab γ [+] ρab δ
+    ρab (γ [*] δ) = ρab γ [*] ρab δ
+
+    data aXb′ : *X* → Set where
+        y : aXb′ (ε x[ f ] ε)
+        ay : aXb′ ((a ∷ ε) x[ f ] ε)
+        yb : aXb′ (ε x[ f ] (b ∷ ε))
+        ayb : aXb′ ((a ∷ ε) x[ f ] (b ∷ ε))
+        z : aXb′ (ε x[ g ] ε)
+        az : aXb′ ((a ∷ ε) x[ g ] ε)
+        zb : aXb′ (ε x[ g ] (b ∷ ε))
+        azb : aXb′ ((a ∷ ε) x[ g ] (b ∷ ε))
+
+    -- must assume f ⟨ ε ⟩ ≠ g ⟨ ε ⟩
+    -- etc.
+
+    aXb′-inj : ∀ {x} (p q : aXb′ x) → p ≡ q
+    aXb′-inj y y = {!   !}
+    aXb′-inj y z = {!   !}
+    aXb′-inj ay ay = {!   !}
+    aXb′-inj ay az = {!   !}
+    aXb′-inj yb yb = {!   !}
+    aXb′-inj yb zb = {!   !}
+    aXb′-inj ayb ayb = {!   !}
+    aXb′-inj ayb azb = {!   !}
+    aXb′-inj z y = {!   !}
+    aXb′-inj z z = {!   !}
+    aXb′-inj az ay = {!   !}
+    aXb′-inj az az = {!   !}
+    aXb′-inj zb yb = {!   !}
+    aXb′-inj zb zb = {!   !}
+    aXb′-inj azb ayb = {!   !}
+    aXb′-inj azb azb = {!   !}
+
+    data Term-Prop (Var-Prop : *X* → Set) : Term *X* → Set where
+        0T : Term-Prop Var-Prop 0T
+        var : ∀ {x} (prop : Var-Prop x) → Term-Prop Var-Prop (var x)
+        _[·]_ : ∀ {u} c → Term-Prop Var-Prop u → Term-Prop Var-Prop (c [·] u)
+        _[+]_ : ∀ {u v} → Term-Prop Var-Prop u → Term-Prop Var-Prop v → Term-Prop Var-Prop (u [+] v)
+        _[*]_ : ∀ {u v} → Term-Prop Var-Prop u → Term-Prop Var-Prop v → Term-Prop Var-Prop (u [*] v)
+
+    Term-Prop-inj : ∀ {α} (p q : Term-Prop aXb′ α) → p ≡ q
+
+    Term-Prop-inj 0T 0T = refl
+    Term-Prop-inj (var px) (var qx) = {!   !}
+    Term-Prop-inj (c [·] p) (.c [·] q) = {!   !}
+    Term-Prop-inj (p [+] p₁) (q [+] q₁) = {!   !}
+    Term-Prop-inj (p [*] p₁) (q [*] q₁) = {!   !}
+
+    ρab-inv : ∀ {α} → Term-Prop aXb′ α → Term aXb
+    ρab-inv 0T = 0T
+    ρab-inv (var y) = var {!   !}
+    ρab-inv (var ay) = {!   !}
+    ρab-inv (var yb) = {!   !}
+    ρab-inv (var ayb) = {!   !}
+    ρab-inv (var z) = {!   !}
+    ρab-inv (var az) = {!   !}
+    ρab-inv (var zb) = {!   !}
+    ρab-inv (var azb) = {!   !}
+    ρab-inv (c [·] α) = c [·] ρab-inv α
+    ρab-inv (α [+] β) = ρab-inv α [+] ρab-inv β
+    ρab-inv (α [*] β) = ρab-inv α [*] ρab-inv β
+
+    transfer′ :
+        ∀ {α β : Term *X*} →
+        (pα : Term-Prop aXb′ α) →
+        (pβ : Term-Prop aXb′ β) →
+        α P≈ β →
+        -----------------------------
+        ρab-inv pα P≈ ρab-inv pβ
+
+    transfer′ pα pβ ≈-refl = {!   !}
+    transfer′ pα pβ (≈-sym α≈β) = {!   !}
+    transfer′ pα pβ (≈-trans α≈β α≈β₁) = {!   !}
+    transfer′ pα pβ (·-cong x α≈β) = {!   !}
+    transfer′ pα pβ (·-one _) = {!   !}
+    transfer′ pα pβ (·-+-distrib c p q) = {!   !}
+    transfer′ pα pβ (+-·-distrib p c d) = {!   !}
+    transfer′ pα pβ (·-*-distrib c p q) = {!   !}
+    transfer′ pα pβ (*-·-distrib c d p) = {!   !}
+    transfer′ pα pβ (+-cong α≈β α≈β₁) = {!   !}
+    transfer′ pα pβ (+-zeroʳ _) = {!   !}
+    transfer′ pα pβ (+-assoc p q r) = {!   !}
+    transfer′ pα pβ (+-comm p q) = {!   !}
+    transfer′ pα pβ (+-invʳ p) = {!   !}
+    transfer′ pα pβ (*-cong α≈β α≈β₁) = {!   !}
+    transfer′ pα pβ (*-assoc p q r) = {!   !}
+    transfer′ pα pβ (*-comm p q) = {!   !}
+    transfer′ pα pβ (*-distribʳ p q r) = {!   !}
+
+    transfer : ∀ (γ δ : Term aXb) → ρab γ P≈ ρab δ → γ P≈ δ
+    transfer = {!   !}
+
+
+    ρΔˡε-lem : 
+        (γ : Term εXε) →
+        ---------------------------
+        ρa (Δˡε γ) P≈ Δˡ a ↑ (ρε γ)
+
+    ρΔˡε-lem 0T = P.≈-refl
+    ρΔˡε-lem (var y) = P.≈-refl
+    ρΔˡε-lem (var z) = P.≈-refl
+    ρΔˡε-lem (c [·] γ) = {!   !}
+    ρΔˡε-lem (γ [+] δ) = {!   !}
+    ρΔˡε-lem (γ [*] δ) = {!   !}
+
+    -- assume
+    -- Δʳ b ↑ (Δˡ a ↑ γ) P≈ Δˡ a ↑ (Δʳ b ↑ γ)
+    -- and show
+    -- Δʳa (Δˡε γ) P≈ Δˡb (Δʳε γ)
+
+    -- can show ρab (Δʳa (Δˡε γ)) P≈ ρab (Δˡb (Δʳε γ)) :
+
+    -- ρab (Δʳa (Δˡε γ))
+    -- Δʳ b ↑ (ρa (Δˡε γ))
+    -- Δʳ b ↑ (Δˡ a ↑ (ρε γ))
+    -- Δˡ a ↑ (Δʳ b ↑ (ρε γ))
+    -- Δˡ a ↑ (ρb (Δʳε γ))
+    -- ρab (Δˡb (Δʳε γ))
+
+    -- Δʳa (Δˡε γ) P≈
+    -- Δˡb (Δʳε γ)
+
+```
+
 ```
 module _ (special : Special P) where
 
