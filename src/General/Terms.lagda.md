@@ -7,7 +7,7 @@ In this section we define the syntax of terms and their semantics.
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 {-# OPTIONS --backtracking-instance-search --instance-search-depth 1 #-}
-{-# OPTIONS --allow-unsolved-metas #-}
+-- {-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base
 module General.Terms (R : CommutativeRing) where
@@ -157,29 +157,7 @@ We introduce a convenient notation for applying finite substitutions.
 [ p ]ᵥ ϱ = substᵥ ϱ p
 ```
 
-We can compose finite substitutions.
-
-```
-substᵥ-substᵥ :
-  ∀ p (ϱ₀ : Substᵥ m (Var n)) (ϱ₁ : Substᵥ n X) →
-  -------------------------------------------------------
-  substᵥ ϱ₁ (substᵥ ϱ₀ p) ≡ substᵥ (map (substᵥ ϱ₁) ϱ₀) p
-
-substᵥ-substᵥ p ϱ₀ ϱ₁ =
-    begin
-      substᵥ ϱ₁ (substᵥ ϱ₀ p)
-        ≡⟨⟩
-      subst (lookup ϱ₁) (subst (lookup ϱ₀) p)
-        ≡⟨ subst-subst p (lookup ϱ₀) (lookup ϱ₁) ⟩
-      subst (subst (lookup ϱ₁) ∘ lookup ϱ₀) p
-        ≡⟨ subst-≡ p _ _ (lookup-map (subst (lookup ϱ₁)) ϱ₀) ⟨
-      subst (lookup (map (subst (lookup ϱ₁)) ϱ₀)) p ≡⟨⟩
-      substᵥ (map (substᵥ ϱ₁) ϱ₀) p
-    ∎ where open ≡-Eq
-```
-
-subst ρ (substᵥ (x, y, z, t) P)
-substᵥ (subst ρ x, subst ρ y,subst ρ z ,subst ρ t) P
+We can compose a substitution with a finite one.
 
 ```
 subst-substᵥ :
@@ -187,7 +165,28 @@ subst-substᵥ :
   -------------------------------------------------------
   subst ϱ₁ (substᵥ ϱ₀ p) ≡ substᵥ (map (subst ϱ₁) ϱ₀) p
 
-subst-substᵥ = {!   !}
+subst-substᵥ p ϱ₀ ϱ₁ = 
+  subst ϱ₁ (substᵥ ϱ₀ p)
+    ≡⟨⟩
+  subst ϱ₁ (subst (lookup ϱ₀) p)
+    ≡⟨ subst-subst p (lookup ϱ₀) ϱ₁ ⟩
+  subst (subst ϱ₁ ∘ lookup ϱ₀) p
+    ≡⟨ subst-≡ p _ _ (lookup-map (subst ϱ₁) ϱ₀) ⟨
+  subst (lookup (map (subst ϱ₁) ϱ₀)) p
+    ≡⟨⟩
+  substᵥ (map (subst ϱ₁) ϱ₀) p
+  ∎ where open ≡-Eq
+```
+
+As a special (useful) case, we can compose two finite substitutions.
+
+```
+substᵥ-substᵥ :
+  ∀ p (ϱ₀ : Substᵥ m (Var n)) (ϱ₁ : Substᵥ n X) →
+  -------------------------------------------------------
+  substᵥ ϱ₁ (substᵥ ϱ₀ p) ≡ substᵥ (map (substᵥ ϱ₁) ϱ₀) p
+
+substᵥ-substᵥ p ϱ₀ ϱ₁ = subst-substᵥ p ϱ₀ (lookup ϱ₁)
 ```
 
 ```
@@ -199,14 +198,6 @@ infixr 5 _∷-≡_
 data _≡ᵥ_ {X : Set} : ∀ {m : ℕ} → (ϱ η : Substᵥ m X) → Set where
     []-≡ : [] ≡ᵥ []
     _∷-≡_ : ∀ {p q} (p≡q : p ≡ q) (ϱ≡η : ϱ ≡ᵥ η) → (p ∷ ϱ) ≡ᵥ (q ∷ η)
-
-substᵥ-≡ :
-  ∀ {ϱ₀ ϱ₁ : Substᵥ m Y} →
-  ϱ₀ ≡ᵥ ϱ₁ →
-  -------------------------
-  ∀ p → substᵥ ϱ₀ p ≡ substᵥ ϱ₁ p
-
-substᵥ-≡ = {!   !}
 ```
 
 We introduce convenient notations for finite substitutions of certain fixed lengths.
