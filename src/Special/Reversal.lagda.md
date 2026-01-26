@@ -32,7 +32,7 @@ open import General.ReversalEnd R Σ P
 open Product P
 -- open Reversal P
 
-open import Special.Polynomials R as P renaming (_≈_ to _P≈_)
+open import Special.Polynomials R as P renaming (_≈_ to _P≈_) hiding (Term-Prop; transfer)
 open import Special.ProductRules R
 
 private variable
@@ -477,8 +477,11 @@ module Test a b f g (special : Special P)
         = P.*-comm _ _
 
     transfer′ ((pα [+] pα₂) [*] pα₁) ((pβ [*] pβ₁) [+] (pβ₂ [*] pβ₃)) (*-distribʳ _ _ _) 
-        rewrite Term-Prop-inj pα pβ | Term-Prop-inj pα₁ pβ₁ |
-                Term-Prop-inj pα₁ pβ₃ | Term-Prop-inj pα₂ pβ₂ | Term-Prop-inj pβ₁ pβ₃
+        rewrite 
+                Term-Prop-inj pα pβ |
+                Term-Prop-inj pα₁ pβ₃ |
+                Term-Prop-inj pα₂ pβ₂ |
+                Term-Prop-inj pβ₁ pβ₃
         = P.*-distribʳ _ _ _
 
     -- if there is an equality proof between two terms over aXb,

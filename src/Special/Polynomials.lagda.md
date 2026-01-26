@@ -7,7 +7,7 @@ and we study their properties.
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
--- {-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 
 open import Preliminaries.Base
 module Special.Polynomials (R : CommutativeRing) where
@@ -665,6 +665,8 @@ data _↝_ {X} : Term X → Term X → Set where
     ↝-trans : p ↝ q → q ↝ r → p ↝ r
 
     ·-cong : c ≈R d → p ↝ q → c · p ↝ d · q
+    -- ·-cong′ : c ≈R d → c · p ↝ d · q → p ↝ q
+
     ·-one : ∀ p → 1R · p ↝ p
     ·-+-distrib : ∀ c p q → c · (p + q) ↝ c · p + c · q
     +-·-distrib : ∀ p c d → c · p + d · p ↝ (c +R d) · p
@@ -674,6 +676,7 @@ data _↝_ {X} : Term X → Term X → Set where
     +-cong : p₀ ↝ p₁ → q₀ ↝ q₁ → p₀ + q₀ ↝ p₁ + q₁
     +-zeroʳ : ∀ p → p + 0T ↝ p
     +-assoc : ∀ p q r → (p + q) + r ↝ p + (q + r)
+    +-assoc′ : ∀ p q r → p + (q + r) ↝ (p + q) + r
     +-comm : ∀ p q → p + q ↝ q + p
     +-invʳ : ∀ p → p - p ↝ 0T
     -- alternative rule
@@ -737,6 +740,7 @@ module _ (Var-Prop : X → Set) where
         = Term-Prop-↝ pα α↝β + Term-Prop-↝ pα₁ α↝β₁
     Term-Prop-↝ (pα + _) (+-zeroʳ _) = pα
     Term-Prop-↝ ((pα + pα₂) + pα₁) (+-assoc _ _ _) = pα + (pα₂ + pα₁)
+    Term-Prop-↝ (pα + (pα₂ + pα₁)) (+-assoc′ _ _ _) = (pα + pα₂) + pα₁
     Term-Prop-↝ (pα + pα₁) (+-comm _ _) = pα₁ + pα
     Term-Prop-↝ _ (+-invʳ _) = 0T
     Term-Prop-↝ (pα * pα₁) (*-cong α↝β α↝β₁)
@@ -783,11 +787,12 @@ module _ (Var-Prop : X → Set) where
 
     confluence (+-zeroʳ _) α↝β₂ = {!   !}
 
-    confluence (+-assoc p q r) α↝β₂ = _ ,, {!   !} ,, ↝-refl
+    confluence (+-assoc _ _ _) α↝β₂ = _ ,, ↝-trans (+-assoc′ _ _ _) α↝β₂ ,, ↝-refl
+    confluence (+-assoc′ _ _ _) α↝β₂ = _ ,, ↝-trans (+-assoc _ _ _) α↝β₂ ,, ↝-refl
 
     confluence (+-comm p q) α↝β₂ = _ ,, ↝-trans (+-comm q p) α↝β₂ ,, ↝-refl
 
-    confluence (+-invʳ p) α↝β₂ = {!   !}
+    confluence (+-invʳ p) α↝β₂ = _ ,, {!   !} ,, {!   !}
 
     confluence (*-cong α↝β₁ α↝β₃) α↝β₂ = {!   !}
 
@@ -816,21 +821,41 @@ module _ (Var-Prop : X → Set) where
     ... | _ ,, γ₁↝δ ,, γ₂↝δ
         = _ ,, ↝-trans α↝γ₁ γ₁↝δ ,, ↝-trans β↝γ₂ γ₂↝δ
 
-    ≈→↝ (·-cong x₁ α≈β) = {!   !}
-    ≈→↝ (·-one _) = {!   !}
-    ≈→↝ (·-+-distrib c p q) = {!   !}
-    ≈→↝ (+-·-distrib p c d) = {!   !}
-    ≈→↝ (·-*-distrib c p q) = {!   !}
-    ≈→↝ (*-·-distrib c d p) = {!   !}
-    ≈→↝ (+-cong α≈β α≈β₁) = {!   !}
+    ≈→↝ (·-cong c≈d α≈β)
+        with ≈→↝ α≈β
+    ... | _ ,, α↝γ ,, β↝γ  = _ ,, ·-cong c≈d α↝γ ,, ·-cong R-refl β↝γ
+    
+    ≈→↝ (·-one _) = _ ,, ·-one _ ,, ↝-refl
+
+    ≈→↝ (·-+-distrib c p q) = c · p + c · q ,, ·-+-distrib c p q ,, ↝-refl
+
+    ≈→↝ (+-·-distrib p c d) = (c +R d) · p ,, ↝-refl ,, +-·-distrib p c d
+
+    ≈→↝ (·-*-distrib c p q) = c · p * q ,, ·-*-distrib c p q ,, ↝-refl
+
+    ≈→↝ (*-·-distrib c d p) = (c *R d) · p ,, ↝-refl ,, *-·-distrib c d p
+
+    ≈→↝ (+-cong α≈α′ β≈β′)
+        with ≈→↝ α≈α′ | ≈→↝ β≈β′
+    ... | _ ,, α↝γ ,, α′↝γ | _ ,, β↝δ ,, β′↝δ = _ ,, +-cong α↝γ  β↝δ ,, +-cong α′↝γ β′↝δ
+
     ≈→↝ (+-zeroʳ _) = _ ,, +-zeroʳ _ ,, ↝-refl
-    ≈→↝ (+-assoc p q r) = {!   !}
-    ≈→↝ (+-comm p q) = {!   !}
+
+    ≈→↝ (+-assoc p q r) = p + q + r ,, +-assoc p q r ,, ↝-refl
+
+    ≈→↝ (+-comm p q) = q + p ,, +-comm p q ,, ↝-refl
+
     ≈→↝ (+-invʳ p) = 0T ,, +-invʳ p ,, ↝-refl
-    ≈→↝ (*-cong α≈β α≈β₁) = {!   !}
-    ≈→↝ (*-assoc p q r) = {!   !}
-    ≈→↝ (*-comm p q) = {!   !}
-    ≈→↝ (*-distribʳ p q r) = {!   !}
+
+    ≈→↝ (*-cong α≈α′ β≈β′)
+        with ≈→↝ α≈α′ | ≈→↝ β≈β′
+    ... | _ ,, α↝γ ,, α′↝γ | _ ,, β↝δ ,, β′↝δ = _ ,, *-cong α↝γ  β↝δ ,, *-cong α′↝γ β′↝δ
+
+    ≈→↝ (*-assoc p q r) = p * q * r ,, *-assoc p q r ,, ↝-refl
+
+    ≈→↝ (*-comm p q) = q * p ,, *-comm p q ,, ↝-refl
+
+    ≈→↝ (*-distribʳ p q r) = _ ,, *-distribʳ p q r ,, ↝-refl
 
     Injective : ∀ {X : Set} → (X → Set) → Set
     Injective P = ∀ {x} → (p q : P x) → p ≡ q
@@ -859,6 +884,7 @@ module _ (Var-Prop : X → Set) where
         ↝-forget pα pβ (+-cong α↝β α↝β₁) = {!   !}
         ↝-forget pα pβ (+-zeroʳ _) = {!   !}
         ↝-forget pα pβ (+-assoc p q r) = {!   !}
+        ↝-forget pα pβ (+-assoc′ p q r) = {!   !}
         ↝-forget pα pβ (+-comm p q) = {!   !}
         ↝-forget pα pβ (+-invʳ p) = {!   !}
         ↝-forget pα pβ (*-cong α↝β α↝β₁) = {!   !}
