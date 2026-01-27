@@ -11,7 +11,7 @@ import Preliminaries.Algebra
 
 module Special.DecidableEquivalence
     (R : CommutativeRing)
-    (_R≟_ : let open Preliminaries.Algebra R in WeaklyDecidable _≈R_)
+    (_≟R_ : let open Preliminaries.Algebra R in WeaklyDecidable _≈R_)
     where
 
 open Preliminaries.Algebra R
@@ -26,13 +26,16 @@ private variable
 
 ```
 mutual
+    -- infix _*x+_·x+_
     data HNF : ℕ → Set where
         ∅     : HNF (suc n)
-        _*x+_ : HNF (suc n) → Normal n → HNF (suc n)
+        -- con : A → HNF (suc n)
+        _*x+_·x+_ : HNF (suc n) → A → Normal n → HNF (suc n)
 
     data Normal : ℕ → Set where
         zero  : Normal zero
-        con : A → HNF (suc n) → Normal (suc n)
+        -- con  : A → Normal (suc zero)
+        poly : HNF (suc n) → Normal (suc n)
 ```
 
 ```
@@ -54,11 +57,13 @@ x = var zero
 mutual
     ⟦_⟧H : HNF (suc n) → Term′ (suc n)
     ⟦ ∅       ⟧H = 0T
-    ⟦ p *x+ q ⟧H = ⟦ p ⟧H * x + ⟦ q ⟧N ↑
+    -- ⟦ con c   ⟧H = c · x
+    ⟦ p *x+ c ·x+ q ⟧H = ⟦ p ⟧H * x + c · x + ⟦ q ⟧N ↑
 
     ⟦_⟧N : Normal n → Term′ n
     ⟦ zero  ⟧N = 0T
-    ⟦ con c p ⟧N = c · ⟦ p ⟧H
+    -- ⟦ con c ⟧N = c · var zero
+    ⟦ poly p ⟧N = ⟦ p ⟧H
 ```
 
 Equality of normal forms
@@ -67,12 +72,16 @@ Equality of normal forms
 mutual
     data _≈H_ : HNF n → HNF n → Set where
         ∅     : _≈H_ {suc n} ∅ ∅
-        _*x+_ : {p₁ p₂ : HNF (suc n)} {n₁ n₂ : Normal n} →
-                p₁ ≈H p₂ → n₁ ≈N n₂ → (p₁ *x+ n₁) ≈H (p₂ *x+ n₂)
+        -- con : {c₁ c₂ : A} → c₁ ≈R c₂ → _≈H_ {suc n} (con c₁) (con c₂)
+        -- _*x+_ : {p₁ p₂ : HNF (suc n)} {n₁ n₂ : Normal n} →
+        --         p₁ ≈H p₂ → n₁ ≈N n₂ → (p₁ *x+ n₁) ≈H (p₂ *x+ n₂)
+        _*x+_·x+_ : {c₁ c₂ : A} {p₁ p₂ : HNF (suc n)} {n₁ n₂ : Normal n} →
+            p₁ ≈H p₂ → c₁ ≈R c₂ → n₁ ≈N n₂ → (p₁ *x+ c₁ ·x+ n₁) ≈H (p₂ *x+ c₂ ·x+ n₂)
 
     data _≈N_ : Normal n → Normal n → Set where
         zero : zero ≈N zero
-        con : {c₁ c₂ : A} {p₁ p₂ : HNF (suc n)} → c₁ ≈R c₂ → p₁ ≈H p₂ → con c₁ p₁ ≈N con c₂ p₂
+        -- con : {c₁ c₂ : A} → c₁ ≈R c₂ → con c₁ ≈N con c₂
+        poly : {p₁ p₂ : HNF (suc n)} → p₁ ≈H p₂ → poly p₁ ≈N poly p₂
 ```
 
 The semantics respect the equality relations.
@@ -99,31 +108,31 @@ The semantics respect the equality relations.
 ≈-↑ (*-distribʳ p q r) = *-distribʳ (p ↑) (q ↑) (r ↑)
 
 mutual
-  ⟦_⟧H-cong :
-    {p₁ p₂ : HNF (suc n)} →
-    p₁ ≈H p₂ →
-    -----------------------
-    ⟦ p₁ ⟧H ≈ ⟦ p₂ ⟧H
+    ⟦_⟧H-cong :
+        {p₁ p₂ : HNF (suc n)} →
+        p₁ ≈H p₂ →
+        -----------------------
+        ⟦ p₁ ⟧H ≈ ⟦ p₂ ⟧H
 
-  ⟦ ∅ ⟧H-cong = ≈-refl
-  ⟦ p₁≈p₂ *x+ n₁≈n₂ ⟧H-cong =
-        (⟦ p₁≈p₂ ⟧H-cong ⟨ *-cong ⟩ ≈-refl)
-            ⟨ +-cong ⟩
-        (≈-↑ ⟦ n₁≈n₂ ⟧N-cong)
+    ⟦ ∅ ⟧H-cong = ≈-refl
+    -- ⟦ con c₁≈c₂ ⟧H-cong = c₁≈c₂ ⟨ ·-cong ⟩ ≈-refl
+    ⟦ p₁≈p₂ *x+ c₁≈c₂ ·x+ n₁≈n₂ ⟧H-cong = {!   !}
+        -- (⟦ p₁≈p₂ ⟧H-cong ⟨ *-cong ⟩ ≈-refl)
+        --     ⟨ +-cong ⟩
+        -- (≈-↑ ⟦ n₁≈n₂ ⟧N-cong)
 
-  ⟦_⟧N-cong :
-    {p₁ p₂ : Normal n} →
-    p₁ ≈N p₂ →
-    --------------------
-    ⟦ p₁ ⟧N ≈ ⟦ p₂ ⟧N
+    ⟦_⟧N-cong :
+        {p₁ p₂ : Normal n} →
+        p₁ ≈N p₂ →
+        --------------------
+        ⟦ p₁ ⟧N ≈ ⟦ p₂ ⟧N
 
-  ⟦ zero  ⟧N-cong = ≈-refl
-  ⟦ con c₁≈c₂ p₁≈p₂ ⟧N-cong = c₁≈c₂ ⟨ ·-cong ⟩ ⟦ p₁≈p₂ ⟧H-cong
-```
+    ⟦ zero  ⟧N-cong = ≈-refl
+    -- ⟦ con c₁≈c₂ ⟧N-cong = c₁≈c₂ ⟨ ·-cong ⟩ ≈-refl
+    ⟦ poly p₁≈p₂ ⟧N-cong = ⟦ p₁≈p₂ ⟧H-cong
 
-Equality of normal forms is weakly decidable.
+-- -- Equality of normal forms is weakly decidable.
 
-```
 mutual
     infix 4 _≟H_ _≟N_
 
@@ -145,38 +154,74 @@ mutual
 --     poly p₁ ≟N poly p₂ with p₁ ≟H p₂
 --     ... | just p₁≈p₂ = just (poly p₁≈p₂)
 --     ... | nothing    = nothing
-```
 
-```
 0H : HNF (suc n)
 0H = ∅
 
 0N : Normal n
 0N {zero}  = zero
-0N {suc n} = con 0R 0H
-```
+0N {suc n} = poly 0H
 
-A simplifying variant of `_*x+_`.
+-- A simplifying variant of `_*x+_`.
 
-```
 _*x+HN_ : HNF (suc n) → Normal n → HNF (suc n)
-(p *x+ n′) *x+HN n = (p *x+ n′) *x+ n
-∅          *x+HN n with n ≟N 0N
+∅ *x+HN n with n ≟N 0N
 ... | just _  = 0H
-... | nothing = 0H *x+ n
-```
+... | nothing = 0H *x+ 0R ·x+ n
+p *x+HN n = p *x+ 0R ·x+ n
 
-Addition of normal forms.
+_*x+_·x+HN_ : HNF (suc n) → A → Normal n → HNF (suc n)
+∅ *x+ c ·x+HN n
+    with c ≟R 0R | n ≟N 0N
+... | just _ | just _  = 0H
+... | nothing | just _  = {!   !}
+... | _ | nothing = 0H *x+ c ·x+ n
+p *x+ c ·x+HN n = p *x+ c ·x+ n
 
-```
+
+-- Addition of normal forms.
+
 mutual
     _+H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
     ∅ +H p = p
-    (p₁ *x+ n₁) +H ∅ = p₁ *x+ n₁
-    (p₁ *x+ n₁) +H (p₂ *x+ n₂) = (p₁ +H p₂) *x+HN (n₁ +N n₂)
+    p +H ∅ = p
+    (p₁ *x+ c₁ ·x+ n₁) +H (p₂ *x+ c₂ ·x+ n₂) = (p₁ +H p₂) *x+ (c₁ +R c₂) ·x+HN (n₁ +N n₂)
 
     _+N_ : Normal n → Normal n → Normal n
-    zero +N zero = zero -- con (c₁ +R c₂)
-    con c₁ p₁ +N con c₂ p₂ = con (c₁ +R c₂) (p₁ +H p₂)
+    zero +N zero = zero
+    -- con c₁ +N con c₂ = con (c₁ +R c₂)
+    poly p₁ +N poly p₂ = poly (p₁ +H p₂)
 
+-- -- Multiplication of normal forms
+
+-- _*x+H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
+-- p₁         *x+H (p₂ *x+ n) = (p₁ +H p₂) *x+HN n
+-- -- ∅          *x+H ∅          = ∅
+-- -- (p₁ *x+ n) *x+H ∅          = (p₁ *x+ n) *x+ 0N
+-- -- con c₁ *x+H con c₂ = con (c₁ *R c₂)
+-- _ *x+H con c₂ = {!   !}
+
+-- mutual
+
+--     _*NH_ : Normal n → HNF (suc n) → HNF (suc n)
+--     c *NH ∅          = 0H
+--     c *NH (p *x+ c′) with c ≟N 0N
+--     ... | just c≈0 = 0H
+--     ... | nothing  = (c *NH p) *x+ (c *N c′)
+
+--     _*HN_ : HNF (suc n) → Normal n → HNF (suc n)
+--     ∅          *HN c = 0H
+--     (p *x+ c′) *HN c with c ≟N 0N
+--     ... | just _ = 0H
+--     ... | nothing = (p *HN c) *x+ (c′ *N c)
+
+--     _*H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
+--     ∅           *H _           = 0H
+--     (_ *x+ _)   *H ∅           = 0H
+--     (p₁ *x+ n₁) *H (p₂ *x+ n₂) =
+--         ((p₁ *H p₂) *x+H ((p₁ *HN n₂) +H (n₁ *NH p₂))) *x+HN (n₁ *N n₂)
+
+--     _*N_ : Normal n → Normal n → Normal n
+--     con c₁  *N con c₂  = con (c₁ *R c₂)
+--     poly p₁ *N poly p₂ = poly (p₁ *H p₂)
 ```
