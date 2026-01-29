@@ -17,150 +17,75 @@ module Special.DecidableEquivalence
 open Preliminaries.Algebra R
 open import General.Terms R hiding (x)
 open import Special.Polynomials R
+open import Special.HNF R
+
+open import Special.AuxiliaryLemmas R
 
 private variable
     X Y Z : Set
-    m n : ℕ
+    m n k : ℕ
 
-```
-
-```
-mutual
-    -- infix _*x+_·x+_
-    data HNF : ℕ → Set where
-        ∅     : HNF (suc n)
-        -- con : A → HNF (suc n)
-        _*x+_·x+_ : HNF (suc n) → A → Normal n → HNF (suc n)
-
-    data Normal : ℕ → Set where
-        zero  : Normal zero
-        -- con  : A → Normal (suc zero)
-        poly : HNF (suc n) → Normal (suc n)
-```
-
-```
-infix 50 _↑
-_↑ : Term′ n → Term′ (suc n)
-0T ↑ = 0T
-(var x) ↑ = var (suc x)
-(c · p) ↑ = c · p ↑
-(p + q) ↑ = p ↑ + q ↑
-(p * q) ↑ = p ↑ * q ↑
-```
-
-Semantics of normal forms.
-
-```
-private x : Term′ (suc n)
-x = var zero
-
-mutual
-    ⟦_⟧H : HNF (suc n) → Term′ (suc n)
-    ⟦ ∅       ⟧H = 0T
-    -- ⟦ con c   ⟧H = c · x
-    ⟦ p *x+ c ·x+ q ⟧H = ⟦ p ⟧H * x + c · x + ⟦ q ⟧N ↑
-
-    ⟦_⟧N : Normal n → Term′ n
-    ⟦ zero  ⟧N = 0T
-    -- ⟦ con c ⟧N = c · var zero
-    ⟦ poly p ⟧N = ⟦ p ⟧H
-```
-
-Equality of normal forms
-
-```
-mutual
-    data _≈H_ : HNF n → HNF n → Set where
-        ∅     : _≈H_ {suc n} ∅ ∅
-        -- con : {c₁ c₂ : A} → c₁ ≈R c₂ → _≈H_ {suc n} (con c₁) (con c₂)
-        -- _*x+_ : {p₁ p₂ : HNF (suc n)} {n₁ n₂ : Normal n} →
-        --         p₁ ≈H p₂ → n₁ ≈N n₂ → (p₁ *x+ n₁) ≈H (p₂ *x+ n₂)
-        _*x+_·x+_ : {c₁ c₂ : A} {p₁ p₂ : HNF (suc n)} {n₁ n₂ : Normal n} →
-            p₁ ≈H p₂ → c₁ ≈R c₂ → n₁ ≈N n₂ → (p₁ *x+ c₁ ·x+ n₁) ≈H (p₂ *x+ c₂ ·x+ n₂)
-
-    data _≈N_ : Normal n → Normal n → Set where
-        zero : zero ≈N zero
-        -- con : {c₁ c₂ : A} → c₁ ≈R c₂ → con c₁ ≈N con c₂
-        poly : {p₁ p₂ : HNF (suc n)} → p₁ ≈H p₂ → poly p₁ ≈N poly p₂
-```
-
-The semantics respect the equality relations.
-
-```
-≈-↑ : ∀ {p q : Term′ n} → p ≈ q → p ↑ ≈ q ↑
-≈-↑ ≈-refl = ≈-refl
-≈-↑ (≈-sym p≈q) = ≈-sym (≈-↑ p≈q)
-≈-↑ (≈-trans p≈q q≈r) = ≈-trans (≈-↑ p≈q) (≈-↑ q≈r)
-≈-↑ (·-cong c≈d p≈q) = ·-cong c≈d (≈-↑ p≈q)
-≈-↑ (·-one p) = ·-one (p ↑)
-≈-↑ (·-+-distrib c p q) = ·-+-distrib c (p ↑) (q ↑)
-≈-↑ (+-·-distrib p c d) = +-·-distrib (p ↑) c d
-≈-↑ (·-*-distrib c p q) = ·-*-distrib c (p ↑) (q ↑)
-≈-↑ (*-·-distrib c d p) = *-·-distrib c d (p ↑)
-≈-↑ (+-cong p≈q q≈qr) = +-cong (≈-↑ p≈q) (≈-↑ q≈qr)
-≈-↑ (+-zeroʳ p) = +-zeroʳ (p ↑)
-≈-↑ (+-assoc p q r) = +-assoc (p ↑) (q ↑) (r ↑)
-≈-↑ (+-comm p q) = +-comm (p ↑) (q ↑)
-≈-↑ (+-invʳ p) = +-invʳ (p ↑)
-≈-↑ (*-cong p≈q p≈q₁) = *-cong (≈-↑ p≈q) (≈-↑ p≈q₁)
-≈-↑ (*-assoc p q r) = *-assoc (p ↑) (q ↑) (r ↑)
-≈-↑ (*-comm p q) = *-comm (p ↑) (q ↑)
-≈-↑ (*-distribʳ p q r) = *-distribʳ (p ↑) (q ↑) (r ↑)
-
-mutual
-    ⟦_⟧H-cong :
-        {p₁ p₂ : HNF (suc n)} →
-        p₁ ≈H p₂ →
-        -----------------------
-        ⟦ p₁ ⟧H ≈ ⟦ p₂ ⟧H
-
-    ⟦ ∅ ⟧H-cong = ≈-refl
-    -- ⟦ con c₁≈c₂ ⟧H-cong = c₁≈c₂ ⟨ ·-cong ⟩ ≈-refl
-    ⟦ p₁≈p₂ *x+ c₁≈c₂ ·x+ n₁≈n₂ ⟧H-cong = {!   !}
-        -- (⟦ p₁≈p₂ ⟧H-cong ⟨ *-cong ⟩ ≈-refl)
-        --     ⟨ +-cong ⟩
-        -- (≈-↑ ⟦ n₁≈n₂ ⟧N-cong)
-
-    ⟦_⟧N-cong :
-        {p₁ p₂ : Normal n} →
-        p₁ ≈N p₂ →
-        --------------------
-        ⟦ p₁ ⟧N ≈ ⟦ p₂ ⟧N
-
-    ⟦ zero  ⟧N-cong = ≈-refl
-    -- ⟦ con c₁≈c₂ ⟧N-cong = c₁≈c₂ ⟨ ·-cong ⟩ ≈-refl
-    ⟦ poly p₁≈p₂ ⟧N-cong = ⟦ p₁≈p₂ ⟧H-cong
-
--- -- Equality of normal forms is weakly decidable.
+-- Equality of normal forms is weakly decidable.
 
 mutual
     infix 4 _≟H_ _≟N_
 
     _≟H_ : WeaklyDecidable (_≈H_ {n = n})
-    _≟H_ = {!   !}
---     ∅           ≟H ∅           = just ∅
---     ∅           ≟H (_ *x+ _)   = nothing
---     (_ *x+ _)   ≟H ∅           = nothing
---     (p₁ *x+ c₁) ≟H (p₂ *x+ c₂) with p₁ ≟H p₂ | c₁ ≟N c₂
---     ... | just p₁≈p₂ | just c₁≈c₂ = just (p₁≈p₂ *x+ c₁≈c₂)
---     ... | _          | nothing    = nothing
---     ... | nothing    | _          = nothing
+    ∅ ≟H ∅ = just ∅
+    ∅ ≟H (_ *x+ _ ·x+ _) = nothing
+    (_ *x+ _ ·x+ _) ≟H ∅ = nothing
+    (p *x+ c ·x+ m) ≟H (q *x+ d ·x+ n)
+        with p ≟H q | c ≟R d | m ≟N n
+    ... | just p≈q | just c≈d | just m≈n = just (p≈q *x+ c≈d ·x+ m≈n)
+    ... | _        | _        | nothing = nothing
+    ... | _        | nothing  | _       = nothing
+    ... | nothing  | _        | _       = nothing
 
     _≟N_ : WeaklyDecidable (_≈N_ {n = n})
-    _≟N_ = {!   !}
---     con c₁ ≟N con c₂ with c₁ R≟ c₂
---     ... | just c₁≈c₂ = just (con c₁≈c₂)
---     ... | nothing    = nothing
---     poly p₁ ≟N poly p₂ with p₁ ≟H p₂
---     ... | just p₁≈p₂ = just (poly p₁≈p₂)
---     ... | nothing    = nothing
+    zero ≟N zero = just zero
+    poly p₁ ≟N poly p₂
+        with p₁ ≟H p₂
+    ... | just p₁≈p₂ = just (poly p₁≈p₂)
+    ... | nothing    = nothing
 
-0H : HNF (suc n)
-0H = ∅
+-- scalar product of normal forms
 
-0N : Normal n
-0N {zero}  = zero
-0N {suc n} = poly 0H
+infixr 10 _·H_ _·N_
+_·H_ : A → HNF (suc n) → HNF (suc n)
+_·N_ : A → Normal n → Normal n
+
+c ·H _ with c ≟R 0R
+...                  | just _  = ∅
+_ ·H ∅               | nothing = ∅
+c ·H (p *x+ d ·x+ n) | nothing = (c ·H p) *x+ (c *R d) ·x+ (c ·N n)
+
+c ·N zero = zero
+c ·N (poly p) = poly (c ·H p)
+
+-- A simplifying variant of `_*x+_·x+`.
+
+_*x+_·x+HN_ : HNF (suc n) → A → Normal n → HNF (suc n)
+∅ *x+ c ·x+HN n
+    with c ≟R 0R | n ≟N 0N
+... | just _ | just _  = 0H
+... | _ | _  = 0H *x+ c ·x+ n
+p *x+ c ·x+HN n = p *x+ c ·x+ n
+
+-- Addition of normal forms.
+
+mutual
+    infixr 9 _+H_ _+N_
+
+    _+H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
+    ∅ +H p = p
+    p +H ∅ = p
+    (p₁ *x+ c₁ ·x+ n₁) +H (p₂ *x+ c₂ ·x+ n₂)
+        -- use the simplifying variant of _*x+_·x+_
+        = (p₁ +H p₂) *x+ (c₁ +R c₂) ·x+HN (n₁ +N n₂)
+
+    _+N_ : Normal n → Normal n → Normal n
+    zero +N zero = zero
+    poly p₁ +N poly p₂ = poly (p₁ +H p₂)
 
 -- A simplifying variant of `_*x+_`.
 
@@ -170,58 +95,485 @@ _*x+HN_ : HNF (suc n) → Normal n → HNF (suc n)
 ... | nothing = 0H *x+ 0R ·x+ n
 p *x+HN n = p *x+ 0R ·x+ n
 
-_*x+_·x+HN_ : HNF (suc n) → A → Normal n → HNF (suc n)
-∅ *x+ c ·x+HN n
-    with c ≟R 0R | n ≟N 0N
-... | just _ | just _  = 0H
-... | nothing | just _  = {!   !}
-... | _ | nothing = 0H *x+ c ·x+ n
-p *x+ c ·x+HN n = p *x+ c ·x+ n
+infixr 9 _+HN_
+_+HN_ : HNF (suc n) → Normal n → HNF (suc n)
+∅ +HN zero = ∅
+∅ +HN n = ∅ *x+ 0R ·x+ n
+(p *x+ c ·x+ n) +HN n′ = p *x+ c ·x+ (n +N n′)
 
-
--- Addition of normal forms.
+-- Multiplication of normal forms
 
 mutual
-    _+H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
-    ∅ +H p = p
-    p +H ∅ = p
-    (p₁ *x+ c₁ ·x+ n₁) +H (p₂ *x+ c₂ ·x+ n₂) = (p₁ +H p₂) *x+ (c₁ +R c₂) ·x+HN (n₁ +N n₂)
+    infixr 10 _*H_ _*N_ _*HN_ _*NH_
 
-    _+N_ : Normal n → Normal n → Normal n
-    zero +N zero = zero
-    -- con c₁ +N con c₂ = con (c₁ +R c₂)
-    poly p₁ +N poly p₂ = poly (p₁ +H p₂)
+    _*NH_ : Normal n → HNF (suc n) → HNF (suc n)
+    _ *NH ∅ = 0H
+    n *NH (p *x+ c ·x+ n′)
+        with n ≟N 0N
+    ... | just _ = 0H
+    ... | _
+        with c ≟R 0R
+    ... | just _ = (n *NH p) *x+HN (n *N n′)
+    ... | _ = ((n *NH p) +HN (c ·N n)) *x+HN (n *N n′)
 
--- -- Multiplication of normal forms
+    _*HN_ : HNF (suc n) → Normal n → HNF (suc n)
+    ∅ *HN _ = 0H
+    (p *x+ c ·x+ n) *HN n′
+        with n′ ≟N 0N
+    ... | just _ = 0H
+    ... | _
+        with c ≟R 0R
+    ... | just _ = (p *HN n′) *x+HN (n *N n′)
+    ... | _ = ((p *HN n′) +HN (c ·N n′)) *x+HN (n *N n′)
 
--- _*x+H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
--- p₁         *x+H (p₂ *x+ n) = (p₁ +H p₂) *x+HN n
--- -- ∅          *x+H ∅          = ∅
--- -- (p₁ *x+ n) *x+H ∅          = (p₁ *x+ n) *x+ 0N
--- -- con c₁ *x+H con c₂ = con (c₁ *R c₂)
--- _ *x+H con c₂ = {!   !}
+    _*H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
+    ∅ *H _ = 0H
+    _ *H ∅ = 0H
+    -- x^2: p₁p₂ + p₁c₂ + c₁p₂ + c₁c₂
+    -- x: p₁n₂ + c₁n₂ + n₁p₂ + n₁c₂, also (p₁+c₁)n₂ + (p₂+c₂)n₁
+    -- ((p₁p₂ + p₁c₂ + c₁p₂ + c₁c₂) * x + p₁n₂ + c₁n₂ + n₁p₂ + n₁c₂) * x + n₁n₂
+    -- constant: n₁n₂
+    (p₁ *x+ c₁ ·x+ n₁) *H (p₂ *x+ c₂ ·x+ n₂) =
+        ((p₁ *H p₂ +H c₂ ·H p₁ +H c₁ ·H p₂) *x+ c₁ *R c₂ ·x+HN (c₁ ·N n₂ +N c₂ ·N n₁) +H p₁ *HN n₂ +H n₁ *NH p₂) *x+HN (n₁ *N n₂)
+        
+    _*N_ : Normal n → Normal n → Normal n
+    zero *N zero  = zero
+    poly p₁ *N poly p₂ = poly (p₁ *H p₂)
 
--- mutual
+-- _*x+HN_ is equal to _*x+_.
+*x+HN≈*x+ :
+    (p : HNF (suc n)) (m : Normal n) →
+    ----------------------------------
+    ⟦ p *x+HN m ⟧H ≈ ⟦ p *x+ 0R ·x+ m ⟧H
 
---     _*NH_ : Normal n → HNF (suc n) → HNF (suc n)
---     c *NH ∅          = 0H
---     c *NH (p *x+ c′) with c ≟N 0N
---     ... | just c≈0 = 0H
---     ... | nothing  = (c *NH p) *x+ (c *N c′)
+*x+HN≈*x+ (_ *x+ _ ·x+ _) n = ≈-refl
+*x+HN≈*x+ ∅ n with n ≟N 0N
+... | just n≈0 =
+    begin
+        0T
+            ≈⟨ ≈-↑ (0≈N⟦0⟧ n≈0) ⟩
+        ⟦ n ⟧N ↑
+            ≈⟨ lemma₆ _ _ _ ⟨
+        0T * x + 0R · x + ⟦ n ⟧N ↑
+    ∎ where open EqP
+... | nothing = ≈-refl
 
---     _*HN_ : HNF (suc n) → Normal n → HNF (suc n)
---     ∅          *HN c = 0H
---     (p *x+ c′) *HN c with c ≟N 0N
---     ... | just _ = 0H
---     ... | nothing = (p *HN c) *x+ (c′ *N c)
+∅*x+HN-hom :
+    (m : Normal n) →
+    ----------------------
+    ⟦ ∅ *x+HN m ⟧H ≈ ⟦ m ⟧N ↑
 
---     _*H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
---     ∅           *H _           = 0H
---     (_ *x+ _)   *H ∅           = 0H
---     (p₁ *x+ n₁) *H (p₂ *x+ n₂) =
---         ((p₁ *H p₂) *x+H ((p₁ *HN n₂) +H (n₁ *NH p₂))) *x+HN (n₁ *N n₂)
+∅*x+HN-hom n with n ≟N 0N
+... | just n≈0 = ≈-↑ (0≈N⟦0⟧ n≈0)
+... | nothing = lemma₆ _ _ _
 
---     _*N_ : Normal n → Normal n → Normal n
---     con c₁  *N con c₂  = con (c₁ *R c₂)
---     poly p₁ *N poly p₂ = poly (p₁ *H p₂)
+open AlgebraicProperties
+
+mutual
+    ·H-hom :
+        ∀ c (p : HNF (suc k)) →
+        -----------------------
+        ⟦ c ·H p ⟧H ≈ c · ⟦ p ⟧H
+
+    ·H-hom c p with c ≟R 0R
+    ... | just c≈0 = 
+        begin
+            0T
+                ≈⟨ ·-zero _ ⟨
+            0R · ⟦ p ⟧H
+                ≈⟨ (c≈0 ⟨ ·-cong ⟩ ≈-refl) ⟨
+            c · ⟦ p ⟧H
+        ∎ where open EqP
+    ·H-hom c ∅ | nothing = ·-zero′ c
+    ·H-hom c (p *x+ d ·x+ n) | nothing =
+        begin
+            ⟦ c ·H p ⟧H * x + (c *R d) · x + ⟦ c ·N n ⟧N ↑
+                ≈⟨ +-cong₃ aux (*-·-distrib _ _ _) (≈-↑ (·N-hom c n)) ⟩
+            c · (⟦ p ⟧H * x) + c · (d · x) + c · (⟦ n ⟧N ↑)
+                ≈⟨ ·-+-distrib₃ _ _ _ _ ⟨
+            c · (⟦ p ⟧H * x + d · x + ⟦ n ⟧N ↑)
+        ∎ where
+            open EqP
+
+            aux : ⟦ c ·H p ⟧H * x ≈ c · ⟦ p ⟧H * x
+            aux =
+                begin
+                    ⟦ c ·H p ⟧H * x
+                        ≈⟨ ·H-hom c p ⟨ *-cong ⟩ ≈-refl ⟩
+                    (c · ⟦ p ⟧H) * x
+                        ≈⟨ ·-*-distrib _ _ _ ⟩
+                    c · (⟦ p ⟧H * x)
+                ∎
+
+    ·N-hom :
+        ∀ c (n : Normal k) →
+        -----------------------
+        ⟦ c ·N n ⟧N ≈ c · ⟦ n ⟧N
+
+    ·N-hom c zero = ·-zero′ c
+    ·N-hom c (poly p) = ·H-hom c p
+
+·N-hom↑ :
+    ∀ c (n : Normal k) →
+    -----------------------
+    ⟦ c ·N n ⟧N ↑ ≈ c · ⟦ n ⟧N ↑
+
+·N-hom↑ c n = ≈-↑ (·N-hom c n)
+
+*x+·x+HN-hom :
+    ∀ {k} (p : HNF (suc k)) c (n : Normal k) →
+    ----------------------------------------
+    ⟦ p *x+ c ·x+HN n ⟧H ≈ ⟦ p ⟧H * x + c · x + ⟦ n ⟧N ↑
+
+*x+·x+HN-hom ∅ c n
+    with c ≟R 0R | n ≟N 0N
+... | just c≈0 | just n≈0  = ≈-sym (lemma₁ ≈-refl c≈0 (≈-↑ (⟦0⟧≈N0 n≈0)))
+... | nothing | _  = ≈-refl
+... | just _ | nothing  = ≈-refl
+*x+·x+HN-hom (_ *x+ _ ·x+ _) _ _ = ≈-refl
+
+mutual
+    +H-hom :
+        (p₁ p₂ : HNF (suc n)) →
+        -------------------------------
+        ⟦ p₁ +H p₂ ⟧H ≈ ⟦ p₁ ⟧H + ⟦ p₂ ⟧H
+
+    +H-hom ∅ _ = ≈-sym (+-zeroˡ _)
+    +H-hom (p *x+ c ·x+ n) ∅ = ≈-sym (+-zeroʳ _)
+    +H-hom (p₁ *x+ c₁ ·x+ n₁) (p₂ *x+ c₂ ·x+ n₂) = 
+        begin
+            ⟦ (p₁ +H p₂) *x+ (c₁ +R c₂) ·x+HN (n₁ +N n₂) ⟧H
+                ≈⟨ *x+·x+HN-hom _ _ _  ⟩
+            ⟦ p₁ +H p₂ ⟧H * x + (c₁ +R c₂) · x + ⟦ n₁ +N n₂ ⟧N ↑
+                ≈⟨ +-cong₃ (*x-cong (+H-hom _ _)) (+-·-distrib _ _ _) (+N-hom↑ n₁ n₂) ⟩
+            (⟦ p₁ ⟧H + ⟦ p₂ ⟧H) * x + (c₁ · x + c₂ · x) + (⟦ n₁ ⟧N ↑ + ⟦ n₂ ⟧N ↑)
+                ≈⟨ +-cong₃ (*-distribʳ _ _ _) ≈-refl ≈-refl ⟩
+            (⟦ p₁ ⟧H * x + ⟦ p₂ ⟧H * x) + (c₁ · x + c₂ · x) + (⟦ n₁ ⟧N ↑ + ⟦ n₂ ⟧N ↑)
+                ≈⟨ lemma₀ _ _ _ _ _ _ ⟩
+            ⟦ p₁ *x+ c₁ ·x+ n₁ ⟧H + ⟦ p₂ *x+ c₂ ·x+ n₂ ⟧H
+        ∎ where open EqP
+
+    +N-hom :
+        ∀ {n} (p₁ p₂ : Normal n) →
+        -------------------------------
+        ⟦ p₁ +N p₂ ⟧N ≈ ⟦ p₁ ⟧N + ⟦ p₂ ⟧N
+
+    +N-hom zero zero  = ≈-sym (+-zeroˡ _)
+    +N-hom (poly p₁) (poly p₂) = +H-hom p₁ p₂
+
+    +N-hom↑ :
+        ∀ {n} (p₁ p₂ : Normal n) →
+        -------------------------------------
+        ⟦ p₁ +N p₂ ⟧N ↑ ≈ ⟦ p₁ ⟧N ↑ + ⟦ p₂ ⟧N ↑
+
+    +N-hom↑ m n = ≈-↑ (+N-hom m n)
+  
+    +HN-hom :
+        (p : HNF (suc n)) (n : Normal n) →
+        ----------------------------------
+        ⟦ p +HN n ⟧H ≈ ⟦ p ⟧H + ⟦ n ⟧N ↑
+
+    +HN-hom ∅ zero = ≈-sym (+-zeroʳ _)
+
+    +HN-hom ∅ (poly n) =
+        begin
+            ⟦ ∅ *x+ 0R ·x+ poly n ⟧H
+                ≈⟨⟩
+            ⟦ ∅ ⟧H * x + 0R · x + ⟦ poly n ⟧N ↑
+                ≈⟨ +-cong₃ (*-zeroˡ _) (·-zero _) ≈-refl ⟩
+            0T + 0T + ⟦ poly n ⟧N ↑
+                ≈⟨ +-zero₃ _ ⟩
+            ⟦ poly n ⟧N ↑
+                ≈⟨ +-zeroˡ _ ⟨
+            ⟦ ∅ ⟧H + ⟦ poly n ⟧N ↑
+        ∎ where open EqP
+
+    +HN-hom (p *x+ c ·x+ m) n =
+        begin
+            ⟦ p *x+ c ·x+ (m +N n) ⟧H
+                ≈⟨⟩
+            ⟦ p ⟧H * x + c · x + ⟦ m +N n ⟧N ↑
+                ≈⟨ +-cong₃ ≈-refl ≈-refl (+N-hom↑ m n) ⟩
+            ⟦ p ⟧H * x + c · x + (⟦ m ⟧N ↑ + ⟦ n ⟧N ↑)
+                ≈⟨ lemma₅ _ _ _ _ ⟩
+            (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑) + ⟦ n ⟧N ↑
+                ≈⟨⟩
+            ⟦ p *x+ c ·x+ m ⟧H + ⟦ n ⟧N ↑
+        ∎ where open EqP
+
++H-hom₃ :
+        (p₁ p₂ p₃ : HNF (suc n)) →
+        -------------------------------
+        ⟦ p₁ +H p₂ +H p₃ ⟧H ≈ ⟦ p₁ ⟧H + ⟦ p₂ ⟧H + ⟦ p₃ ⟧H
+
++H-hom₃ p₁ p₂ p₃ =
+    begin
+        ⟦ p₁ +H p₂ +H p₃ ⟧H
+            ≈⟨ +H-hom _ _ ⟩
+        ⟦ p₁ ⟧H + ⟦ p₂ +H p₃ ⟧H
+            ≈⟨ ≈-refl ⟨ +-cong ⟩ +H-hom _ _  ⟩
+        ⟦ p₁ ⟧H + ⟦ p₂ ⟧H + ⟦ p₃ ⟧H
+    ∎ where open EqP
+
+*x+HN-hom :
+    ∀ (p : HNF (suc k)) (n : Normal k) →
+    ----------------------------------------
+    ⟦ p *x+HN n ⟧H ≈ ⟦ p ⟧H * x + ⟦ n ⟧N ↑
+
+*x+HN-hom ∅ n with n ≟N 0N
+... | just n≈0  = ≈-sym (+-≈zeroˡʳ (*-zeroˡ _) (≈-sym (≈-↑ (0≈N⟦0⟧ n≈0))))
+... | nothing = 
+    begin
+        0T * x + 0R · x + ⟦ n ⟧N ↑
+            ≈⟨ +-≈zero₃ (*-zeroˡ _) (·-zero _) ⟩
+        ⟦ n ⟧N ↑
+            ≈⟨ +-≈zeroˡ (*-zeroˡ _) ⟨
+        0T * x + ⟦ n ⟧N ↑
+    ∎ where open EqP
+*x+HN-hom p@(_ *x+ _ ·x+ _) n =
+    begin
+        ⟦ p *x+ 0R ·x+ n ⟧H
+            ≈⟨⟩
+        ⟦ p ⟧H * x + 0R · x + ⟦ n ⟧N ↑
+            ≈⟨ +-≈zero₃-mid (·-zero _) ⟩
+        ⟦ p ⟧H * x + ⟦ n ⟧N ↑
+    ∎ where open EqP
+
+mutual
+    *NH-hom :
+        (n : Normal k) (p : HNF (suc k)) →
+        ----------------------------------
+        ⟦ n *NH p ⟧H ≈ ⟦ n ⟧N ↑ * ⟦ p ⟧H
+
+    *NH-hom n ∅ = ≈-sym (*-zeroʳ _)
+    *NH-hom n (p *x+ c ·x+ m)
+        with n ≟N 0N
+    ... | just n≈0 = 
+        begin
+            0T
+                ≈⟨ *-zeroˡ _ ⟨
+            0T * (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑)
+                ≈⟨ *x-cong (≈-↑ (⟦0⟧≈N0 n≈0)) ⟨
+            ⟦ n ⟧N ↑ * (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑)
+        ∎ where open EqP
+
+    ... | nothing
+        with c ≟R 0R
+    ... | just c≈0 = 
+        begin
+            ⟦ (n *NH p) *x+HN (n *N m) ⟧H
+                ≈⟨ *x+HN-hom _ _ ⟩
+            ⟦ n *NH p ⟧H * x + ⟦ n *N m ⟧N ↑
+                ≈⟨ *x+-cong (*NH-hom _ _) (*N-hom↑ n m) ⟩
+            (⟦ n ⟧N ↑ * ⟦ p ⟧H) * x + (⟦ n ⟧N * ⟦ m ⟧N) ↑
+                ≈⟨ lemma₂ _ _ _ _ ⟩
+            ⟦ n ⟧N ↑ * (⟦ p ⟧H * x + ⟦ m ⟧N ↑)
+                ≈⟨ x*-cong (x+-cong (·+-≈zeroˡ c≈0)) ⟨
+            ⟦ n ⟧N ↑ * (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑)
+        ∎ where open EqP
+        
+    ... | nothing =
+        begin
+            ⟦ ((n *NH p) +HN (c ·N n)) *x+HN (n *N m) ⟧H
+                ≈⟨ *x+HN-hom _ _ ⟩
+            ⟦ (n *NH p) +HN (c ·N n) ⟧H * x + ⟦ n *N m ⟧N ↑
+                ≈⟨ *x+-cong (+HN-hom _ _) ≈-refl ⟩
+            (⟦ n *NH p ⟧H + ⟦ c ·N n ⟧N ↑) * x + ⟦ n *N m ⟧N ↑
+                ≈⟨ *x+-cong (*NH-hom _ _ ⟨ +-cong ⟩ ·N-hom↑ c n) (*N-hom↑ n m) ⟩
+            (⟦ n ⟧N ↑ * ⟦ p ⟧H + c · ⟦ n ⟧N ↑) * x + ⟦ n ⟧N ↑ * ⟦ m ⟧N ↑
+                ≈⟨ lemma₃ _ _ _ _ _ ⟩
+            ⟦ n ⟧N ↑ * (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑)
+        ∎ where open EqP
+
+    *HN-hom :
+        (p : HNF (suc k)) (n : Normal k) →
+        ----------------------------------
+        ⟦ p *HN n ⟧H ≈ ⟦ p ⟧H * ⟦ n ⟧N ↑
+
+    *HN-hom ∅ n = ≈-sym (*-zeroˡ _)
+    *HN-hom (p *x+ c ·x+ m) n
+        with n ≟N 0N
+    ... | just n≈0 =
+        begin
+            0T
+                ≈⟨ *-zeroʳ _ ⟨
+            (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑) * 0T
+                ≈⟨ x*-cong (≈-↑ (⟦0⟧≈N0 n≈0)) ⟨
+            (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑) * ⟦ n ⟧N ↑
+        ∎ where open EqP
+        
+    ... | nothing
+        with c ≟R 0R
+    ... | just c≈0 =
+        begin
+            ⟦ (p *HN n) *x+HN (m *N n) ⟧H
+                ≈⟨ *x+HN-hom _ _ ⟩
+            ⟦ p *HN n ⟧H * x + ⟦ m *N n ⟧N ↑
+                ≈⟨ *x+-cong (*HN-hom _ _) (*N-hom↑ m n) ⟩
+            (⟦ p ⟧H * ⟦ n ⟧N ↑) * x + ⟦ m ⟧N ↑ * ⟦ n ⟧N ↑
+                ≈⟨ lemma₄ _ _ _ _ ⟩
+            (⟦ p ⟧H * x + ⟦ m ⟧N ↑) * ⟦ n ⟧N ↑
+                ≈⟨ *x-cong (x+-cong (·+-≈zeroˡ c≈0)) ⟨
+            (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑) * ⟦ n ⟧N ↑
+        ∎ where open EqP
+        
+    ... | nothing =
+        begin
+            ⟦ ((p *HN n) +HN (c ·N n)) *x+HN (m *N n) ⟧H
+                ≈⟨ *x+HN-hom _ _ ⟩
+            ⟦ (p *HN n) +HN (c ·N n) ⟧H * x + ⟦ m *N n ⟧N ↑
+                ≈⟨ *x+-cong (+HN-hom _ _) (*N-hom↑ m n) ⟩
+            (⟦ p *HN n ⟧H + ⟦ c ·N n ⟧N ↑) * x + ⟦ m ⟧N ↑ * ⟦ n ⟧N ↑
+                ≈⟨ *x+-cong (*HN-hom _ _ ⟨ +-cong ⟩ ·N-hom↑ c n) ≈-refl ⟩
+            (⟦ p ⟧H * ⟦ n ⟧N ↑ + c · ⟦ n ⟧N ↑) * x + ⟦ m ⟧N ↑ * ⟦ n ⟧N ↑
+                ≈⟨ lemma₃′ _ _ _ _ _ ⟩
+            (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑) * ⟦ n ⟧N ↑
+        ∎ where open EqP
+
+    *H-hom :
+        (p₁ p₂ : HNF (suc k)) →
+        -------------------------------
+        ⟦ p₁ *H p₂ ⟧H ≈ ⟦ p₁ ⟧H * ⟦ p₂ ⟧H
+
+    -- this is the longest proof
+    *H-hom ∅ _ = ≈-sym (*-zeroˡ _)
+    *H-hom (_ *x+ _ ·x+ _) ∅ = ≈-sym (*-zeroʳ _)
+    *H-hom (p₁ *x+ c₁ ·x+ n₁) (p₂ *x+ c₂ ·x+ n₂) =
+        begin
+            ⟦ (p₁ *x+ c₁ ·x+ n₁) *H (p₂ *x+ c₂ ·x+ n₂) ⟧H
+                ≈⟨⟩
+            ⟦ ((p₁ *H p₂ +H c₂ ·H p₁ +H c₁ ·H p₂) *x+ c₁ *R c₂ ·x+HN (c₁ ·N n₂ +N c₂ ·N n₁) +H p₁ *HN n₂ +H n₁ *NH p₂) *x+HN (n₁ *N n₂) ⟧H
+                ≈⟨ *x+HN-hom _ _ ⟩
+            ⟦ (p₁ *H p₂ +H c₂ ·H p₁ +H c₁ ·H p₂) *x+ c₁ *R c₂ ·x+HN (c₁ ·N n₂ +N c₂ ·N n₁) +H p₁ *HN n₂ +H n₁ *NH p₂ ⟧H * x + ⟦ n₁ *N n₂ ⟧N ↑
+                ≈⟨ *x+-cong (+H-hom₃ _ _ _) (*N-hom↑ n₁ n₂) ⟩
+            (⟦ (p₁ *H p₂ +H c₂ ·H p₁ +H c₁ ·H p₂) *x+ c₁ *R c₂ ·x+HN (c₁ ·N n₂ +N c₂ ·N n₁) ⟧H + ⟦ p₁ *HN n₂ ⟧H + ⟦ n₁ *NH p₂ ⟧H) * x + m₁ * m₂
+                ≈⟨ *x+-cong (+-cong₃ (*x+·x+HN-hom _ _ _) (*HN-hom _ _) (*NH-hom _ _)) ≈-refl ⟩
+            ((⟦ p₁ *H p₂ +H c₂ ·H p₁ +H c₁ ·H p₂ ⟧H * x + (c₁ *R c₂) · x + ⟦ c₁ ·N n₂ +N c₂ ·N n₁ ⟧N ↑) + q₁ * m₂ + m₁ * q₂) * x + m₁ * m₂
+                ≈⟨ *x+-cong (+-cong₃ (+-cong₃ (*x-cong (+H-hom₃ _ _ _)) ≈-refl (+N-hom↑ (c₁ ·N n₂) _)) ≈-refl ≈-refl) ≈-refl ⟩
+            (((⟦ p₁ *H p₂ ⟧H + ⟦ c₂ ·H p₁ ⟧H + ⟦ c₁ ·H p₂ ⟧H) * x + (c₁ *R c₂) · x + (⟦ c₁ ·N n₂ ⟧N ↑ + ⟦ c₂ ·N n₁ ⟧N ↑)) + q₁ * m₂ + m₁ * q₂) * x + m₁ * m₂
+                ≈⟨ *x+-cong (+-cong₃ (+-cong₃ (*x-cong (+-cong₃ (*H-hom _ _) (·H-hom _ _) (·H-hom _ _))) ≈-refl (+-cong (·N-hom↑ _ n₂) (·N-hom↑ _ n₁))) ≈-refl ≈-refl) ≈-refl ⟩
+            (((q₁ * q₂ + c₂ · q₁ + c₁ · q₂) * x + (c₁ *R c₂) · x + c₁ · m₂ + c₂ · m₁) + q₁ * m₂ + m₁ * q₂) * x + m₁ * m₂
+                ≈⟨ lemma₇ _ _ _ _ _ _ _ ⟩
+            (q₁ * x + c₁ · x + m₁) * (q₂ * x + c₂ · x + m₂)
+               ≈⟨⟩
+            ⟦ p₁ *x+ c₁ ·x+ n₁ ⟧H * ⟦ p₂ *x+ c₂ ·x+ n₂ ⟧H
+        ∎ where
+            open EqP
+            q₁ = ⟦ p₁ ⟧H
+            q₂ = ⟦ p₂ ⟧H
+            m₁ = ⟦ n₁ ⟧N ↑
+            m₂ = ⟦ n₂ ⟧N ↑
+
+    *N-hom :
+        (p₁ p₂ : Normal k) →
+        -------------------------------
+        ⟦ p₁ *N p₂ ⟧N ≈ ⟦ p₁ ⟧N * ⟦ p₂ ⟧N
+
+    *N-hom zero zero = ≈-sym (*-zeroˡ _)
+    *N-hom (poly p₁) (poly p₂) = *H-hom p₁ p₂
+
+    *N-hom↑ :
+        (p₁ p₂ : Normal k) →
+        -------------------------------------
+        ⟦ p₁ *N p₂ ⟧N ↑ ≈ ⟦ p₁ ⟧N ↑ * ⟦ p₂ ⟧N ↑
+
+    *N-hom↑ m n = ≈-↑ (*N-hom m n)
+```
+
+Conversion to normal forms
+
+```
+normalise-var : Fin k → Normal k
+normalise-var zero    = poly (∅ *x+ 1R ·x+ 0N)
+normalise-var (suc x) = poly (∅ *x+HN normalise-var x)
+
+normalise : Term′ k → Normal k
+normalise 0T = 0N
+normalise (var x) = normalise-var x
+normalise (c · t) = c ·N normalise t
+normalise (t₁ + t₂) = normalise t₁ +N normalise t₂
+normalise (t₁ * t₂) = normalise t₁ *N normalise t₂
+
+⟦_⟧↓ : Term′ k → Term′ k
+⟦ t ⟧↓ = ⟦ normalise t ⟧N
+
+normalise-var-zero : ∀ (x : Fin k) → normalise-var x ≈N 0N → ⊥
+normalise-var-zero zero (poly ())
+normalise-var-zero (suc x) (poly eq) with normalise-var x ≟N 0N
+... | just x≈0 = normalise-var-zero x x≈0
+normalise-var-zero (suc x) (poly ()) | nothing
+
+sound-var : ∀ x → ⟦ normalise-var {n} x ⟧N ≈ var x
+sound-var zero =
+    begin
+        0T * x + 1R · x + ⟦ 0N ⟧N ↑
+            ≈⟨ +-≈zero₃ˡʳ (*-zeroˡ _) 0N-hom↑ ⟩
+        1R · x
+            ≈⟨ ·-one _ ⟩
+        x
+    ∎ where open EqP
+
+sound-var (suc y)
+    with normalise-var y ≟N 0N in eq
+... | just x≈0 = ⊥-elim (normalise-var-zero _ x≈0)
+... | nothing =
+    begin
+        0T * x + 0R · x + (⟦ normalise-var y ⟧N ↑)
+            ≈⟨ +-cong₃ (*-zeroˡ _) (·-zero _) (≈-↑ (sound-var y)) ⟩
+        0T + 0T + var y ↑
+            ≈⟨ +-zero₃ _ ⟩
+        var (suc y)
+    ∎ where open EqP
+
+soundN : (p : Term′ k) → ⟦ normalise p ⟧N ≈ p
+soundN 0T = 0N-hom
+soundN (var x) = sound-var x
+soundN (c · p) =
+    begin
+        ⟦ c ·N normalise p ⟧N
+            ≈⟨ ·N-hom _ (normalise p) ⟩
+        c · ⟦ normalise p ⟧N
+            ≈⟨ ·-cong R-refl (soundN p) ⟩
+        c · p
+    ∎ where open EqP
+soundN (p + q) = 
+    begin
+        ⟦ normalise p +N normalise q ⟧N
+            ≈⟨ +N-hom (normalise p) (normalise q) ⟩
+        ⟦ normalise p ⟧N + ⟦ normalise q ⟧N
+            ≈⟨ soundN p ⟨ +-cong ⟩ soundN q ⟩
+        p + q
+    ∎ where open EqP
+soundN (p * q) =
+    begin
+        ⟦ normalise p *N normalise q ⟧N
+            ≈⟨ *N-hom (normalise p) (normalise q) ⟩
+        ⟦ normalise p ⟧N * ⟦ normalise q ⟧N
+            ≈⟨ soundN p ⟨ *-cong ⟩ soundN q ⟩
+    p * q
+    ∎ where open EqP
+
+sound :
+    {p q : Term′ k} →
+    normalise p ≈N normalise q →
+    ----------------------------
+    p ≈ q
+
+sound {p = p} {q} eq =
+    begin
+        p ≈⟨ soundN p ⟨
+        ⟦ normalise p ⟧N ≈⟨ reflectN eq ⟩
+        ⟦ normalise q ⟧N ≈⟨ soundN q ⟩
+        q
+    ∎ where open EqP
+
+infix 4 _≟_
+_≟_ : ∀ {k} → WeaklyDecidable (_≈_ {Fin k})
+p ≟ q with normalise p ≟N normalise q
+... | just eq = just (sound eq)
+... | nothing = nothing
+
+infix 4 _≟₆_
+_≟₆_ = _≟_ {k = 6}
+
 ```

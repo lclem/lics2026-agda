@@ -66,9 +66,10 @@ record Special (P : ProductRule) : Set where
 open Special public
 
 -- need ≟₆ to decide the following
--- module ZeroSpecial where
+module ZeroSpecial where
 
---     open ProductRule ruleZero
+    -- open ProductRule ruleZero
+    P = ruleZero
 
 --     P-assoc-special :
 --         ∃ λ proof → 

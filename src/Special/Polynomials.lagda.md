@@ -281,6 +281,9 @@ These two properties follow from the ring structure.
     ·-zero : ∀ (p : Term X) → 0R · p ≈ 0T
     ·-zero p = +-reduce _ (+-expand _)
 
+    ·-zero′ : ∀ c → _≈_ {X} 0T (c · 0T)
+    ·-zero′ c = {!   !}
+
 open AlgebraicProperties
 ```
 
@@ -658,261 +661,257 @@ respects term equivalence `_≈_`.
 # Directed equivalence of terms
 
 ```
-infix 4 _↝_
-data _↝_ {X} : Term X → Term X → Set where
+-- infix 4 _↝_
+-- data _↝_ {X} : Term X → Term X → Set where
 
-    ↝-refl : p ↝ p
-    ↝-trans : p ↝ q → q ↝ r → p ↝ r
+--     ↝-refl : p ↝ p
+--     ↝-trans : p ↝ q → q ↝ r → p ↝ r
 
-    ·-cong : c ≈R d → p ↝ q → c · p ↝ d · q
-    -- ·-cong′ : c ≈R d → c · p ↝ d · q → p ↝ q
+--     ·-cong : c ≈R d → p ↝ q → c · p ↝ d · q
+--     -- ·-cong′ : c ≈R d → c · p ↝ d · q → p ↝ q
 
-    ·-one : ∀ p → 1R · p ↝ p
-    ·-+-distrib : ∀ c p q → c · (p + q) ↝ c · p + c · q
-    +-·-distrib : ∀ p c d → c · p + d · p ↝ (c +R d) · p
-    ·-*-distrib : ∀ c p q → (c · p) * q ↝ c · (p * q)
-    *-·-distrib : ∀ c d p → c · (d · p) ↝ (c *R d) · p
+--     ·-one : ∀ p → 1R · p ↝ p
+--     ·-+-distrib : ∀ c p q → c · (p + q) ↝ c · p + c · q
+--     +-·-distrib : ∀ p c d → c · p + d · p ↝ (c +R d) · p
+--     ·-*-distrib : ∀ c p q → (c · p) * q ↝ c · (p * q)
+--     *-·-distrib : ∀ c d p → c · (d · p) ↝ (c *R d) · p
 
-    +-cong : p₀ ↝ p₁ → q₀ ↝ q₁ → p₀ + q₀ ↝ p₁ + q₁
-    +-zeroʳ : ∀ p → p + 0T ↝ p
-    +-assoc : ∀ p q r → (p + q) + r ↝ p + (q + r)
-    +-assoc′ : ∀ p q r → p + (q + r) ↝ (p + q) + r
-    +-comm : ∀ p q → p + q ↝ q + p
-    +-invʳ : ∀ p → p - p ↝ 0T
-    -- alternative rule
-    -- +-canc : ∀ p q r → p + q ↝ p + r → q ↝ r
+--     +-cong : p₀ ↝ p₁ → q₀ ↝ q₁ → p₀ + q₀ ↝ p₁ + q₁
+--     +-zeroʳ : ∀ p → p + 0T ↝ p
+--     +-assoc : ∀ p q r → (p + q) + r ↝ p + (q + r)
+--     +-assoc′ : ∀ p q r → p + (q + r) ↝ (p + q) + r
+--     +-comm : ∀ p q → p + q ↝ q + p
+--     +-invʳ : ∀ p → p - p ↝ 0T
+--     -- alternative rule
+--     -- +-canc : ∀ p q r → p + q ↝ p + r → q ↝ r
 
-    *-cong : p₀ ↝ p₁ → q₀ ↝ q₁ → p₀ * q₀ ↝ p₁ * q₁
-    *-assoc : ∀ p q r → (p * q) * r ↝ p * (q * r)
-    *-comm : ∀ p q → p * q ↝ q * p
-    *-distribʳ : ∀ p q r → (q + r) * p ↝ (q * p) + (r * p)
-```
+--     *-cong : p₀ ↝ p₁ → q₀ ↝ q₁ → p₀ * q₀ ↝ p₁ * q₁
+--     *-assoc : ∀ p q r → (p * q) * r ↝ p * (q * r)
+--     *-comm : ∀ p q → p * q ↝ q * p
+--     *-distribʳ : ∀ p q r → (q + r) * p ↝ (q * p) + (r * p)
 
-```
-data Term-Prop (Var-Prop : X → Set) : Term X → Set where
-    0T : Term-Prop Var-Prop 0T
-    var : ∀ {x} → Var-Prop x → Term-Prop Var-Prop (var x)
-    _·_ : ∀ {u} c → Term-Prop Var-Prop u → Term-Prop Var-Prop (c · u)
-    _+_ : ∀ {u v} → Term-Prop Var-Prop u → Term-Prop Var-Prop v → Term-Prop Var-Prop (u + v)
-    _*_ : ∀ {u v} → Term-Prop Var-Prop u → Term-Prop Var-Prop v → Term-Prop Var-Prop (u * v)
-```
+-- data Term-Prop (Var-Prop : X → Set) : Term X → Set where
+--     0T : Term-Prop Var-Prop 0T
+--     var : ∀ {x} → Var-Prop x → Term-Prop Var-Prop (var x)
+--     _·_ : ∀ {u} c → Term-Prop Var-Prop u → Term-Prop Var-Prop (c · u)
+--     _+_ : ∀ {u v} → Term-Prop Var-Prop u → Term-Prop Var-Prop v → Term-Prop Var-Prop (u + v)
+--     _*_ : ∀ {u v} → Term-Prop Var-Prop u → Term-Prop Var-Prop v → Term-Prop Var-Prop (u * v)
 
-```
-module _ (Var-Prop : X → Set) where
+-- module _ (Var-Prop : X → Set) where
 
-    proj : Term (∃[ x ] Var-Prop x) → Term X
-    proj 0T = 0T
-    proj (var (x ,, _)) = var x
-    proj (c · α) = c · proj α
-    proj (α + β) = proj α + proj β
-    proj (α * β) = proj α * proj β
+--     proj : Term (∃[ x ] Var-Prop x) → Term X
+--     proj 0T = 0T
+--     proj (var (x ,, _)) = var x
+--     proj (c · α) = c · proj α
+--     proj (α + β) = proj α + proj β
+--     proj (α * β) = proj α * proj β
     
-    lift : (u : Term (∃ Var-Prop)) → Term-Prop Var-Prop (proj u)
-    lift 0T = 0T
-    lift (var (_ ,, px)) = var px
-    lift (c · u) = c · lift u
-    lift (u + v) = lift u + lift v
-    lift (u * v) = lift u * lift v
+--     lift : (u : Term (∃ Var-Prop)) → Term-Prop Var-Prop (proj u)
+--     lift 0T = 0T
+--     lift (var (_ ,, px)) = var px
+--     lift (c · u) = c · lift u
+--     lift (u + v) = lift u + lift v
+--     lift (u * v) = lift u * lift v
 
-    forget : ∀ {u : Term X} → Term-Prop Var-Prop u → Term (∃ Var-Prop)
-    forget 0T = 0T
-    forget (var {x = x} px) = var (x ,, px)
-    forget (c · pu) = c · forget pu
-    forget (pu + pv) = forget pu + forget pv
-    forget (pu * pv) = forget pu * forget pv
+--     forget : ∀ {u : Term X} → Term-Prop Var-Prop u → Term (∃ Var-Prop)
+--     forget 0T = 0T
+--     forget (var {x = x} px) = var (x ,, px)
+--     forget (c · pu) = c · forget pu
+--     forget (pu + pv) = forget pu + forget pv
+--     forget (pu * pv) = forget pu * forget pv
 
-    Term-Prop-↝ :
-        ∀ {α β} →
-        Term-Prop Var-Prop α →
-        α ↝ β →
-        ----------------------
-        Term-Prop Var-Prop β
+--     Term-Prop-↝ :
+--         ∀ {α β} →
+--         Term-Prop Var-Prop α →
+--         α ↝ β →
+--         ----------------------
+--         Term-Prop Var-Prop β
 
-    Term-Prop-↝ pα ↝-refl = pα
-    Term-Prop-↝ pα (↝-trans α↝β α↝β₁) = Term-Prop-↝ (Term-Prop-↝ pα α↝β) α↝β₁
-    Term-Prop-↝ (_ · pα) (·-cong _ α↝β) = _ · Term-Prop-↝ pα α↝β
-    Term-Prop-↝ (_ · pα) (·-one _) = pα
-    Term-Prop-↝ (_ · (pα + pα₁)) (·-+-distrib _ _ _) = (_ · pα) + (_ · pα₁)
-    Term-Prop-↝ ((_ · pα) + _) (+-·-distrib _ _ _) = _ · pα
-    Term-Prop-↝ ((_ · pα) * pα₁) (·-*-distrib _ _ _) = _ · (pα * pα₁)
-    Term-Prop-↝ (_ · (_ · pα)) (*-·-distrib _ _ _) = _ · pα
-    Term-Prop-↝ (pα + pα₁) (+-cong α↝β α↝β₁)
-        = Term-Prop-↝ pα α↝β + Term-Prop-↝ pα₁ α↝β₁
-    Term-Prop-↝ (pα + _) (+-zeroʳ _) = pα
-    Term-Prop-↝ ((pα + pα₂) + pα₁) (+-assoc _ _ _) = pα + (pα₂ + pα₁)
-    Term-Prop-↝ (pα + (pα₂ + pα₁)) (+-assoc′ _ _ _) = (pα + pα₂) + pα₁
-    Term-Prop-↝ (pα + pα₁) (+-comm _ _) = pα₁ + pα
-    Term-Prop-↝ _ (+-invʳ _) = 0T
-    Term-Prop-↝ (pα * pα₁) (*-cong α↝β α↝β₁)
-        = Term-Prop-↝ pα α↝β * Term-Prop-↝ pα₁ α↝β₁
-    Term-Prop-↝ ((pα * pα₂) * pα₁) (*-assoc _ _ _) = pα * (pα₂ * pα₁)
-    Term-Prop-↝ (pα * pα₁) (*-comm _ _) = pα₁ * pα
-    Term-Prop-↝ ((pα + pα₂) * pα₁) (*-distribʳ _ _ _) = (pα * pα₁) + (pα₂ * pα₁)
+--     Term-Prop-↝ pα ↝-refl = pα
+--     Term-Prop-↝ pα (↝-trans α↝β α↝β₁) = Term-Prop-↝ (Term-Prop-↝ pα α↝β) α↝β₁
+--     Term-Prop-↝ (_ · pα) (·-cong _ α↝β) = _ · Term-Prop-↝ pα α↝β
+--     Term-Prop-↝ (_ · pα) (·-one _) = pα
+--     Term-Prop-↝ (_ · (pα + pα₁)) (·-+-distrib _ _ _) = (_ · pα) + (_ · pα₁)
+--     Term-Prop-↝ ((_ · pα) + _) (+-·-distrib _ _ _) = _ · pα
+--     Term-Prop-↝ ((_ · pα) * pα₁) (·-*-distrib _ _ _) = _ · (pα * pα₁)
+--     Term-Prop-↝ (_ · (_ · pα)) (*-·-distrib _ _ _) = _ · pα
+--     Term-Prop-↝ (pα + pα₁) (+-cong α↝β α↝β₁)
+--         = Term-Prop-↝ pα α↝β + Term-Prop-↝ pα₁ α↝β₁
+--     Term-Prop-↝ (pα + _) (+-zeroʳ _) = pα
+--     Term-Prop-↝ ((pα + pα₂) + pα₁) (+-assoc _ _ _) = pα + (pα₂ + pα₁)
+--     Term-Prop-↝ (pα + (pα₂ + pα₁)) (+-assoc′ _ _ _) = (pα + pα₂) + pα₁
+--     Term-Prop-↝ (pα + pα₁) (+-comm _ _) = pα₁ + pα
+--     Term-Prop-↝ _ (+-invʳ _) = 0T
+--     Term-Prop-↝ (pα * pα₁) (*-cong α↝β α↝β₁)
+--         = Term-Prop-↝ pα α↝β * Term-Prop-↝ pα₁ α↝β₁
+--     Term-Prop-↝ ((pα * pα₂) * pα₁) (*-assoc _ _ _) = pα * (pα₂ * pα₁)
+--     Term-Prop-↝ (pα * pα₁) (*-comm _ _) = pα₁ * pα
+--     Term-Prop-↝ ((pα + pα₂) * pα₁) (*-distribʳ _ _ _) = (pα * pα₁) + (pα₂ * pα₁)
 
-    confluence :
-        ∀ {α β₁ β₂ : Term X} →
-        α ↝ β₁ →
-        α ↝ β₂ →
-        ----------------------
-        ∃[ γ ] β₁ ↝ γ × β₂ ↝ γ
+--     confluence :
+--         ∀ {α β₁ β₂ : Term X} →
+--         α ↝ β₁ →
+--         α ↝ β₂ →
+--         ----------------------
+--         ∃[ γ ] β₁ ↝ γ × β₂ ↝ γ
 
-    confluence ↝-refl α↝β₂ = _ ,, α↝β₂ ,, ↝-refl
-    confluence α↝β₁ ↝-refl = _ ,, ↝-refl ,, α↝β₁
+--     confluence ↝-refl α↝β₂ = _ ,, α↝β₂ ,, ↝-refl
+--     confluence α↝β₁ ↝-refl = _ ,, ↝-refl ,, α↝β₁
 
-    confluence (↝-trans α↝γ γ↝β₁) α↝β₂
-        with confluence α↝γ α↝β₂
-    ... | _ ,, γ↝δ ,, β₂↝δ
-        with confluence γ↝β₁ γ↝δ
-    ... | _ ,, β₁↝ε ,, δ↝ε = _ ,, β₁↝ε ,, ↝-trans β₂↝δ δ↝ε
+--     confluence (↝-trans α↝γ γ↝β₁) α↝β₂
+--         with confluence α↝γ α↝β₂
+--     ... | _ ,, γ↝δ ,, β₂↝δ
+--         with confluence γ↝β₁ γ↝δ
+--     ... | _ ,, β₁↝ε ,, δ↝ε = _ ,, β₁↝ε ,, ↝-trans β₂↝δ δ↝ε
 
-    -- confluence α↝β₁ (↝-trans α↝γ γ↝β₂)
-    --     with confluence α↝β₁ α↝γ
-    -- ... | _ ,, β₁↝δ ,, γ↝δ
-    --     with confluence γ↝δ γ↝β₂
-    -- ... | _ ,, δ↝ε ,, β₂↝ε  = _ ,, ↝-trans β₁↝δ δ↝ε ,, β₂↝ε
+--     -- confluence α↝β₁ (↝-trans α↝γ γ↝β₂)
+--     --     with confluence α↝β₁ α↝γ
+--     -- ... | _ ,, β₁↝δ ,, γ↝δ
+--     --     with confluence γ↝δ γ↝β₂
+--     -- ... | _ ,, δ↝ε ,, β₂↝ε  = _ ,, ↝-trans β₁↝δ δ↝ε ,, β₂↝ε
 
-    confluence (·-cong x₁ α↝β₁) α↝β₂ = {!   !}
+--     confluence (·-cong x₁ α↝β₁) α↝β₂ = {!   !}
 
-    confluence (·-one _) α↝β₂ = {!   !}
+--     confluence (·-one _) α↝β₂ = {!   !}
 
-    confluence (·-+-distrib c p q) α↝β₂ = {!   !}
+--     confluence (·-+-distrib c p q) α↝β₂ = {!   !}
 
-    confluence (+-·-distrib p c d) α↝β₂ = {!   !}
+--     confluence (+-·-distrib p c d) α↝β₂ = {!   !}
 
-    confluence (·-*-distrib c p q) α↝β₂ = {!   !}
+--     confluence (·-*-distrib c p q) α↝β₂ = {!   !}
 
-    confluence (*-·-distrib c d p) α↝β₂ = {!   !}
+--     confluence (*-·-distrib c d p) α↝β₂ = {!   !}
 
-    confluence (+-cong α↝β₁ α↝β₃) α↝β₂ = {!   !}
+--     confluence (+-cong α↝β₁ α↝β₃) α↝β₂ = {!   !}
 
-    confluence (+-zeroʳ _) α↝β₂ = {!   !}
+--     confluence (+-zeroʳ _) α↝β₂ = {!   !}
 
-    confluence (+-assoc _ _ _) α↝β₂ = _ ,, ↝-trans (+-assoc′ _ _ _) α↝β₂ ,, ↝-refl
-    confluence (+-assoc′ _ _ _) α↝β₂ = _ ,, ↝-trans (+-assoc _ _ _) α↝β₂ ,, ↝-refl
+--     confluence (+-assoc _ _ _) α↝β₂ = _ ,, ↝-trans (+-assoc′ _ _ _) α↝β₂ ,, ↝-refl
+--     confluence (+-assoc′ _ _ _) α↝β₂ = _ ,, ↝-trans (+-assoc _ _ _) α↝β₂ ,, ↝-refl
 
-    confluence (+-comm p q) α↝β₂ = _ ,, ↝-trans (+-comm q p) α↝β₂ ,, ↝-refl
+--     confluence (+-comm p q) α↝β₂ = _ ,, ↝-trans (+-comm q p) α↝β₂ ,, ↝-refl
 
-    confluence (+-invʳ p) α↝β₂ = _ ,, {!   !} ,, {!   !}
+--     confluence (+-invʳ p) α↝β₂ = _ ,, {!   !} ,, {!   !}
 
-    confluence (*-cong α↝β₁ α↝β₃) α↝β₂ = {!   !}
+--     confluence (*-cong α↝β₁ α↝β₃) α↝β₂ = {!   !}
 
-    confluence (*-assoc p q r) α↝β₂ = {!   !}
+--     confluence (*-assoc p q r) α↝β₂ = {!   !}
 
-    confluence (*-comm p q) α↝β₂ = _ ,, ↝-trans (*-comm q p) α↝β₂ ,, ↝-refl
+--     confluence (*-comm p q) α↝β₂ = _ ,, ↝-trans (*-comm q p) α↝β₂ ,, ↝-refl
 
-    confluence (*-distribʳ p q r) α↝β₂ = {!   !}
+--     confluence (*-distribʳ p q r) α↝β₂ = {!   !}
 
-    ≈→↝ :
-        ∀ {α β : Term X} →
-        α ≈ β →
-        --------------------
-        ∃[ γ ] α ↝ γ × β ↝ γ
+--     ≈→↝ :
+--         ∀ {α β : Term X} →
+--         α ≈ β →
+--         --------------------
+--         ∃[ γ ] α ↝ γ × β ↝ γ
 
-    ≈→↝ ≈-refl = _ ,, ↝-refl ,, ↝-refl
+--     ≈→↝ ≈-refl = _ ,, ↝-refl ,, ↝-refl
 
-    ≈→↝ (≈-sym α≈β)
-        with ≈→↝ α≈β
-    ... | _ ,, β↝γ ,, α↝γ = _ ,, α↝γ ,, β↝γ
+--     ≈→↝ (≈-sym α≈β)
+--         with ≈→↝ α≈β
+--     ... | _ ,, β↝γ ,, α↝γ = _ ,, α↝γ ,, β↝γ
 
-    ≈→↝ (≈-trans α≈γ γ≈β)
-        with ≈→↝ α≈γ | ≈→↝ γ≈β
-    ... | _ ,, α↝γ₁ ,, γ↝γ₁ | _ ,, γ↝γ₂ ,, β↝γ₂
-        with confluence γ↝γ₁ γ↝γ₂
-    ... | _ ,, γ₁↝δ ,, γ₂↝δ
-        = _ ,, ↝-trans α↝γ₁ γ₁↝δ ,, ↝-trans β↝γ₂ γ₂↝δ
+--     ≈→↝ (≈-trans α≈γ γ≈β)
+--         with ≈→↝ α≈γ | ≈→↝ γ≈β
+--     ... | _ ,, α↝γ₁ ,, γ↝γ₁ | _ ,, γ↝γ₂ ,, β↝γ₂
+--         with confluence γ↝γ₁ γ↝γ₂
+--     ... | _ ,, γ₁↝δ ,, γ₂↝δ
+--         = _ ,, ↝-trans α↝γ₁ γ₁↝δ ,, ↝-trans β↝γ₂ γ₂↝δ
 
-    ≈→↝ (·-cong c≈d α≈β)
-        with ≈→↝ α≈β
-    ... | _ ,, α↝γ ,, β↝γ  = _ ,, ·-cong c≈d α↝γ ,, ·-cong R-refl β↝γ
+--     ≈→↝ (·-cong c≈d α≈β)
+--         with ≈→↝ α≈β
+--     ... | _ ,, α↝γ ,, β↝γ  = _ ,, ·-cong c≈d α↝γ ,, ·-cong R-refl β↝γ
     
-    ≈→↝ (·-one _) = _ ,, ·-one _ ,, ↝-refl
+--     ≈→↝ (·-one _) = _ ,, ·-one _ ,, ↝-refl
 
-    ≈→↝ (·-+-distrib c p q) = c · p + c · q ,, ·-+-distrib c p q ,, ↝-refl
+--     ≈→↝ (·-+-distrib c p q) = c · p + c · q ,, ·-+-distrib c p q ,, ↝-refl
 
-    ≈→↝ (+-·-distrib p c d) = (c +R d) · p ,, ↝-refl ,, +-·-distrib p c d
+--     ≈→↝ (+-·-distrib p c d) = (c +R d) · p ,, ↝-refl ,, +-·-distrib p c d
 
-    ≈→↝ (·-*-distrib c p q) = c · p * q ,, ·-*-distrib c p q ,, ↝-refl
+--     ≈→↝ (·-*-distrib c p q) = c · p * q ,, ·-*-distrib c p q ,, ↝-refl
 
-    ≈→↝ (*-·-distrib c d p) = (c *R d) · p ,, ↝-refl ,, *-·-distrib c d p
+--     ≈→↝ (*-·-distrib c d p) = (c *R d) · p ,, ↝-refl ,, *-·-distrib c d p
 
-    ≈→↝ (+-cong α≈α′ β≈β′)
-        with ≈→↝ α≈α′ | ≈→↝ β≈β′
-    ... | _ ,, α↝γ ,, α′↝γ | _ ,, β↝δ ,, β′↝δ = _ ,, +-cong α↝γ  β↝δ ,, +-cong α′↝γ β′↝δ
+--     ≈→↝ (+-cong α≈α′ β≈β′)
+--         with ≈→↝ α≈α′ | ≈→↝ β≈β′
+--     ... | _ ,, α↝γ ,, α′↝γ | _ ,, β↝δ ,, β′↝δ = _ ,, +-cong α↝γ  β↝δ ,, +-cong α′↝γ β′↝δ
 
-    ≈→↝ (+-zeroʳ _) = _ ,, +-zeroʳ _ ,, ↝-refl
+--     ≈→↝ (+-zeroʳ _) = _ ,, +-zeroʳ _ ,, ↝-refl
 
-    ≈→↝ (+-assoc p q r) = p + q + r ,, +-assoc p q r ,, ↝-refl
+--     ≈→↝ (+-assoc p q r) = p + q + r ,, +-assoc p q r ,, ↝-refl
 
-    ≈→↝ (+-comm p q) = q + p ,, +-comm p q ,, ↝-refl
+--     ≈→↝ (+-comm p q) = q + p ,, +-comm p q ,, ↝-refl
 
-    ≈→↝ (+-invʳ p) = 0T ,, +-invʳ p ,, ↝-refl
+--     ≈→↝ (+-invʳ p) = 0T ,, +-invʳ p ,, ↝-refl
 
-    ≈→↝ (*-cong α≈α′ β≈β′)
-        with ≈→↝ α≈α′ | ≈→↝ β≈β′
-    ... | _ ,, α↝γ ,, α′↝γ | _ ,, β↝δ ,, β′↝δ = _ ,, *-cong α↝γ  β↝δ ,, *-cong α′↝γ β′↝δ
+--     ≈→↝ (*-cong α≈α′ β≈β′)
+--         with ≈→↝ α≈α′ | ≈→↝ β≈β′
+--     ... | _ ,, α↝γ ,, α′↝γ | _ ,, β↝δ ,, β′↝δ = _ ,, *-cong α↝γ  β↝δ ,, *-cong α′↝γ β′↝δ
 
-    ≈→↝ (*-assoc p q r) = p * q * r ,, *-assoc p q r ,, ↝-refl
+--     ≈→↝ (*-assoc p q r) = p * q * r ,, *-assoc p q r ,, ↝-refl
 
-    ≈→↝ (*-comm p q) = q * p ,, *-comm p q ,, ↝-refl
+--     ≈→↝ (*-comm p q) = q * p ,, *-comm p q ,, ↝-refl
 
-    ≈→↝ (*-distribʳ p q r) = _ ,, *-distribʳ p q r ,, ↝-refl
+--     ≈→↝ (*-distribʳ p q r) = _ ,, *-distribʳ p q r ,, ↝-refl
 
-    Injective : ∀ {X : Set} → (X → Set) → Set
-    Injective P = ∀ {x} → (p q : P x) → p ≡ q
+--     Injective : ∀ {X : Set} → (X → Set) → Set
+--     Injective P = ∀ {x} → (p q : P x) → p ≡ q
     
-    module _ (inj : Injective Var-Prop) where
+--     module _ (inj : Injective Var-Prop) where
 
-        inj′ : Injective (Term-Prop Var-Prop)
-        inj′ = {!   !}
+--         inj′ : Injective (Term-Prop Var-Prop)
+--         inj′ = {!   !}
 
-        ↝-forget :
-            ∀ {α β} →
-            (pα : Term-Prop Var-Prop α) →
-            (pβ : Term-Prop Var-Prop β) →
-            α ↝ β →
-            -----------------------------
-            forget pα ≈ forget pβ
+--         ↝-forget :
+--             ∀ {α β} →
+--             (pα : Term-Prop Var-Prop α) →
+--             (pβ : Term-Prop Var-Prop β) →
+--             α ↝ β →
+--             -----------------------------
+--             forget pα ≈ forget pβ
 
-        ↝-forget pα pβ ↝-refl rewrite inj′ pα pβ = ≈-refl
-        ↝-forget pα pβ (↝-trans α↝β α↝β₁) = {!   !}
-        ↝-forget pα pβ (·-cong x₁ α↝β) = {!   !}
-        ↝-forget pα pβ (·-one _) = {!   !}
-        ↝-forget pα pβ (·-+-distrib c p q) = {!   !}
-        ↝-forget pα pβ (+-·-distrib p c d) = {!   !}
-        ↝-forget pα pβ (·-*-distrib c p q) = {!   !}
-        ↝-forget pα pβ (*-·-distrib c d p) = {!   !}
-        ↝-forget pα pβ (+-cong α↝β α↝β₁) = {!   !}
-        ↝-forget pα pβ (+-zeroʳ _) = {!   !}
-        ↝-forget pα pβ (+-assoc p q r) = {!   !}
-        ↝-forget pα pβ (+-assoc′ p q r) = {!   !}
-        ↝-forget pα pβ (+-comm p q) = {!   !}
-        ↝-forget pα pβ (+-invʳ p) = {!   !}
-        ↝-forget pα pβ (*-cong α↝β α↝β₁) = {!   !}
-        ↝-forget pα pβ (*-assoc p q r) = {!   !}
-        ↝-forget pα pβ (*-comm p q) = {!   !}
-        ↝-forget pα pβ (*-distribʳ p q r) = {!   !}
+--         ↝-forget pα pβ ↝-refl rewrite inj′ pα pβ = ≈-refl
+--         ↝-forget pα pβ (↝-trans α↝β α↝β₁) = {!   !}
+--         ↝-forget pα pβ (·-cong x₁ α↝β) = {!   !}
+--         ↝-forget pα pβ (·-one _) = {!   !}
+--         ↝-forget pα pβ (·-+-distrib c p q) = {!   !}
+--         ↝-forget pα pβ (+-·-distrib p c d) = {!   !}
+--         ↝-forget pα pβ (·-*-distrib c p q) = {!   !}
+--         ↝-forget pα pβ (*-·-distrib c d p) = {!   !}
+--         ↝-forget pα pβ (+-cong α↝β α↝β₁) = {!   !}
+--         ↝-forget pα pβ (+-zeroʳ _) = {!   !}
+--         ↝-forget pα pβ (+-assoc p q r) = {!   !}
+--         ↝-forget pα pβ (+-assoc′ p q r) = {!   !}
+--         ↝-forget pα pβ (+-comm p q) = {!   !}
+--         ↝-forget pα pβ (+-invʳ p) = {!   !}
+--         ↝-forget pα pβ (*-cong α↝β α↝β₁) = {!   !}
+--         ↝-forget pα pβ (*-assoc p q r) = {!   !}
+--         ↝-forget pα pβ (*-comm p q) = {!   !}
+--         ↝-forget pα pβ (*-distribʳ p q r) = {!   !}
 
-        corollary : 
-            ∀ {α β} →
-            (pα : Term-Prop Var-Prop α) →
-            (pβ : Term-Prop Var-Prop β) →
-            α ≈ β →
-            -----------------------------
-            forget pα ≈ forget pβ
+--         corollary : 
+--             ∀ {α β} →
+--             (pα : Term-Prop Var-Prop α) →
+--             (pβ : Term-Prop Var-Prop β) →
+--             α ≈ β →
+--             -----------------------------
+--             forget pα ≈ forget pβ
         
-        corollary pα pβ α≈β
-            with ≈→↝ α≈β
-        ... | γ ,, α↝γ ,, β↝γ
-            with ↝-forget pα (Term-Prop-↝ pα α↝γ) α↝γ | ↝-forget pβ (Term-Prop-↝ pα α↝γ) β↝γ
-        ... | eq | eq′ = ≈-trans eq (≈-sym eq′)
+--         corollary pα pβ α≈β
+--             with ≈→↝ α≈β
+--         ... | γ ,, α↝γ ,, β↝γ
+--             with ↝-forget pα (Term-Prop-↝ pα α↝γ) α↝γ | ↝-forget pβ (Term-Prop-↝ pα α↝γ) β↝γ
+--         ... | eq | eq′ = ≈-trans eq (≈-sym eq′)
 
-    -- if two terms are equivalent after projecting away the variable properties,
-    -- then they were equivalent to begin with;
-    transfer :
-        ∀ (α β : Term (∃ Var-Prop)) →
-        proj α ≈ proj β →
-        -----------------------------
-        α ≈ β
+--     -- if two terms are equivalent after projecting away the variable properties,
+--     -- then they were equivalent to begin with;
+--     transfer :
+--         ∀ (α β : Term (∃ Var-Prop)) →
+--         proj α ≈ proj β →
+--         -----------------------------
+--         α ≈ β
 
-    transfer α β pα≈pβ = {! pα≈pβ !}
+--     transfer α β pα≈pβ = {! pα≈pβ !}
 ```

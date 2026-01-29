@@ -44,6 +44,20 @@ open import Data.Nat
     renaming (_+_ to _+ℕ_; _*_ to _*ℕ_)
     public
 
+open import Data.Integer as Int
+    using ()
+    renaming (ℤ to ℤ; suc to sucℤ; _+_ to _+ℤ_; _-_ to _-ℤ_; _*_ to _*ℤ_; 0ℤ to 0ℤ; 1ℤ to 1ℤ; _≟_ to _≟ℤ′_)
+    public
+
+_≟ℤ_ : WeaklyDecidable {A = ℤ} _≡_
+x ≟ℤ y with x ≟ℤ′ y
+... | yes a = just a
+... | no a = nothing
+
+import Data.Integer.Properties as IntProp using (+-*-commutativeRing)
+-- ringℤ : CommutativeRing
+ringℤ = IntProp.+-*-commutativeRing
+
 open import Data.Fin.Base using (Fin; zero; suc; fromℕ; fromℕ<; fromℕ<″; _↑ˡ_; _↑ʳ_; inject≤) public
 
 open import Data.Vec

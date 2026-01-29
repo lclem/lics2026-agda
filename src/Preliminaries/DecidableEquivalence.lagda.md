@@ -269,20 +269,20 @@ mutual
     _*NH_ : Normal n → HNF (suc n) → HNF (suc n)
     c *NH ∅          = 0H
     c *NH (p *x+ c′) with c ≟N 0N
-    ... | just c≈0 = 0H
+    ... | just _ = 0H
     ... | nothing  = (c *NH p) *x+ (c *N c′)
 
     _*HN_ : HNF (suc n) → Normal n → HNF (suc n)
     ∅          *HN c = 0H
     (p *x+ c′) *HN c with c ≟N 0N
-    ... | just c≈0 = 0H
+    ... | just _ = 0H
     ... | nothing  = (p *HN c) *x+ (c′ *N c)
 
     _*H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
     ∅           *H _           = 0H
     (_ *x+ _)   *H ∅           = 0H
-    (p₁ *x+ c₁) *H (p₂ *x+ c₂) =
-        ((p₁ *H p₂) *x+H ((p₁ *HN c₂) +H (c₁ *NH p₂))) *x+HN (c₁ *N c₂)
+    (p₁ *x+ n₁) *H (p₂ *x+ n₂) =
+        ((p₁ *H p₂) *x+H ((p₁ *HN n₂) +H (n₁ *NH p₂))) *x+HN (n₁ *N n₂)
 
     _*N_ : Normal n → Normal n → Normal n
     con c₁  *N con c₂  = con (c₁ *R c₂)
