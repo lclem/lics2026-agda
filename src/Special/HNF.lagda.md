@@ -68,6 +68,7 @@ mutual
 Equality of normal forms
 
 ```
+infix 4 _≈H_ _≈N_
 mutual
     data _≈H_ : HNF n → HNF n → Set where
         ∅     : _≈H_ {suc n} ∅ ∅
@@ -106,6 +107,20 @@ mutual
     ≈N-trans : ∀ {p q r : Normal k} → p ≈N q → q ≈N r → p ≈N r
     ≈N-trans zero zero = zero
     ≈N-trans (poly p≈q) (poly q≈r) = poly (≈H-trans p≈q q≈r)
+
+≈H-isEquivalence : IsEquivalence (_≈H_ {suc k})
+≈H-isEquivalence = record { refl = ≈H-refl ; sym = ≈H-sym ; trans = ≈H-trans }
+
+module EqH {k} where
+    open import Preliminaries.Equivalence (≈H-isEquivalence {suc k})
+    open Eq public
+
+≈N-isEquivalence : IsEquivalence (_≈N_ {k})
+≈N-isEquivalence = record { refl = ≈N-refl ; sym = ≈N-sym ; trans = ≈N-trans }
+
+module EqN {k} where
+    open import Preliminaries.Equivalence (≈N-isEquivalence {k})
+    open Eq public
 ```
 
 The semantics respects the equality relations.
@@ -227,4 +242,3 @@ mutual
     reflectN zero = ≈-refl
     reflectN (poly p) = reflectH p
 ```
-

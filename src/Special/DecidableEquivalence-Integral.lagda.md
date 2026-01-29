@@ -14,17 +14,9 @@ module Special.DecidableEquivalence-Integral
     -- (_≟R_ : let open Preliminaries.Algebra R in WeaklyDecidable _≈R_)
     where
 
--- module _ where
-
---     open Preliminaries.Algebra ringℤ
---     open import General.Terms ringℤ
---     open import Special.Polynomials ringℤ
-
---     Termℤ = Term
---     _≈ℤ_ = _≈_
-
-
+open import Preliminaries.Integers R
 open Preliminaries.Algebra R
+
 open import General.Terms hiding (x) renaming (_-_ to _[-]_)
 
 Termℤ = Term ringℤ
@@ -38,7 +30,6 @@ _≈TR_ = (_≈_) R
 open import Special.HNF R
 
 open import Special.AuxiliaryLemmas R
--- open import Special.DecidableEquivalence R _≟R_
 
 private variable
     X Y Z : Set
@@ -92,7 +83,7 @@ int→ℤ (ip * iq) = int→ℤ ip * int→ℤ iq
 ℤ→term : Termℤ X → TermR X
 ℤ→term 0T = 0T
 ℤ→term (var x) = var x
-ℤ→term (c · p) = {!   !} · ℤ→term p
+ℤ→term (z · p) = φℤ z · ℤ→term p
 ℤ→term (p + q) = ℤ→term p + ℤ→term q
 ℤ→term (p * q) = ℤ→term p * ℤ→term q
 
@@ -108,17 +99,45 @@ int→ℤ (ip * iq) = int→ℤ ip * int→ℤ iq
 ℤ→term-≈ ≈-refl = ≈-refl
 ℤ→term-≈ (≈-sym p≈q) = ≈-sym (ℤ→term-≈ p≈q)
 ℤ→term-≈ (≈-trans p≈q q≈r) = ≈-trans (ℤ→term-≈ p≈q) (ℤ→term-≈ q≈r)
-ℤ→term-≈ (·-cong c≈d p≈q) = {!   !} ⟨ ·-cong ⟩ ℤ→term-≈ p≈q
-ℤ→term-≈ (·-one p) = {! ·-one _ !}
+ℤ→term-≈ (·-cong refl p≈q) = R-refl ⟨ ·-cong ⟩ ℤ→term-≈ p≈q
+ℤ→term-≈ (·-one p) =
+    begin
+        (1R +R 0R) · ℤ→term p
+            ≈⟨ +R-identityʳ _ ⟨ ·-cong ⟩ ≈-refl ⟩
+        1R · ℤ→term p
+            ≈⟨ ·-one _ ⟩
+        ℤ→term p
+    ∎ where open EqP R
 ℤ→term-≈ (·-+-distrib c p q) = ·-+-distrib _ _ _
-ℤ→term-≈ (+-·-distrib p c d) = +-·-distrib _ _ _
+ℤ→term-≈ (+-·-distrib p c d) = 
+    begin
+        φℤ (c +ℤ d) · ℤ→term p
+            ≈⟨ +-hom-φℤ c d ⟨ ·-cong ⟩ ≈-refl ⟩
+        (φℤ c +R φℤ d) · ℤ→term p
+            ≈⟨ +-·-distrib _ _ _ ⟩
+        φℤ c · ℤ→term p + φℤ d · ℤ→term p
+    ∎ where open EqP R
 ℤ→term-≈ (·-*-distrib c p q) = ·-*-distrib _ _ _
-ℤ→term-≈ (*-·-distrib c d p) = *-·-distrib _ _ _
+ℤ→term-≈ (*-·-distrib c d p) = 
+    begin
+        φℤ (c *ℤ d) · ℤ→term p
+            ≈⟨ *-hom-φℤ c d ⟨ ·-cong ⟩ ≈-refl ⟩
+        (φℤ c *R φℤ d) · ℤ→term p
+            ≈⟨ *-·-distrib _ _ _ ⟩
+        φℤ c · φℤ d · ℤ→term p
+    ∎ where open EqP R
 ℤ→term-≈ (+-cong p≈q r≈s) = ℤ→term-≈ p≈q ⟨ +-cong ⟩ ℤ→term-≈ r≈s
-ℤ→term-≈ (+-zeroʳ _) = {!   !}
+ℤ→term-≈ (+-zeroʳ _) = +-zeroʳ _
 ℤ→term-≈ (+-assoc _ _ _) = +-assoc _ _ _
 ℤ→term-≈ (+-comm _ _) = +-comm _ _
-ℤ→term-≈ (+-invʳ p) = {!   !}
+ℤ→term-≈ (+-invʳ p) = 
+    begin
+        ℤ→term p + (-R (1R +R 0R)) · ℤ→term p
+            ≈⟨ ≈-refl ⟨ +-cong ⟩ (-R‿cong (+R-identityʳ _) ⟨ ·-cong ⟩ ≈-refl) ⟩
+        ℤ→term p + (-R 1R) · ℤ→term p
+            ≈⟨ +-invʳ _ ⟩
+        0T
+    ∎ where open EqP R
 ℤ→term-≈ (*-cong p≈q r≈s) = ℤ→term-≈ p≈q ⟨ *-cong ⟩ ℤ→term-≈ r≈s
 ℤ→term-≈ (*-assoc _ _ _) = *-assoc _ _ _
 ℤ→term-≈ (*-comm _ _) = *-comm _ _
@@ -152,4 +171,33 @@ transfer {p = p} {q} ip iq ip≈iq =
             ≈⟨ int→ℤ-≈ _ ⟨
         q
     ∎ where open EqP R
+
+open import Special.DecidableEquivalence ringℤ _≟ℤ_ renaming (_≟_ to _≟′_)
+
+infix 4 _≟_ _≟₄_ _≟₅_ _≟₆_ _≟₇_ _≟₉_
+
+_≟_ : ∀ {n} → WeaklyDecidable (_≈_ R {Fin n})
+p ≟ q with isIntegral? p | isIntegral? q
+... | nothing | _ = nothing
+... | _ | nothing = nothing
+... | just ip | just iq
+    with int→ℤ ip ≟′ int→ℤ iq
+... | just ip≈iq = just (transfer ip iq ip≈iq)
+... | nothing = nothing
+
+_≟₄_ : WeaklyDecidable (_≈₄_ R)
+_≟₄_ = _≟_
+
+_≟₅_ : WeaklyDecidable (_≈₅_ R)
+_≟₅_ = _≟_
+
+_≟₆_ : WeaklyDecidable (_≈₆_ R)
+_≟₆_ = _≟_
+
+_≟₇_ : WeaklyDecidable (_≈₇_ R)
+_≟₇_ = _≟_
+
+_≟₉_ : WeaklyDecidable (_≈₉_ R)
+_≟₉_ = _≟_
+
 ```

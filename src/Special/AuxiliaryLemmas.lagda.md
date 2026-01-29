@@ -90,6 +90,13 @@ private variable
 
 +-≈zero₃ˡʳ = {!   !}
 
+*+-zeroˡ :
+    ∀ {p q : Term X} →
+    ------------------
+    0T * p + q ≈ q
+
+*+-zeroˡ = {!   !}
+
 ·-≈zero :
     ∀ {p : Term X} {c} →
     c ≈R 0R →

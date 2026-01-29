@@ -13,7 +13,7 @@ open import Relation.Nullary using (Dec; yes; no) public
 open import Relation.Unary using () renaming (WeaklyDecidable to WeaklyDecidable₁) public
 open import Relation.Binary.Core public
 open import Relation.Binary.Structures public
-open import Relation.Binary.Definitions using (WeaklyDecidable) public
+open import Relation.Binary.Definitions using (Decidable; WeaklyDecidable) public
 open import Function.Base using (id; _∘_; _$_) public
 
 open import Relation.Binary.PropositionalEquality

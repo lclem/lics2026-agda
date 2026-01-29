@@ -608,7 +608,7 @@ respects term equivalence `_≈_`.
 -- ... | just p' | just q' = just $ p' * q'
 -- ... | _ | _ = nothing
 
--- open import Preliminaries.Integers R
+-- open import Preliminaries.IntegerPolynomials R
 --     using (_≟′_)
 --     -- renaming (_≟_ to _≟′_)
 

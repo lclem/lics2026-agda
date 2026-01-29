@@ -9,9 +9,9 @@ title: Decidability of equivalence of polynomial expressions
 open import Preliminaries.Base
 import Preliminaries.Algebra
 
-module Special.DecidableEquivalence
+module Special.WeaklyDecidableEquivalence
     (R : CommutativeRing)
-    (_≟R_ : let open Preliminaries.Algebra R in Decidable _≈R_)
+    (_≟R_ : let open Preliminaries.Algebra R in WeaklyDecidable _≈R_)
     where
 
 open Preliminaries.Algebra R
@@ -30,31 +30,31 @@ private variable
 mutual
     infix 4 _≟H_ _≟N_
 
-    _≟H_ : Decidable (_≈H_ {n = n})
-    ∅ ≟H ∅ = yes ∅
-    ∅ ≟H (_ *x+ _ ·x+ _) = no λ ()
-    (_ *x+ _ ·x+ _) ≟H ∅ = no λ ()
+    _≟H_ : WeaklyDecidable (_≈H_ {n = n})
+    ∅ ≟H ∅ = just ∅
+    ∅ ≟H (_ *x+ _ ·x+ _) = nothing
+    (_ *x+ _ ·x+ _) ≟H ∅ = nothing
     (p *x+ c ·x+ m) ≟H (q *x+ d ·x+ n)
         with p ≟H q | c ≟R d | m ≟N n
-    ... | yes p≈q | yes c≈d | yes m≈n = yes (p≈q *x+ c≈d ·x+ m≈n)
-    ... | _        | _        | no m≉n = no λ { (_ *x+ _ ·x+ m≈n) → m≉n m≈n }
-    ... | _        | no c≉d   | _      = no λ { (_ *x+ c≈d ·x+ _) → c≉d c≈d }
-    ... | no p≉q   | _        | _      = no λ { (p≈q *x+ _ ·x+ _) → p≉q p≈q }
+    ... | just p≈q | just c≈d | just m≈n = just (p≈q *x+ c≈d ·x+ m≈n)
+    ... | _        | _        | nothing = nothing
+    ... | _        | nothing  | _       = nothing
+    ... | nothing  | _        | _       = nothing
 
-    _≟N_ : Decidable (_≈N_ {n = n})
-    zero ≟N zero = yes zero
+    _≟N_ : WeaklyDecidable (_≈N_ {n = n})
+    zero ≟N zero = just zero
     poly p₁ ≟N poly p₂
         with p₁ ≟H p₂
-    ... | yes p₁≈p₂ = yes (poly p₁≈p₂)
-    ... | no p₁≉p₂  = no λ { (poly p₁≈p₂) → p₁≉p₂ p₁≈p₂ }
+    ... | just p₁≈p₂ = just (poly p₁≈p₂)
+    ... | nothing    = nothing
 
 -- A simplifying variant of `_*x+_·x+`.
 
 _*x+_·x+HN_ : HNF (suc n) → A → Normal n → HNF (suc n)
 ∅ *x+ c ·x+HN _
     with c ≟R 0R
-∅ *x+ c ·x+HN zero     | yes _ = ∅
-∅ *x+ c ·x+HN (poly ∅) | yes _ = ∅
+∅ *x+ c ·x+HN zero     | just _ = ∅
+∅ *x+ c ·x+HN (poly ∅) | just _ = ∅
 ∅ *x+ c ·x+HN n | _ = ∅ *x+ c ·x+ n
 p@(_ *x+ _ ·x+ _) *x+ c ·x+HN n = p *x+ c ·x+ n
 
@@ -64,9 +64,9 @@ infixr 10 _·H_ _·N_
 mutual
     _·H_ : A → HNF (suc n) → HNF (suc n)
     c ·H _ with c ≟R 0R
-    ...                  | yes _  = ∅
-    _ ·H ∅               | no _ = ∅
-    c ·H (p *x+ d ·x+ n) | no _ = (c ·H p) *x+ (c *R d) ·x+HN (c ·N n)
+    ...                  | just _  = ∅
+    _ ·H ∅               | nothing = ∅
+    c ·H (p *x+ d ·x+ n) | nothing = (c ·H p) *x+ (c *R d) ·x+HN (c ·N n)
 
     _·N_ : A → Normal n → Normal n
     c ·N zero = zero
@@ -93,8 +93,8 @@ mutual
 
 _*x+HN_ : HNF (suc n) → Normal n → HNF (suc n)
 ∅ *x+HN n with n ≟N 0N
-... | yes _  = 0H
-... | no _ = 0H *x+ 0R ·x+ n
+... | just _  = 0H
+... | nothing = 0H *x+ 0R ·x+ n
 p *x+HN n = p *x+ 0R ·x+ n
 
 infixr 9 _+HN_
@@ -112,20 +112,20 @@ mutual
     _ *NH ∅ = 0H
     n *NH (p *x+ c ·x+ n′)
         with n ≟N 0N
-    ... | yes _ = 0H
+    ... | just _ = 0H
     ... | _
         with c ≟R 0R
-    ... | yes _ = (n *NH p) *x+HN (n *N n′)
+    ... | just _ = (n *NH p) *x+HN (n *N n′)
     ... | _ = ((n *NH p) +HN (c ·N n)) *x+HN (n *N n′)
 
     _*HN_ : HNF (suc n) → Normal n → HNF (suc n)
     ∅ *HN _ = 0H
     (p *x+ c ·x+ n) *HN n′
         with n′ ≟N 0N
-    ... | yes _ = 0H
+    ... | just _ = 0H
     ... | _
         with c ≟R 0R
-    ... | yes _ = (p *HN n′) *x+HN (n *N n′)
+    ... | just _ = (p *HN n′) *x+HN (n *N n′)
     ... | _ = ((p *HN n′) +HN (c ·N n′)) *x+HN (n *N n′)
 
     _*H_ : HNF (suc n) → HNF (suc n) → HNF (suc n)
@@ -150,7 +150,7 @@ mutual
 
 *x+HN≈*x+ (_ *x+ _ ·x+ _) n = ≈-refl
 *x+HN≈*x+ ∅ n with n ≟N 0N
-... | yes n≈0 =
+... | just n≈0 =
     begin
         0T
             ≈⟨ ≈-↑ (0≈N⟦0⟧ n≈0) ⟩
@@ -158,7 +158,7 @@ mutual
             ≈⟨ lemma₆ _ _ _ ⟨
         0T * x + 0R · x + ⟦ n ⟧N ↑
     ∎ where open EqP
-... | no _ = ≈-refl
+... | nothing = ≈-refl
 
 open AlgebraicProperties
 
@@ -168,8 +168,8 @@ open AlgebraicProperties
     ⟦ ∅ *x+HN m ⟧H ≈ ⟦ m ⟧N ↑
 
 ∅*x+HN-hom n with n ≟N 0N
-... | yes n≈0 = ≈-↑ (0≈N⟦0⟧ n≈0)
-... | no _ = lemma₆ _ _ _
+... | just n≈0 = ≈-↑ (0≈N⟦0⟧ n≈0)
+... | nothing = lemma₆ _ _ _
 
 *x+·x+HN-hom :
     ∀ {k} (p : HNF (suc k)) c (n : Normal k) →
@@ -178,10 +178,10 @@ open AlgebraicProperties
 
 *x+·x+HN-hom ∅ c _
     with c ≟R 0R
-*x+·x+HN-hom ∅ c zero     | yes c≈0 = ≈-sym (lemma₁ ≈-refl c≈0 ≈-refl)
-*x+·x+HN-hom ∅ c (poly ∅) | yes c≈0 = ≈-sym (lemma₁ ≈-refl c≈0 ≈-refl)
-*x+·x+HN-hom ∅ c (poly (_ *x+ _ ·x+ _)) | yes _ = ≈-refl
-*x+·x+HN-hom ∅ _ _        | no _ = ≈-refl
+*x+·x+HN-hom ∅ c zero     | just c≈0 = ≈-sym (lemma₁ ≈-refl c≈0 ≈-refl)
+*x+·x+HN-hom ∅ c (poly ∅) | just c≈0 = ≈-sym (lemma₁ ≈-refl c≈0 ≈-refl)
+*x+·x+HN-hom ∅ c (poly (_ *x+ _ ·x+ _)) | just _ = ≈-refl
+*x+·x+HN-hom ∅ _ _        | nothing = ≈-refl
 *x+·x+HN-hom (_ *x+ _ ·x+ _) c n = ≈-refl
 
 mutual
@@ -191,7 +191,7 @@ mutual
         ⟦ c ·H p ⟧H ≈ c · ⟦ p ⟧H
 
     ·H-hom c p with c ≟R 0R
-    ... | yes c≈0 = 
+    ... | just c≈0 = 
         begin
             0T
                 ≈⟨ ·-zero _ ⟨
@@ -199,8 +199,8 @@ mutual
                 ≈⟨ (c≈0 ⟨ ·-cong ⟩ ≈-refl) ⟨
             c · ⟦ p ⟧H
         ∎ where open EqP
-    ·H-hom c ∅ | no _ = ·-zero′ c
-    ·H-hom c (p *x+ d ·x+ n) | no _ =
+    ·H-hom c ∅ | nothing = ·-zero′ c
+    ·H-hom c (p *x+ d ·x+ n) | nothing =
         begin
             ⟦ (c ·H p) *x+ c *R d ·x+HN (c ·N n) ⟧H
                 ≈⟨ *x+·x+HN-hom _ _ _ ⟩
@@ -326,8 +326,8 @@ mutual
     ⟦ p *x+HN n ⟧H ≈ ⟦ p ⟧H * x + ⟦ n ⟧N ↑
 
 *x+HN-hom ∅ n with n ≟N 0N
-... | yes n≈0  = ≈-sym (+-≈zeroˡʳ (*-zeroˡ _) (≈-sym (≈-↑ (0≈N⟦0⟧ n≈0))))
-... | no _ = 
+... | just n≈0  = ≈-sym (+-≈zeroˡʳ (*-zeroˡ _) (≈-sym (≈-↑ (0≈N⟦0⟧ n≈0))))
+... | nothing = 
     begin
         0T * x + 0R · x + ⟦ n ⟧N ↑
             ≈⟨ +-≈zero₃ (*-zeroˡ _) (·-zero _) ⟩
@@ -353,7 +353,7 @@ mutual
     *NH-hom n ∅ = ≈-sym (*-zeroʳ _)
     *NH-hom n (p *x+ c ·x+ m)
         with n ≟N 0N
-    ... | yes n≈0 = 
+    ... | just n≈0 = 
         begin
             0T
                 ≈⟨ *-zeroˡ _ ⟨
@@ -362,9 +362,9 @@ mutual
             ⟦ n ⟧N ↑ * (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑)
         ∎ where open EqP
 
-    ... | no _
+    ... | nothing
         with c ≟R 0R
-    ... | yes c≈0 = 
+    ... | just c≈0 = 
         begin
             ⟦ (n *NH p) *x+HN (n *N m) ⟧H
                 ≈⟨ *x+HN-hom _ _ ⟩
@@ -377,7 +377,7 @@ mutual
             ⟦ n ⟧N ↑ * (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑)
         ∎ where open EqP
         
-    ... | no _ =
+    ... | nothing =
         begin
             ⟦ ((n *NH p) +HN (c ·N n)) *x+HN (n *N m) ⟧H
                 ≈⟨ *x+HN-hom _ _ ⟩
@@ -398,7 +398,7 @@ mutual
     *HN-hom ∅ n = ≈-sym (*-zeroˡ _)
     *HN-hom (p *x+ c ·x+ m) n
         with n ≟N 0N
-    ... | yes n≈0 =
+    ... | just n≈0 =
         begin
             0T
                 ≈⟨ *-zeroʳ _ ⟨
@@ -407,9 +407,9 @@ mutual
             (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑) * ⟦ n ⟧N ↑
         ∎ where open EqP
         
-    ... | no _
+    ... | nothing
         with c ≟R 0R
-    ... | yes c≈0 =
+    ... | just c≈0 =
         begin
             ⟦ (p *HN n) *x+HN (m *N n) ⟧H
                 ≈⟨ *x+HN-hom _ _ ⟩
@@ -422,7 +422,7 @@ mutual
             (⟦ p ⟧H * x + c · x + ⟦ m ⟧N ↑) * ⟦ n ⟧N ↑
         ∎ where open EqP
         
-    ... | no _ =
+    ... | nothing =
         begin
             ⟦ ((p *HN n) +HN (c ·N n)) *x+HN (m *N n) ⟧H
                 ≈⟨ *x+HN-hom _ _ ⟩
@@ -505,8 +505,8 @@ normalise (t₁ * t₂) = normalise t₁ *N normalise t₂
 normalise-var-zero : ∀ (x : Fin k) → normalise-var x ≈N 0N → ⊥
 normalise-var-zero zero (poly ())
 normalise-var-zero (suc x) (poly eq) with normalise-var x ≟N 0N
-... | yes x≈0 = normalise-var-zero x x≈0
-normalise-var-zero (suc x) (poly ()) | no _
+... | just x≈0 = normalise-var-zero x x≈0
+normalise-var-zero (suc x) (poly ()) | nothing
 
 sound-var : ∀ x → ⟦ normalise-var {n} x ⟧N ≈ var x
 sound-var zero =
@@ -520,8 +520,8 @@ sound-var zero =
 
 sound-var (suc y)
     with normalise-var y ≟N 0N in eq
-... | yes x≈0 = ⊥-elim (normalise-var-zero _ x≈0)
-... | no _ =
+... | just x≈0 = ⊥-elim (normalise-var-zero _ x≈0)
+... | nothing =
     begin
         0T * x + 0R · x + (⟦ normalise-var y ⟧N ↑)
             ≈⟨ +-cong₃ (*-zeroˡ _) (·-zero _) (≈-↑ (sound-var y)) ⟩
@@ -575,6 +575,6 @@ sound {p = p} {q} eq =
 infix 4 _≟_
 _≟_ : ∀ {k} → WeaklyDecidable (_≈_ {Fin k})
 p ≟ q with normalise p ≟N normalise q
-... | yes eq = just (sound eq)
-... | no _ = nothing
+... | just eq = just (sound eq)
+... | nothing = nothing
 ```

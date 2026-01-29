@@ -11,24 +11,11 @@ open import Preliminaries.Base hiding (_++_)
 
 module Special.ReversalCalc where -- (R : CommutativeRing) where
 
-open import Data.Integer as Int
-    renaming (ℤ to ℤ; suc to sucℤ; _+_ to _+ℤ_; _-_ to _-ℤ_; _*_ to _*ℤ_; 0ℤ to 0ℤ; 1ℤ to 1ℤ; _≟_ to _≟ℤ_)
+open import General.Terms ringℤ hiding (x; y; t)
 
-import Data.Integer.Properties as IntProp
-
-Z : CommutativeRing
-Z = IntProp.+-*-commutativeRing
-
-weq : WeaklyDecidable {A = ℤ} _≡_
-weq x y with x ≟ℤ y
-... | yes a = just a
-... | no a = nothing
-
-open import General.Terms Z hiding (x; y; t)
-
-open import Special.Polynomials Z
-open import Special.HNF Z hiding (x)
-open import Special.DecidableEquivalence Z weq
+open import Special.Polynomials ringℤ
+open import Special.HNF ringℤ hiding (x)
+open import Special.DecidableEquivalence ringℤ _≟ℤ_
 
 data Σ : Set where
     a b : Σ
