@@ -28,50 +28,50 @@ private variable
 
 ```
 mutual
-    ·H-zero : (p : HNF (suc k)) → (0R ·H p) ≈H 0H
+    ·H-zero : (p : HNF (suc k)) → 0R ·H p ≈H 0H
     ·H-zero _ with 0R ≟R 0R
     ... | yes _ = ∅
-    ·H-zero ∅ | no _ = ∅
-    ·H-zero (p *x+ c ·x+ n) | no _ = {!   !}
-    --     with ·H-zero p | R-zeroˡ c | ·N-zero n 
-    -- ... | a | b | c = {!   !}
+    ·H-zero _ | no ¬0≈0 = ⊥-elim (¬0≈0 R-refl)
     
     ·N-zero : (n : Normal k) → (0R ·N n) ≈N 0N
     ·N-zero zero = zero
     ·N-zero (poly p) = poly (·H-zero p)
 
-mutual
-    ·H-one : (p : HNF (suc k)) → (1R ·H p) ≈H p
-    ·H-one _ with 1R ≟R 0R in eq
-    ... | yes _ = {!   !} -- find a contradiction
-    ·H-one ∅ | no _ = ∅
-    ·H-one (p *x+ c ·x+ n) | no _ = {!   !} -- ·H-one p *x+ *R-identity .fst c ·x+ ·N-one n
-    
-    ·N-one : (n : Normal k) → (1R ·N n) ≈N n
-    ·N-one zero = zero
-    ·N-one (poly p) = poly (·H-one p)
+*x+·x+HN-cong :
+    {p₁ p₂ : HNF (suc k)} {c₁ c₂ : A} {n₁ n₂ : Normal k} →
+    p₁ ≈H p₂ →
+    c₁ ≈R c₂ →
+    n₁ ≈N n₂ →
+    --------------------------------------------
+    p₁ *x+ c₁ ·x+HN n₁ ≈H p₂ *x+ c₂ ·x+HN n₂
+
+*x+·x+HN-cong {c₁ = c₁} {c₂} ∅ c₁≈c₂ n₁≈n₂
+    with c₁ ≟R 0R | c₂ ≟R 0R
+... | yes c₁≈0 | no ¬c₂≈0 = ⊥-elim $ ¬c₂≈0 $ R-sym c₁≈c₂ ⟨ R-trans ⟩ c₁≈0
+... | no ¬c₁≈0 | yes c₂≈0 = ⊥-elim $ ¬c₁≈0 $ R-trans c₁≈c₂ c₂≈0
+... | no _ | no _ = ∅ *x+ c₁≈c₂ ·x+ n₁≈n₂
+*x+·x+HN-cong {c₁ = _} {_} ∅ c₁≈c₂ zero | yes _ | yes _ = ∅
+*x+·x+HN-cong {c₁ = _} {_} ∅ c₁≈c₂ (poly ∅) | yes _ | yes _ = ∅
+*x+·x+HN-cong {c₁ = c₁} {c₂} ∅ c₁≈c₂ eq@(poly (p₁≈p₂ *x+ c₃≈c₄ ·x+ n₁≈n₂)) | yes _ | yes _ = ∅ *x+ c₁≈c₂ ·x+ eq
+
+*x+·x+HN-cong {c₁ = c₁} {c₂} (p₁≈p₂ *x+ x₁ ·x+ x₂) c₁≈c₂ n₁≈n₂ = (p₁≈p₂ *x+ x₁ ·x+ x₂) *x+ c₁≈c₂ ·x+ n₁≈n₂
 
 mutual
-
     ·H-cong :
         {c₁ c₂ : A} {p₁ p₂ : HNF (suc k)} →
         c₁ ≈R c₂ →
         p₁ ≈H p₂ →
         -----------------------------------
-        (c₁ ·H p₁) ≈H (c₂ ·H p₂)
+        c₁ ·H p₁ ≈H c₂ ·H p₂
 
-    ·H-cong {c₁ = c₁} {c₂} c≈d p≈q = {!   !}
-    --     with c₁ ≟R 0R | c₂ ≟R 0R
-    -- ... | yes _ | yes _ = ∅
-    -- ·H-cong c≈d ∅ | no _ | yes _ = ∅
-    -- ·H-cong c≈d ∅ | yes _ | no _ = ∅
-    -- ·H-cong c≈d ∅ | no _ | no _ = ∅
-    -- ·H-cong {c₁ = c₁} {c₂} c₁≈c₂ (_*x+_·x+_ {c₁ = c₃} {c₄} p₁≈p₂ c₃≈c₄ x₂) | just c₁≈0 | nothing = {!   !} -- need to find a contradiction
-    -- --     with c₂ ≟R 0R
-    -- -- ·H-cong c₁≈c₃ (_*x+_·x+_ {c₁ = c₃} p₁≈p₂ x₁ x₂) | just _ | nothing | just _ = {! ·H-cong (R-trans (R-sym c₁≈c₃) c₁≈0) p₁≈p₂  !}
-    -- -- ·H-cong c₁≈c₃ (_*x+_·x+_ {c₁ = c₃} p₁≈p₂ x₁ x₂) | just _ | nothing | nothing = {!   !}
-    -- ·H-cong c≈d (p₁≈p₂ *x+ x₁ ·x+ x₂) | nothing | just _ = {!   !}
-    -- ·H-cong c≈d (p₁≈p₂ *x+ x₁ ·x+ x₂) | nothing | nothing = {!   !} -- ·H-cong c≈d p₁≈p₂ *x+ *R-cong c≈d x₁ ·x+ ·N-cong c≈d x₂
+    ·H-cong {c₁ = c₁} {c₂} c₁≈c₂ p₁≈p₂
+        with c₁ ≟R 0R | c₂ ≟R 0R
+    ... | yes c₁≈0 | no ¬c₂≈0 = ⊥-elim $ ¬c₂≈0 $ R-sym c₁≈c₂ ⟨ R-trans ⟩ c₁≈0
+    ... | no ¬c₁≈0 | yes c₂≈0 = ⊥-elim $ ¬c₁≈0 $ R-trans c₁≈c₂ c₂≈0
+    ... | yes _ | yes _ = ∅
+    ·H-cong _ ∅ | no _ | no _ = ∅
+    ·H-cong c₁≈c₂ (p₁≈p₂ *x+ c₃≈c₄ ·x+ n≈n₂) | no _ | no _ =
+        *x+·x+HN-cong (·H-cong c₁≈c₂ p₁≈p₂) (*R-cong c₁≈c₂ c₃≈c₄) (·N-cong c₁≈c₂ n≈n₂)
     
     ·N-cong : 
         {c₁ c₂ : A} {p₁ p₂ : Normal k} →
@@ -82,6 +82,42 @@ mutual
 
     ·N-cong c≈d zero = zero
     ·N-cong c≈d (poly p≈q) = poly (·H-cong c≈d p≈q)
+
+zero-ring : 1R ≈R 0R → ∀ c → c ≈R 0R
+zero-ring 1≈0 c =
+    begin
+        c
+            ≈⟨ *R-identityʳ _ ⟨
+        c *R 1R
+            ≈⟨ (R-refl ⟨ *R-cong ⟩ 1≈0) ⟩
+        c *R 0R
+            ≈⟨ R-zeroʳ _ ⟩
+        0R
+    ∎ where open EqR
+
+trivial : 1R ≈R 0R → (p : HNF (suc k)) → ∀ c → c ·H p ≈H 0H
+trivial 1≈0 p c = 
+    begin
+        c ·H p
+            ≈⟨ ·H-cong (zero-ring 1≈0 c) ≈H-refl ⟩
+        0R ·H p
+            ≈⟨ ·H-zero _ ⟩
+        0H
+    ∎ where open EqH
+
+-- do we need to assume 1 ≉ 0 from the outset?
+
+mutual
+    ·H-one : (p : HNF (suc k)) → 1R ·H p ≈H p
+    ·H-one p with 1R ≟R 0R
+    ... | yes 1≈0 = ≈H-sym {!(trivial 1≈0 p 1R) !}
+    ·H-one ∅ | no _ = ∅
+    ·H-one (p *x+ c ·x+ n) | no _ = {!   !} -- ·H-one p *x+ *R-identity .fst c ·x+ ·N-one n
+    
+    ·N-one : (n : Normal k) → (1R ·N n) ≈N n
+    ·N-one zero = zero
+    ·N-one (poly p) = poly (·H-one p)
+
 
 mutual
     ·x+HN-cong :

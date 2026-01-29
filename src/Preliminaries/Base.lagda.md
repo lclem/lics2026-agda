@@ -9,7 +9,7 @@ open import Agda.Primitive using (Level; lzero) renaming (_⊔_ to _⊔ℓ_) pub
 open import Agda.Builtin.Sigma using (fst; snd) public
 open import Agda.Builtin.Bool using (Bool; true; false) public
 
-open import Relation.Nullary using (Dec; yes; no) public
+open import Relation.Nullary using (Dec; yes; no; ¬_) public
 open import Relation.Unary using () renaming (WeaklyDecidable to WeaklyDecidable₁) public
 open import Relation.Binary.Core public
 open import Relation.Binary.Structures public

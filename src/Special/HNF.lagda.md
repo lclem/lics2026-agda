@@ -112,7 +112,7 @@ mutual
 ≈H-isEquivalence = record { refl = ≈H-refl ; sym = ≈H-sym ; trans = ≈H-trans }
 
 module EqH {k} where
-    open import Preliminaries.Equivalence (≈H-isEquivalence {suc k})
+    open import Preliminaries.Equivalence (≈H-isEquivalence {k})
     open Eq public
 
 ≈N-isEquivalence : IsEquivalence (_≈N_ {k})
