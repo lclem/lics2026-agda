@@ -106,7 +106,7 @@ c·0≈0N {zero} = zero
 c·0≈0N {suc k} = poly c·0≈0H
 
 n≈0→c·n≈0N : ∀ {c} {n : Normal k} → n ≈N 0N → c ·N n ≈N 0N {k}
-n≈0→c·n≈0N zero = c·0≈0N
+n≈0→c·n≈0N {c = c} zero = c·0≈0N {c = c}
 n≈0→c·n≈0N (poly ∅) = c·0≈0N
 
 n≉0,c≉0→c·n≉0N : ∀ {c} {n : Normal k} → ¬ (c ≈R 0R) → ¬ (n ≈N 0N) → ¬ (c ·N n ≈N 0N)
@@ -217,7 +217,6 @@ poly-*x+·x+-inv :
     p ≡ q × c ≡ d × m ≡ n
 
 poly-*x+·x+-inv refl = refl ,, refl ,, refl
-
 
 *x+·x+HN-nonzero₀ :
     {p : HNF (suc k)} {c : A} {n : Normal k} →
@@ -394,39 +393,43 @@ mutual
         ------------------------------
         (c *R d) ·H p ≈H c ·H (d ·H p)
 
-    *-·-distribH c d p
-        with (c *R d) ≟R 0R in eq-cd
-    *-·-distribH c d p | yes _
-        with c ≟R 0R
-    *-·-distribH c d p | yes _ | yes _ = ∅
-    *-·-distribH c d p | yes _ | no _
-        with d ≟R 0R
-    *-·-distribH c d p | yes _ | no _ | yes _ = ∅
-    *-·-distribH c d p | yes _ | no _ | no _ = {!   !} -- !
+    *-·-distribH c d ∅ =
+        begin
+            (c *R d) ·H ∅ ≡⟨ c·0≡0H ⟩
+            ∅ ≡⟨ c·0≡0H ⟨
+            c ·H ∅ ≡⟨ cong (c ·H_) c·0≡0H ⟨
+            c ·H (d ·H ∅)
+        ∎ where open EqH
+    *-·-distribH c d p@(q *x+ e ·x+ n) = go (c ≟R 0R) (d ≟R 0R) where
+        go : _ → _ → (c *R d) ·H p ≈H c ·H (d ·H p)
 
-    *-·-distribH c d p | no _
-        with c ≟R 0R in eq-c
-    *-·-distribH c d p | no _ | yes _ = {!   !} -- !
-    *-·-distribH c d p | no _ | no _
-        with d ≟R 0R in eq-d
-    *-·-distribH c d p | no _ | no _ | yes _ = {!   !} -- !
-    *-·-distribH c d ∅ | no _ | no _ | no _ = ∅
-    *-·-distribH c d (p *x+ e ·x+ n) | no cd≠0 | no c≠0 | no d≠0 = {!   !}
+        go (yes c≈0) _ =
+            begin
+                (c *R d) ·H p ≡⟨ c≈0→c·p≡0H (*-≈-zeroˡ c≈0) ⟩
+                0H ≡⟨ c≈0→c·p≡0H c≈0 ⟨
+                c ·H (d ·H p)
+            ∎ where open EqH
 
-    -- (c *R d) ·H (p *x+ e ·x+ n) -- since c *R d nonzero
-    -- ((c *R d) ·H p) *x+ ((c *R d) *R e) ·x+HN ((c *R d) ·N n)
+        go _ (yes d≈0) =
+            begin
+                (c *R d) ·H p ≡⟨ c≈0→c·p≡0H (*-≈-zeroʳ d≈0) ⟩
+                0H ≡⟨ c·0≡0H ⟨
+                c ·H 0H ≡⟨ cong (c ·H_) (c≈0→c·p≡0H d≈0) ⟨
+                c ·H (d ·H p)
+            ∎ where open EqH
 
-    
-    -- c ·H (d ·H p) -- since d nonzero
-    -- c ·H ((d ·H p) *x+ (d *R e) ·x+HN (d ·N n)) -- since 
-    -- (c ·H (d ·H p)) *x+ (c * d *R e) ·x+HN (c ·N (d ·N n))
-
-    -- ¬ (c ≈R 0R) → c ·H (p *x+ d ·x+ n) ≡ (c ·H p) *x+ (c *R d) ·x+HN (c ·N n)
-
-    -- ¬ (c ≈R 0R) →
-    -- ¬ (d ≈R 0R) →
-    -- ---------------------------------------------------------
-    -- c ·H (p *x+ d ·x+HN n) ≡ (c ·H p) *x+ (c *R d) ·x+HN (c ·N n)
+        go (no c≉0) (no d≉0) = 
+            begin
+                (c *R d) ·H (q *x+ e ·x+ n)
+                    ≡⟨ ·H-nonzero (no-zero-divisors-conv c≉0 d≉0) ⟩
+                ((c *R d) ·H q) *x+ ((c *R d) *R e) ·x+HN ((c *R d) ·N n)
+                    ≈⟨ *x+·x+HN-cong (*-·-distribH _ _ _) (*R-assoc _ _ _) (*-·-distribN _ _ _) ⟩
+                (c ·H (d ·H q)) *x+ (c *R (d *R e)) ·x+HN (c ·N (d ·N n))
+                    ≡⟨ ·H-*x+·x+HN ⟨
+                c ·H ((d ·H q) *x+ (d *R e) ·x+HN (d ·N n))
+                    ≡⟨ cong (c ·H_) (·H-nonzero d≉0) ⟨
+                c ·H (d ·H (q *x+ e ·x+ n))
+            ∎ where open EqH
 
     *-·-distribN :
         ∀ c d (n : Normal k) →
@@ -435,77 +438,6 @@ mutual
 
     *-·-distribN c d zero = zero
     *-·-distribN c d (poly p) = poly (*-·-distribH c d p)
-
-mutual
-    -- almost true, however p may be unsimplified on the right
-    -- ·H-one : (p : HNF (suc k)) → 1R ·H p ≈H p
-    -- ·H-one = ?
-    -- ·H-one p with 1R ≟R 0R
-    -- ... | yes 1≈0 = ≈H-sym {!(trivial 1≈0 p 1R) !}
-    -- ·H-one ∅ | no _ = ∅
-    -- ·H-one (p *x+ c ·x+ n) | no _ =
-    --     begin
-    --         (1R ·H p) *x+ 1R *R c ·x+HN (1R ·N n)
-    --             ≈⟨ *x+·x+HN-cong (·H-one p) (*R-identityˡ _) (·N-one n) ⟩
-    --         p *x+ c ·x+HN n
-    --             ≈⟨ {!   !} ⟩
-    --         p *x+ c ·x+ n
-    --     ∎ where open EqH
-    
-    -- normalise-var zero    = poly (∅ *x+ 1R ·x+ 0N)
-    -- normalise-var (suc x) = poly (∅ *x+HN normalise-var x)
-
-    ·N-one-var-zero : 1R ·N normalise-var {suc k} zero ≈N normalise-var zero
-    ·N-one-var-zero =
-        begin
-            1R ·N normalise-var zero
-                ≈⟨⟩
-            1R ·N poly (∅ *x+ 1R ·x+ 0N)
-                ≡⟨ cong poly (·H-nonzero-∅′ 1≉0 1≉0) ⟩
-            poly (∅ *x+ (1R *R 1R) ·x+ (1R ·N 0N))
-                ≈⟨ poly (∅ *x+ *R-identityˡ _ ·x+ c·0≈0N) ⟩
-            poly (∅ *x+ 1R ·x+ 0N)
-                ≈⟨⟩
-            normalise-var zero
-        ∎ where open EqN
-
-    ·N-one-var : ∀ (x : Fin k) → 1R ·N normalise-var x ≈N normalise-var x
-    ·N-one-var zero = ·N-one-var-zero
-    ·N-one-var (suc x) = 
-        begin
-            1R ·N normalise-var (suc x)
-                ≈⟨⟩
-            1R ·N poly (∅ *x+ 0R ·x+ normalise-var x)
-                ≡⟨ cong poly (·H-nonzero-zero-∅′ 1≉0) ⟩
-            poly (∅ *x+ 0R ·x+ (1R ·N normalise-var x))
-                ≈⟨ poly (∅ *x+ R-refl ·x+ ·N-one-var x) ⟩
-            poly (∅ *x+ 0R ·x+ normalise-var x)
-                ≈⟨⟩
-            normalise-var (suc x)
-        ∎ where open EqN
-
-    ·N-one-con :
-        ∀ c (p : Term′ k) →
-        1R ·N normalise (c · p) ≈N normalise (c · p)
-    ·N-one-con c p =
-        begin
-            1R ·N normalise (c · p)
-                ≈⟨⟩
-            1R ·N (c ·N normalise p)
-                ≈⟨ *-·-distribN _ _ _ ⟨
-            (1R *R c) ·N normalise p
-                ≈⟨ ·N-cong (*R-identityˡ _) ≈N-refl ⟩
-            c ·N normalise p
-                ≈⟨⟩
-            normalise (c · p)
-        ∎ where open EqN
-    
-    ·N-one : (p : Term′ k) → 1R ·N normalise p ≈N normalise p
-    ·N-one {k} 0T = c·0≈0N
-    ·N-one (var x) = ·N-one-var x
-    ·N-one (c · p) = ·N-one-con c p
-    ·N-one (p + q) = {!   !}
-    ·N-one (p * q) = {!   !}
 
 mutual
     ·x+HN-cong :
@@ -552,6 +484,153 @@ mutual
     
     +N-cong zero zero = zero
     +N-cong (poly x₁) (poly x₂) = poly (+H-cong x₁ x₂)
+
+mutual
+    *H-cong :
+        {p₁ p₂ q₁ q₂ : HNF (suc k)} →
+        p₁ ≈H p₂ →
+        q₁ ≈H q₂ →
+        -----------------------------
+        (p₁ *H q₁) ≈H (p₂ *H q₂)
+
+    *H-cong = {!   !}
+
+    *N-cong :
+        {p₁ p₂ q₁ q₂ : Normal k} →
+        p₁ ≈N p₂ →
+        q₁ ≈N q₂ →
+        --------------------------
+        (p₁ *N q₁) ≈N (p₂ *N q₂)
+    
+    *N-cong  = {!   !}
+
+mutual
+    ·-*-distribH :
+        ∀ c (p q : HNF (suc k)) →
+        -----------------------------
+        (c ·H p) *H q ≈H c ·H (p *H q)
+
+    ·-*-distribH c p q = {!   !}
+
+    ·-*-distribN :
+        ∀ c (m n : Normal k) →
+        ------------------------------
+        (c ·N m) *N n ≈N c ·N (m *N n)
+
+    ·-*-distribN c zero zero = zero
+    ·-*-distribN c (poly p) (poly q) = poly (·-*-distribH c p q)
+
+mutual 
+    ·-+-distribH :
+        (c : A) (p q : HNF (suc k)) →
+        ----------------------------------------
+        (c ·H (p +H q)) ≈H ((c ·H p) +H (c ·H q))
+
+    ·-+-distribH c p q with c ≟R 0R
+    ... | yes _ = ∅
+    ·-+-distribH _ ∅ ∅ | no _ = ∅
+    ·-+-distribH _ ∅ _ | no _ = ≈H-refl
+    ·-+-distribH _ (_ *x+ _ ·x+ _) ∅ | no _ = {!   !} -- ≈H-refl
+    ·-+-distribH c′ (p *x+ c ·x+ m) (q *x+ d ·x+ n) | no _
+        = {!   !} -- ·-+-distribH _ _ _ *x+ R-distribˡ _ _ _ ·x+ ·-+-distribN _ _ _
+
+    ·-+-distribN :
+        (c : A) (m n : Normal k) →
+        ----------------------------------------
+        c ·N (m +N n) ≈N (c ·N m) +N (c ·N n)
+
+    ·-+-distribN c zero zero = zero
+    ·-+-distribN c (poly p) (poly q) = poly (·-+-distribH c p q)
+
+mutual
+    -- almost true, however p may be unsimplified on the right
+    -- ·H-one : (p : HNF (suc k)) → 1R ·H p ≈H p
+
+    ·N-one-var-zero : 1R ·N normalise-var {suc k} zero ≈N normalise-var zero
+    ·N-one-var-zero =
+        begin
+            1R ·N normalise-var zero
+                ≈⟨⟩
+            1R ·N poly (∅ *x+ 1R ·x+ 0N)
+                ≡⟨ cong poly (·H-nonzero-∅′ 1≉0 1≉0) ⟩
+            poly (∅ *x+ (1R *R 1R) ·x+ (1R ·N 0N))
+                ≈⟨ poly (∅ *x+ *R-identityˡ _ ·x+ c·0≈0N) ⟩
+            poly (∅ *x+ 1R ·x+ 0N)
+                ≈⟨⟩
+            normalise-var zero
+        ∎ where open EqN
+
+    ·N-one-var : ∀ (x : Fin k) → 1R ·N normalise-var x ≈N normalise-var x
+    ·N-one-var zero = ·N-one-var-zero
+    ·N-one-var (suc x) = 
+        begin
+            1R ·N normalise-var (suc x)
+                ≈⟨⟩
+            1R ·N poly (∅ *x+ 0R ·x+ normalise-var x)
+                ≡⟨ cong poly (·H-nonzero-zero-∅′ 1≉0) ⟩
+            poly (∅ *x+ 0R ·x+ (1R ·N normalise-var x))
+                ≈⟨ poly (∅ *x+ R-refl ·x+ ·N-one-var x) ⟩
+            poly (∅ *x+ 0R ·x+ normalise-var x)
+                ≈⟨⟩
+            normalise-var (suc x)
+        ∎ where open EqN
+
+    ·N-one-con :
+        ∀ c (p : Term′ k) →
+        1R ·N normalise (c · p) ≈N normalise (c · p)
+    ·N-one-con c p =
+        begin
+            1R ·N normalise (c · p)
+                ≈⟨⟩
+            1R ·N (c ·N normalise p)
+                ≈⟨ *-·-distribN _ _ _ ⟨
+            (1R *R c) ·N normalise p
+                ≈⟨ ·N-cong (*R-identityˡ _) ≈N-refl ⟩
+            c ·N normalise p
+                ≈⟨⟩
+            normalise (c · p)
+        ∎ where open EqN
+    
+    ·N-one-add :
+        ∀ (p q : Term′ k) →
+        1R ·N normalise (p + q) ≈N normalise (p + q)
+    ·N-one-add p q =
+        begin
+            1R ·N normalise (p + q)
+                ≈⟨⟩
+            1R ·N (normalise p +N normalise q)
+                ≈⟨ ·-+-distribN _ _ _ ⟩
+            (1R ·N normalise p) +N (1R ·N normalise q)
+                ≈⟨ +N-cong (·N-one p) (·N-one q) ⟩
+            normalise p +N normalise q
+                ≈⟨⟩
+            normalise (p + q)
+        ∎ where open EqN
+
+    ·N-one-mul :
+        ∀ (p q : Term′ k) →
+        1R ·N normalise (p * q) ≈N normalise (p * q)
+    ·N-one-mul p q =
+        begin
+            1R ·N normalise (p * q)
+                ≈⟨⟩
+            1R ·N (normalise p *N normalise q)
+                ≈⟨ ·-*-distribN _ _ _ ⟨
+            (1R ·N normalise p) *N normalise q
+                ≈⟨ *N-cong (·N-one p) ≈N-refl ⟩
+            normalise p *N normalise q
+                ≈⟨⟩
+            normalise (p * q)
+        ∎ where open EqN
+
+    ·N-one : (p : Term′ k) → 1R ·N normalise p ≈N normalise p
+    ·N-one {k} 0T = c·0≈0N
+    ·N-one (var x) = ·N-one-var x
+    ·N-one (c · p) = ·N-one-con c p
+    ·N-one (p + q) = ·N-one-add p q
+    ·N-one (p * q) = ·N-one-mul p q
+
+
 
 mutual
     +H-comm :
@@ -615,27 +694,7 @@ mutual
         ∎ where open EqN
     +N-assoc (poly p) (poly q) (poly r) = poly (+H-assoc p q r)
 
-mutual 
-    ·-+-distribH :
-        (c : A) (p q : HNF (suc k)) →
-        ----------------------------------------
-        (c ·H (p +H q)) ≈H ((c ·H p) +H (c ·H q))
 
-    ·-+-distribH c p q with c ≟R 0R
-    ... | yes _ = ∅
-    ·-+-distribH _ ∅ ∅ | no _ = ∅
-    ·-+-distribH _ ∅ _ | no _ = ≈H-refl
-    ·-+-distribH _ (_ *x+ _ ·x+ _) ∅ | no _ = {!   !} -- ≈H-refl
-    ·-+-distribH c′ (p *x+ c ·x+ m) (q *x+ d ·x+ n) | no _
-        = {!   !} -- ·-+-distribH _ _ _ *x+ R-distribˡ _ _ _ ·x+ ·-+-distribN _ _ _
-
-    ·-+-distribN :
-        (c : A) (m n : Normal k) →
-        ----------------------------------------
-        (c ·N (m +N n)) ≈N ((c ·N m) +N (c ·N n))
-
-    ·-+-distribN c zero zero = zero
-    ·-+-distribN c (poly p) (poly q) = poly (·-+-distribH c p q)
 
 mutual
 
@@ -645,13 +704,5 @@ mutual
         (c +R d) ·N n ≈N c ·N n +N d ·N n
 
     +-·-distribN = {!   !}
-
-mutual
-    ·-*-distribN :
-        ∀ c (m n : Normal k) →
-        -------------------------
-        (c ·N m) *N n ≈N c ·N (m *N n)
-
-    ·-*-distribN = {!   !}
 
 ```
