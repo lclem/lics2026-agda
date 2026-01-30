@@ -121,6 +121,12 @@ module EqH {k} where
 module EqN {k} where
     open import Preliminaries.Equivalence (≈N-isEquivalence {k})
     open Eq public
+
+≡→≈H : ∀ {p q : HNF (suc k)} → p ≡ q → p ≈H q
+≡→≈H refl = ≈H-refl
+
+≡→≈N : ∀ {p q : Normal k} → p ≡ q → p ≈N q
+≡→≈N refl = ≈N-refl
 ```
 
 The semantics respects the equality relations.

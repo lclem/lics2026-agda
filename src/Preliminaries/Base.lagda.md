@@ -20,6 +20,9 @@ open import Relation.Binary.PropositionalEquality
     using (_≡_; refl; cong; cong₂; sym; trans)
     renaming (isEquivalence to ≡-isEq) public
 
+cong₃ : ∀ {A B C D : Set} (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z
+cong₃ _ refl refl refl = refl
+
 module ≡-Eq where
     open Relation.Binary.PropositionalEquality.≡-Reasoning public
 
@@ -46,11 +49,11 @@ open import Data.Nat
 
 open import Data.Integer as Int
     using ()
-    renaming (ℤ to ℤ; suc to sucℤ; _+_ to _+ℤ_; _-_ to _-ℤ_; _*_ to _*ℤ_; 0ℤ to 0ℤ; 1ℤ to 1ℤ; _≟_ to _≟ℤ′_)
+    renaming (ℤ to ℤ; suc to sucℤ; _+_ to _+ℤ_; _-_ to _-ℤ_; _*_ to _*ℤ_; 0ℤ to 0ℤ; 1ℤ to 1ℤ; _≟_ to _≟ℤ_)
     public
 
-_≟ℤ_ : WeaklyDecidable {A = ℤ} _≡_
-x ≟ℤ y with x ≟ℤ′ y
+_≟wℤ_ : WeaklyDecidable {A = ℤ} _≡_
+x ≟wℤ y with x ≟ℤ y
 ... | yes a = just a
 ... | no a = nothing
 

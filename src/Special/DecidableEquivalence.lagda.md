@@ -69,11 +69,11 @@ mutual
     c ·H (p *x+ d ·x+ n) | no _ = (c ·H p) *x+ (c *R d) ·x+HN (c ·N n)
 
     _·N_ : A → Normal n → Normal n
-    c ·N zero = zero
+    _ ·N zero = zero
+    -- _ ·N (poly ∅) = poly ∅
     c ·N (poly p) = poly (c ·H p)
 
-
--- Addition of normal forms.
+-- Addition of normal forms
 
 mutual
     infixr 9 _+H_ _+N_
@@ -490,7 +490,8 @@ Conversion to normal forms
 ```
 normalise-var : Fin k → Normal k
 normalise-var zero    = poly (∅ *x+ 1R ·x+ 0N)
-normalise-var (suc x) = poly (∅ *x+HN normalise-var x)
+-- normalise-var (suc x) = poly (∅ *x+HN normalise-var x)
+normalise-var (suc x) = poly (∅ *x+ 0R ·x+ normalise-var x)
 
 normalise : Term′ k → Normal k
 normalise 0T = 0N
@@ -502,7 +503,7 @@ normalise (t₁ * t₂) = normalise t₁ *N normalise t₂
 ⟦_⟧↓ : Term′ k → Term′ k
 ⟦ t ⟧↓ = ⟦ normalise t ⟧N
 
-normalise-var-zero : ∀ (x : Fin k) → normalise-var x ≈N 0N → ⊥
+normalise-var-zero : ∀ (x : Fin k) → ¬ (normalise-var x ≈N 0N)
 normalise-var-zero zero (poly ())
 normalise-var-zero (suc x) (poly eq) with normalise-var x ≟N 0N
 ... | yes x≈0 = normalise-var-zero x x≈0

@@ -166,6 +166,12 @@ module _ where
             a - b
         ∎ where open Eq
 
+    *-≈-zeroʳ : ∀ {a b} → b ≈ 0# → a * b ≈ 0#
+    *-≈-zeroʳ = {!   !}
+
+    *-≈-zeroˡ : ∀ {a b} → a ≈ 0# → a * b ≈ 0#
+    *-≈-zeroˡ = {!   !}
+
 open CR R renaming
     (Carrier to A;
     0# to 0R;
