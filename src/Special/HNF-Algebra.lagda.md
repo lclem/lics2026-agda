@@ -140,6 +140,28 @@ n≉0,c≉0→c·n≉0N = {!   !}
 ```
 
 ```
++HN-cong :
+    {p q : HNF (suc n)} {m n : Normal n} →
+    p ≈H q →
+    m ≈N n →
+    -------------------------------
+    p +HN m ≈H q +HN n
+
++HN-cong = ? 
+```
+
+```
+*x+HN-cong :
+    {p q : HNF (suc k)} {m n : Normal k} →
+    p ≈H q →
+    m ≈N n →
+    -------------------------------------
+    p *x+HN m ≈H q *x+HN n
+
+*x+HN-cong p≈q m≈n = {!   !}
+```
+
+```
 mutual
     ·H-cong :
         {c₁ c₂ : A} {p₁ p₂ : HNF (suc k)} →
@@ -939,7 +961,9 @@ mutual
         (p₁ *N q₁) ≈N (p₂ *N q₂)
     
     *N-cong  = {!   !}
+```
 
+```
 mutual
     ·-*-distribH :
         ∀ c (p q : HNF (suc k)) →
@@ -956,6 +980,78 @@ mutual
     ·-*-distribN c zero zero = zero
     ·-*-distribN c (poly p) (poly q) = poly (·-*-distribH c p q)
 ```
+
+## Commutativity
+
+```
+mutual
+    *NH-HN :
+        (n : Normal k) (p : HNF (suc k)) →
+        ----------------------------------
+        n *NH p ≈H p *HN n
+
+    *NH-HN _ ∅ = ∅
+    *NH-HN m (p *x+ c ·x+ n)
+        with m ≟N 0N
+    ... | yes _ = ∅
+    ... | no _
+        with c ≟R 0R
+    ... | yes _ = *NH-HN m p ⟨ *x+HN-cong ⟩ *N-comm m n
+    ... | no _  = *NH-HN m p ⟨ +HN-cong ⟩ ≈N-refl ⟨ *x+HN-cong ⟩ *N-comm m n
+
+    *HN-NH :
+        (p : HNF (suc k)) (n : Normal k)  →
+        ----------------------------------
+        p *HN n ≈H n *NH p
+
+    *HN-NH ∅ _ = ∅
+    *HN-NH (p *x+ c ·x+ m) n
+        with n ≟N 0N
+    ... | yes _ = ∅
+    ... | no _
+        with c ≟R 0R
+    ... | yes _ = *HN-NH p n ⟨ *x+HN-cong ⟩ *N-comm m n
+    ... | no _  = *HN-NH p n ⟨ +HN-cong ⟩ ≈N-refl ⟨ *x+HN-cong ⟩ *N-comm m n
+
+    *H-comm :
+        (p q : HNF (suc k)) →
+        ---------------------
+        p *H q ≈H q *H p
+
+    *H-comm ∅ ∅ = ∅
+    *H-comm (_ *x+ _ ·x+ _) ∅ = ∅
+    *H-comm ∅ (_ *x+ _ ·x+ _) = ∅
+    *H-comm (p *x+ c ·x+ m) (q *x+ d ·x+ n) =
+        begin
+        (p *x+ c ·x+ m) *H (q *x+ d ·x+ n)
+            ≈⟨⟩
+        ((p *H q +H d ·H p +H c ·H q) *x+ c *R d ·x+HN (c ·N n +N d ·N m) +H p *HN n +H m *NH q) *x+HN (m *N n)
+            ≈⟨ *x+·x+HN-cong (*H-comm p q ⟨ +H-cong ⟩ +H-comm (d ·H p) (c ·H q)) (*R-comm c d) (+N-comm (c ·N n) (d ·N m)) ⟨ +H-cong ⟩ h₀ ⟨ *x+HN-cong ⟩ *N-comm m n ⟩
+        ((q *H p +H c ·H q +H d ·H p) *x+ d *R c ·x+HN (d ·N m +N c ·N n) +H q *HN m +H n *NH p) *x+HN (n *N m)
+            ≈⟨⟩
+        (q *x+ d ·x+ n) *H (p *x+ c ·x+ m)
+        ∎ where
+            open EqH
+
+            h₀ : p *HN n +H m *NH q ≈H q *HN m +H n *NH p
+            h₀ = begin
+                p *HN n +H m *NH q
+                    ≈⟨ +H-comm (p *HN n) (m *NH q) ⟩
+                m *NH q +H p *HN n
+                    ≈⟨ *NH-HN m q ⟨ +H-cong ⟩ *HN-NH p n ⟩
+                q *HN m +H n *NH p
+                ∎ where open EqH
+
+    *N-comm :
+        (m n : Normal k) →
+        ------------------
+        m *N n ≈N n *N m
+
+    *N-comm zero zero = zero
+    *N-comm (poly p) (poly q) = poly (*H-comm p q)
+
+```
+
 
 ```
 mutual
@@ -1046,3 +1142,5 @@ mutual
     ·N-one (p + q) = ·N-one-add p q
     ·N-one (p * q) = ·N-one-mul p q
 ```
+
+

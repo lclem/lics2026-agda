@@ -29,6 +29,6 @@ open import Special.HNF-Algebra R 1≉0 no-zero-divisors _≟R_
 
 private variable
     k : ℕ
-
-
 ```
+
+

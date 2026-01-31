@@ -56,9 +56,9 @@ complete (+-zeroʳ _) = +N-zeroʳ _
 complete (+-assoc p q r) = +N-assoc (normalised p) (normalised q) (normalised r)
 complete (+-comm _ _) = +N-comm _ _
 complete {p = p} {q} (+-invʳ p₁) = {!   !}
-complete {p = p} {q} (*-cong p≈q p≈q₁) = {!   !}
+complete {p = p} {q} (*-cong p₀≈p₁ q₀≈q₁) = *N-cong (complete p₀≈p₁) (complete q₀≈q₁)
 complete {p = p} {q} (*-assoc p₁ q₁ r) = {!   !}
-complete {p = p} {q} (*-comm p₁ q₁) = {!   !}
+complete (*-comm _ _) = *N-comm _ _
 complete {p = p} {q} (*-distribʳ p₁ q₁ r) = {!   !}
 
 ```
