@@ -53,7 +53,7 @@ complete (·-*-distrib _ _ _) = ·-*-distribN _ _ _
 complete (*-·-distrib _ _ _) = *-·-distribN _ _ _
 complete (+-cong p₀≈p₁ q₀≈q₁) = +N-cong (complete p₀≈p₁) (complete q₀≈q₁)
 complete (+-zeroʳ _) = +N-zeroʳ _
-complete (+-assoc p q r) = +N-assoc (normalised-lemma p) (normalised-lemma q) (normalised-lemma r)
+complete (+-assoc p q r) = +N-assoc (normalised p) (normalised q) (normalised r)
 complete (+-comm _ _) = +N-comm _ _
 complete {p = p} {q} (+-invʳ p₁) = {!   !}
 complete {p = p} {q} (*-cong p≈q p≈q₁) = {!   !}

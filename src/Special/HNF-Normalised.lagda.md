@@ -125,17 +125,15 @@ mutual
     poly np +N′ poly nq = poly (np +H′ nq)
 
 _*x+HN′_ : Normalised-HNF p → Normalised n → Normalised-HNF (p *x+HN n)
-_*x+HN′_ = {!   !}
--- ∅ *x+HN n with n ≟N 0N
--- ... | yes _  = 0H
--- ... | no _ = 0H *x+ 0R ·x+ n
--- p *x+HN n = p *x+ 0R ·x+ n
+_*x+HN′_ {p = ∅} {n = n} np nn with n ≟N 0N
+... | yes _  = ∅
+... | no ¬n≈0 = ∅ *x+ 0R ·x+ nn by norm₂ ¬n≈0
+_*x+HN′_ {p = p@(_ *x+ _ ·x+ _)} {n = n} np nn = np *x+ 0R ·x+ nn by norm₀ λ { () }
 
--- infixr 9 _+HN_
--- _+HN_ : HNF (suc n) → Normal n → HNF (suc n)
--- ∅ +HN zero = ∅
--- ∅ +HN n = ∅ *x+ 0R ·x+ n
--- (p *x+ c ·x+ n) +HN n′ = p *x+ c ·x+ (n +N n′)
+infixr 9 _+HN′_
+_+HN′_ : Normalised-HNF p → Normalised n → Normalised-HNF (p +HN n)
+_+HN′_ {p = ∅} {n = n} _ nn = ∅ *x+ 0R ·x+HN′ nn
+_+HN′_ {p = p *x+ c ·x+ m} (np *x+ .c ·x+ nm by _) nn = np *x+ c ·x+HN′ (nm +N′ nn)
 ```
 
 # Product
@@ -145,26 +143,24 @@ mutual
     infixr 10 _*H′_ _*N′_ _*HN′_ _*NH′_
 
     _*NH′_ : Normalised n → Normalised-HNF p → Normalised-HNF (n *NH p)
-    _*NH′_ = {!   !}
-    -- _ *NH ∅ = 0H
-    -- n *NH (p *x+ c ·x+ n′)
-    --     with n ≟N 0N
-    -- ... | yes _ = 0H
-    -- ... | _
-    --     with c ≟R 0R
-    -- ... | yes _ = (n *NH p) *x+HN (n *N n′)
-    -- ... | _ = ((n *NH p) +HN (c ·N n)) *x+HN (n *N n′)
+    _*NH′_ {p = ∅} _ _ = ∅
+    _*NH′_ {n = n} {p = p *x+ c ·x+ n′} nn (np *x+ .c ·x+ nn′ by _)
+        with n ≟N 0N
+    ... | yes _ = ∅
+    ... | no _
+        with c ≟R 0R
+    ... | yes _ = (nn *NH′ np) *x+HN′ (nn *N′ nn′)
+    ... | no _ = ((nn *NH′ np) +HN′ (c ·N′ nn)) *x+HN′ (nn *N′ nn′)
 
     _*HN′_ : Normalised-HNF p → Normalised n → Normalised-HNF (p *HN n)
-    _*HN′_ = {!   !}
-    -- ∅ *HN _ = 0H
-    -- (p *x+ c ·x+ n) *HN n′
-    --     with n′ ≟N 0N
-    -- ... | yes _ = 0H
-    -- ... | _
-    --     with c ≟R 0R
-    -- ... | yes _ = (p *HN n′) *x+HN (n *N n′)
-    -- ... | _ = ((p *HN n′) +HN (c ·N n′)) *x+HN (n *N n′)
+    _*HN′_ {p = ∅} _ _ = ∅
+    _*HN′_ {p = p *x+ c ·x+ n} {n = n′} (np *x+ .c ·x+ nn by _) nn′
+        with n′ ≟N 0N
+    ... | yes _ = ∅
+    ... | no _
+        with c ≟R 0R
+    ... | yes _ = (np *HN′ nn′) *x+HN′ (nn *N′ nn′)
+    ... | no _ = ((np *HN′ nn′) +HN′ (c ·N′ nn′)) *x+HN′ (nn *N′ nn′)
 
     _*H′_ :
         Normalised-HNF p →

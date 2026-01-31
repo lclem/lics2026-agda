@@ -99,9 +99,8 @@ p *x+HN n = p *x+ 0R ·x+ n
 
 infixr 9 _+HN_
 _+HN_ : HNF (suc n) → Normal n → HNF (suc n)
-∅ +HN zero = ∅
-∅ +HN n = ∅ *x+ 0R ·x+ n
-(p *x+ c ·x+ n) +HN n′ = p *x+ c ·x+ (n +N n′)
+∅ +HN n = ∅ *x+ 0R ·x+HN n
+(p *x+ c ·x+ n) +HN n′ = p *x+ c ·x+HN (n +N n′)
 
 -- Multiplication of normal forms
 
@@ -278,25 +277,23 @@ mutual
         ----------------------------------
         ⟦ p +HN n ⟧H ≈ ⟦ p ⟧H + ⟦ n ⟧N ↑
 
-    +HN-hom ∅ zero = ≈-sym (+-zeroʳ _)
-
-    +HN-hom ∅ (poly n) =
+    +HN-hom ∅ n =
         begin
-            ⟦ ∅ *x+ 0R ·x+ poly n ⟧H
-                ≈⟨⟩
-            ⟦ ∅ ⟧H * x + 0R · x + ⟦ poly n ⟧N ↑
+            ⟦ ∅ *x+ 0R ·x+HN n ⟧H
+                ≈⟨ *x+·x+HN-hom _ _ _ ⟩
+            ⟦ ∅ ⟧H * x + 0R · x + ⟦ n ⟧N ↑
                 ≈⟨ +-cong₃ (*-zeroˡ _) (·-zero _) ≈-refl ⟩
-            0T + 0T + ⟦ poly n ⟧N ↑
+            0T + 0T + ⟦ n ⟧N ↑
                 ≈⟨ +-zero₃ _ ⟩
-            ⟦ poly n ⟧N ↑
+            ⟦ n ⟧N ↑
                 ≈⟨ +-zeroˡ _ ⟨
-            ⟦ ∅ ⟧H + ⟦ poly n ⟧N ↑
+            ⟦ ∅ ⟧H + ⟦ n ⟧N ↑
         ∎ where open EqP
 
     +HN-hom (p *x+ c ·x+ m) n =
         begin
-            ⟦ p *x+ c ·x+ (m +N n) ⟧H
-                ≈⟨⟩
+            ⟦ p *x+ c ·x+HN (m +N n) ⟧H
+                ≈⟨ *x+·x+HN-hom _ _ _ ⟩
             ⟦ p ⟧H * x + c · x + ⟦ m +N n ⟧N ↑
                 ≈⟨ +-cong₃ ≈-refl ≈-refl (+N-hom↑ m n) ⟩
             ⟦ p ⟧H * x + c · x + (⟦ m ⟧N ↑ + ⟦ n ⟧N ↑)

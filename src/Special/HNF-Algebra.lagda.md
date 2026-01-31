@@ -1045,5 +1045,4 @@ mutual
     ·N-one (c · p) = ·N-one-con c p
     ·N-one (p + q) = ·N-one-add p q
     ·N-one (p * q) = ·N-one-mul p q
-
 ```
