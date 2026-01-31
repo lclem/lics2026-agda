@@ -11,6 +11,9 @@ import Preliminaries.Algebra
 
 module Special.DecidableEquivalence-Completeness
     (R : CommutativeRing)
+    (1≉0 : let open Preliminaries.Algebra R in ¬ (1R ≈R 0R))
+    (no-zero-divisors : let open Preliminaries.Algebra R in
+        ∀ {a b} → a *R b ≈R 0R → a ≈R 0R ⊎ b ≈R 0R)
     (_≟R_ : let open Preliminaries.Algebra R in Decidable _≈R_)
     where
 
@@ -21,7 +24,7 @@ open import Special.HNF R
 
 open import Special.AuxiliaryLemmas R
 open import Special.DecidableEquivalence R _≟R_
-open import Special.HNF-Algebra R _≟R_
+open import Special.HNF-Algebra R 1≉0 no-zero-divisors _≟R_
 
 private variable
     X Y Z : Set

@@ -172,6 +172,15 @@ module _ where
     *-≈-zeroˡ : ∀ {a b} → a ≈ 0# → a * b ≈ 0#
     *-≈-zeroˡ = {!   !}
 
+    a≈0→a+b≈b : ∀ {a b} → a ≈ 0# → a + b ≈ b
+    a≈0→a+b≈b a≈0 = {!   !}
+
+    b≈0→a+b≈a : ∀ {a b} → b ≈ 0# → a + b ≈ a
+    b≈0→a+b≈a b≈0 = {!   !}
+
+    a,b≈0→a+b≈0 : ∀ {a b} → a ≈ 0# → b ≈ 0# → a + b ≈ 0#
+    a,b≈0→a+b≈0 = {!   !}
+
 open CR R renaming
     (Carrier to A;
     0# to 0R;
