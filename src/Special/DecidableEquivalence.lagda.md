@@ -139,7 +139,7 @@ mutual
         ((p₁ *H p₂ +H c₂ ·H p₁ +H c₁ ·H p₂) *x+ c₁ *R c₂ ·x+HN (c₁ ·N n₂ +N c₂ ·N n₁) +H p₁ *HN n₂ +H n₁ *NH p₂) *x+HN (n₁ *N n₂)
         
     _*N_ : Normal n → Normal n → Normal n
-    zero *N zero  = zero
+    zero *N zero = zero
     poly p₁ *N poly p₂ = poly (p₁ *H p₂)
 
 -- _*x+HN_ is equal to _*x+_.
@@ -489,8 +489,7 @@ Conversion to normal forms
 
 ```
 normalise-var : Fin k → Normal k
-normalise-var zero    = poly (∅ *x+ 1R ·x+ 0N)
--- normalise-var (suc x) = poly (∅ *x+HN normalise-var x)
+normalise-var zero = poly (∅ *x+ 1R ·x+ 0N)
 normalise-var (suc x) = poly (∅ *x+ 0R ·x+ normalise-var x)
 
 normalise : Term′ k → Normal k

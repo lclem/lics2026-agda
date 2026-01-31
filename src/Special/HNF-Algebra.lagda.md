@@ -23,6 +23,7 @@ open import Special.Polynomials R
 open import Special.HNF R
 open import Special.DecidableEquivalence R _≟R_
 open import Special.AuxiliaryLemmas R
+open import Special.HNF-Normalised R 1≉0 _≟R_
 
 private variable
     X Y Z : Set
@@ -581,16 +582,13 @@ m,n≈0→m+n≈0N :
     {m n : Normal k} →
     m ≈N 0N →
     n ≈N 0N →
-    ---------------------
+    ------------------
     m +N n ≈N 0N
 
 m,n≈0→m+n≈0N m≈0 n≈0 = {!   !}
 ```
 
-```
 
-
-```
 
 ```
 *x+·x+HN-add :
@@ -638,6 +636,59 @@ m,n≈0→m+n≈0N m≈0 n≈0 = {!   !}
                 ≈⟨ *x+·x+HN-cong (q≈0→p+q≈p {p = p} q≈0) (b≈0→a+b≈a d≈0) (n≈0→m+n≈m n≈0) ⟨
             (p +H q) *x+ (c +R d) ·x+HN (m +N n)
         ∎ where open EqH
+
+*x+·x+HN-add₀ :
+    (p q : HNF (suc k)) (c d : A) (m n : Normal k) →
+    Normalised-HNF (q *x+ d ·x+ n) →
+    --------------------------------------------------------------------------
+    (p *x+ c ·x+HN m) +H (q *x+ d ·x+ n) ≈H (p +H q) *x+ (c +R d) ·x+HN (m +N n)
+
+*x+·x+HN-add₀ p q c d m n norm =
+    begin
+        (p *x+ c ·x+HN m) +H (q *x+ d ·x+ n)
+            ≡⟨ refl {x = p *x+ c ·x+HN m} ⟨ cong₂ _+H_ ⟩ normalised-*x+·x+HN norm ⟩
+        (p *x+ c ·x+HN m) +H (q *x+ d ·x+HN n)
+            ≈⟨ *x+·x+HN-add p q c d m n ⟩
+        (p +H q) *x+ (c +R d) ·x+HN (m +N n)
+    ∎ where open EqH
+
+    -- go (p ≟H 0H) (c ≟R 0R) (m ≟N 0N) where
+
+    -- because : _ → _
+    -- because x = ≡→≈H (x ⟨ cong₂ _+H_ ⟩ refl)
+
+    -- go : _ → _ → _ → _
+    -- go (no p≉0) _ _ = because $ *x+·x+HN-nonzero₀ p≉0
+    -- go _ (no c≉0) _ = because $ *x+·x+HN-nonzero₁ c≉0
+    -- go _ _ (no m≉0) = because $ *x+·x+HN-nonzero₂ m≉0
+
+    -- go (yes p≈0) (yes c≈0) (yes m≈0) =
+    --     begin
+    --         (p *x+ c ·x+HN m) +H (q *x+ d ·x+ n)
+    --             ≡⟨ *x+·x+HN-zero p≈0 c≈0 m≈0 ⟨ cong₂ _+H_ ⟩ refl ⟩
+    --         0H +H q *x+ d ·x+ n
+    --             ≡⟨ 0+p≡pH _ ⟩
+    --         q *x+ d ·x+ n
+    --             ≈⟨ {!   !} ⟨
+    --         q *x+ d ·x+HN n
+    --             ≈⟨ *x+·x+HN-cong (p≈0→p+q≈q p≈0) (a≈0→a+b≈b c≈0) (m≈0→m+n≈n m≈0) ⟨
+    --         (p +H q) *x+ (c +R d) ·x+HN (m +N n)
+    --     ∎ where open EqH
+
+*x+·x+HN-add₁ :
+    (p q : HNF (suc k)) (c d : A) (m n : Normal k) →
+    Normalised-HNF (p *x+ c ·x+ m) →
+    ----------------------------------------------------------------------------
+    (p *x+ c ·x+ m) +H (q *x+ d ·x+HN n) ≈H (p +H q) *x+ (c +R d) ·x+HN (m +N n)  
+
+*x+·x+HN-add₁ p q c d m n norm =
+    begin
+        (p *x+ c ·x+ m) +H (q *x+ d ·x+HN n)
+            ≡⟨ normalised-*x+·x+HN norm ⟨ cong₂ _+H_ ⟩ refl {x = q *x+ d ·x+HN n} ⟩
+        (p *x+ c ·x+HN m) +H (q *x+ d ·x+HN n)
+            ≈⟨ *x+·x+HN-add p q c d m n ⟩
+        (p +H q) *x+ (c +R d) ·x+HN (m +N n)
+    ∎ where open EqH
 
 mutual
 
@@ -772,6 +823,77 @@ mutual
     ·-+-distribN c (poly p) (poly q) = poly (·-+-distribH c p q)
 ```
 
+## Associativity
+
+```
+mutual
+    +H-assoc :
+        {p q r : HNF (suc k)} →
+        Normalised-HNF p →
+        Normalised-HNF q →
+        Normalised-HNF r →
+        ------------------------------
+        (p +H q) +H r ≈H p +H (q +H r)
+
+    +H-assoc {p = ∅} {q} {r} _ _ _ =
+        begin
+            (0H +H q) +H r ≈⟨ +H-zeroˡ q ⟨ +H-cong ⟩ ≈H-refl ⟩
+            q +H r ≈⟨ +H-zeroˡ _ ⟨
+            0H +H (q +H r)
+        ∎ where open EqH
+
+    +H-assoc {p = p} {∅} {r} _ _ _ =
+        begin
+            (p +H 0H) +H r ≈⟨ +H-zeroʳ p ⟨ +H-cong ⟩ ≈H-refl ⟩
+            p +H r ≈⟨ ≈H-refl {p = p} ⟨ +H-cong ⟩ +H-zeroˡ _ ⟨
+            p +H (0H +H r)
+        ∎ where open EqH
+
+    +H-assoc {p = p} {q} {∅} _ _ _ =
+        begin
+            (p +H q) +H ∅ ≈⟨ +H-zeroʳ _ ⟩
+            p +H q ≈⟨ ≈H-refl {p = p} ⟨ +H-cong ⟩ +H-zeroʳ _ ⟨
+            p +H (q +H ∅)
+        ∎ where open EqH
+
+    +H-assoc
+        {p = p′@(p *x+ c ·x+ m)} {q′@(q *x+ d ·x+ n)} {r′@(r *x+ e ·x+ o)}
+        np′@(np *x+ c ·x+ nℓ by x) nq′@(nq *x+ d ·x+ nm by y) nr′@(nr *x+ e ·x+ nn by z) =
+        begin
+        (p′ +H q′) +H r′
+            ≈⟨⟩
+        ((p +H q) *x+ c +R d ·x+HN (m +N n)) +H (r *x+ e ·x+ o)
+            ≈⟨ *x+·x+HN-add₀ (p +H q) _ _ _ _ _ nr′ ⟩
+        ((p +H q) +H r) *x+ ((c +R d) +R e) ·x+HN ((m +N n) +N o)
+            ≈⟨ *x+·x+HN-cong (+H-assoc np nq nr) (+R-assoc _ _ _) (+N-assoc nℓ nm nn) ⟩
+        (p +H (q +H r)) *x+ (c +R (d +R e)) ·x+HN (m +N (n +N o))
+            ≈⟨ *x+·x+HN-add₁ p _ _ _ _ _ np′ ⟨
+        (p *x+ c ·x+ m) +H ((q +H r) *x+ d +R e ·x+HN (n +N o))
+            ≈⟨⟩
+        p′ +H (q′ +H r′)
+        ∎ where open EqH
+
+    +N-assoc :
+        {m n o : Normal k} →
+        Normalised m →
+        Normalised n →
+        Normalised o →
+        -----------------------------
+        (m +N n) +N o ≈N m +N (n +N o)
+
+    +N-assoc zero zero zero =
+        begin
+            (zero +N zero) +N zero
+                ≈⟨ +N-zeroʳ _ ⟨ +N-cong ⟩ ≈N-refl ⟩
+            zero +N zero
+                ≈⟨ +N-zeroˡ _ ⟩
+            zero +N zero +N zero
+        ∎ where open EqN
+    +N-assoc (poly p) (poly q) (poly r) = poly (+H-assoc p q r)
+```
+
+## Commutativity
+
 ```
 mutual
     +H-comm :
@@ -794,29 +916,6 @@ mutual
     +N-comm (poly p) (poly q) = poly (+H-comm p q)
 
 
-mutual
-
-    +H-assoc :
-        (p q r : HNF (suc k)) →
-        -----------------------------
-        (p +H q) +H r ≈H p +H (q +H r)
-
-    +H-assoc p q r = {!   !}
-
-    +N-assoc :
-        (p q r : Normal k) →
-        -----------------------------
-        (p +N q) +N r ≈N p +N (q +N r)
-
-    +N-assoc zero zero zero =
-        begin
-            (zero +N zero) +N zero
-                ≈⟨ +N-zeroʳ _ ⟨ +N-cong ⟩ ≈N-refl ⟩
-            zero +N zero
-                ≈⟨ +N-zeroˡ _ ⟩
-            zero +N zero +N zero
-        ∎ where open EqN
-    +N-assoc (poly p) (poly q) (poly r) = poly (+H-assoc p q r)
 ```
 
 # Multiplication

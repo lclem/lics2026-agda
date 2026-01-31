@@ -23,12 +23,12 @@ open import Special.Polynomials R
 open import Special.HNF R
 open import Special.DecidableEquivalence R _≟R_
 open import Special.AuxiliaryLemmas R
+open import Special.HNF-Normalised R 1≉0 _≟R_
 
 open import Special.HNF-Algebra R 1≉0 no-zero-divisors _≟R_
 
 private variable
     k : ℕ
-
 
 
 ```

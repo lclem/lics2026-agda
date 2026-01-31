@@ -25,6 +25,7 @@ open import Special.HNF R
 open import Special.AuxiliaryLemmas R
 open import Special.DecidableEquivalence R _≟R_
 open import Special.HNF-Algebra R 1≉0 no-zero-divisors _≟R_
+open import Special.HNF-Normalised R 1≉0 _≟R_
 
 private variable
     X Y Z : Set
@@ -45,14 +46,14 @@ complete ≈-refl = ≈N-refl
 complete (≈-sym p≈q) = ≈N-sym (complete p≈q)
 complete (≈-trans p≈q q≈r) = ≈N-trans (complete p≈q) (complete q≈r)
 complete (·-cong c≈d p≈q) = ·N-cong c≈d (complete p≈q)
-complete (·-one _) = ·N-one _
+complete (·-one p) = ·N-one p
 complete (·-+-distrib _ _ _) = ·-+-distribN _ _ _
 complete (+-·-distrib _ _ _) = +-·-distribN _ _ _
 complete (·-*-distrib _ _ _) = ·-*-distribN _ _ _
 complete (*-·-distrib _ _ _) = *-·-distribN _ _ _
 complete (+-cong p₀≈p₁ q₀≈q₁) = +N-cong (complete p₀≈p₁) (complete q₀≈q₁)
 complete (+-zeroʳ _) = +N-zeroʳ _
-complete (+-assoc _ _ _) = +N-assoc _ _ _
+complete (+-assoc p q r) = +N-assoc (normalised-lemma p) (normalised-lemma q) (normalised-lemma r)
 complete (+-comm _ _) = +N-comm _ _
 complete {p = p} {q} (+-invʳ p₁) = {!   !}
 complete {p = p} {q} (*-cong p≈q p≈q₁) = {!   !}
