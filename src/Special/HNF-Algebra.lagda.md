@@ -147,7 +147,7 @@ n≉0,c≉0→c·n≉0N = {!   !}
     -------------------------------
     p +HN m ≈H q +HN n
 
-+HN-cong = ? 
++HN-cong = {!   !} 
 ```
 
 ```
@@ -980,6 +980,10 @@ mutual
     ·-*-distribN c zero zero = zero
     ·-*-distribN c (poly p) (poly q) = poly (·-*-distribH c p q)
 ```
+
+## Associativity
+
+
 
 ## Commutativity
 
