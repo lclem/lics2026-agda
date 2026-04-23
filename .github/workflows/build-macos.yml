@@ -53,7 +53,7 @@ jobs:
       - run: bundle install
       
       - name: Install deps
-        run: brew install haskell-stack cabal-install agda pandoc pandoc-crossref gsed
+        run: brew install haskell-stack cabal-install agda pandoc pandoc-crossref gsed cabal ghc
         # deprecated: pandoc-citeproc
 
       - run: cp -R .agda ~/
@@ -86,11 +86,8 @@ jobs:
 
       - name: std-lib
         run: cd agda-stdlib && cabal install --overwrite-policy=always
-
-      # - name: Build the book 1
-        # run: make agda; make agda
         
-      - name: Build the book
+      - name: Build the website
         run: make
           
       - name: Setup Pages
