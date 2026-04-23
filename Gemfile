@@ -8,8 +8,9 @@ group :jekyll_plugins do
 #  gem "alembic-jekyll-theme"
   gem "jekyll-remote-theme"
 #  gem 'jekyll-latex'
-#  gem "jekyll-scholar"
-  gem "bibtex-ruby" #, ">= 5.1.0"
+  gem "jekyll-scholar"
+  gem "jekyll-last-modified-at"
+  # gem "bibtex-ruby" #, ">= 5.1.0"
 end
 
 group :development do

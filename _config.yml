@@ -6,10 +6,10 @@ license: Creative Commons Attribution 4.0 International License
 license-file: https://creativecommons.org/licenses/by/4.0/
 
 authors:
-  - name: XXX
-    # email: clementelorenzo@gmail.com
-    # corresponding: true
-    #github_username: lclem
+  - name: Lorenzo Clemente
+    email: clementelorenzo@gmail.com
+    corresponding: true
+    github_username: lclem
 
 repository: lclem/lics2026-agda
 branch: main
@@ -26,6 +26,9 @@ show_dir_listing    : false
 plugins:
   - jekyll-toc
   - html-proofer
+  - jekyll-scholar
+  # - jekyll-file-last-modified
+  - jekyll-last-modified-at
 #  - jekyll-paginate
 #  - jekyll-sitemap
 #  - jekyll-gist

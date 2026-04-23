@@ -212,7 +212,7 @@ $(OUTDIR)/$1/$2.md: $(TMPDIR)/$1.$2.md
 	@cat $(TMPDIR)/$1.$2.md > $(TMPDIR)/$1.$2.1.md
 
 # add the markdown footer
-	@cat $(SRCDIR)/footer.md >> $(TMPDIR)/$1.$2.1.md
+#	@cat $(SRCDIR)/footer.md >> $(TMPDIR)/$1.$2.1.md
 
 	@$(GSED) -i "3isrc: $(SRCDIR)/$1/$2.lagda.md" $(TMPDIR)/$1.$2.1.md
 	@$(GSED) -i "4ilayout: page" $(TMPDIR)/$1.$2.1.md
