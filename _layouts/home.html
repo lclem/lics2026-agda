@@ -4,6 +4,12 @@ layout: default
 
 <div class="home">
 
+  {% include nav.html %}
+
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title | escape }}</h1>
+  </header>
+
   {{ content }}
 
   {%- if site.posts.size > 0 -%}
@@ -25,6 +31,8 @@ layout: default
     </ul>
 
     <p class="feed-subscribe"><svg class="svg-icon orange"><use xlink:href="{{ '/assets/minima-social-icons.svg#rss' | relative_url }}"></use></svg><a href="{{ "/feed.xml" | relative_url }}">Subscribe</a></p>    
-    <p class="p-name"> Last-modified: {{ page.last-modified }} </p>
   {%- endif -%}
+
+  {% include nav.html %}
+  <p class="p-name"> Last-modified: {{ page.last-modified }} </p>
 </div>

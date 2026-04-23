@@ -3,7 +3,7 @@
 
 OUTDIR := html
 TMPDIR := tmp
-SITerm′DIR := _site
+SITEDIR := _site
 DOCSDIR := docs
 SRCDIR := src
 BUILDDIR := $(SRCDIR)/_build
@@ -124,12 +124,13 @@ $(OUTDIR)/index.md: $(SRCDIR)/index.md
 	$(eval LAST_MODIFIED := $(shell $(STAT) $(SRCDIR)/index.md))
 
 	@$(GSED) -i "1i---" $(OUTDIR)/index.md
-	@$(GSED) -i "2ititle : Table of Contents" $(OUTDIR)/index.md
+	@$(GSED) -i "2ititle : Introduction" $(OUTDIR)/index.md
 	@$(GSED) -i "3ilayout : home" $(OUTDIR)/index.md
 	@$(GSED) -i "4ilast-modified: $(LAST_MODIFIED)" $(OUTDIR)/index.md
 	@$(GSED) -i "5ipermalink: /" $(OUTDIR)/index.md
-	@$(GSED) -i "6i---" $(OUTDIR)/index.md
-#	@$(SED) -i "6i " $(OUTDIR)/index.md
+	@$(GSED) -i "6isrc: $(SRCDIR)/index.md" $(OUTDIR)/index.mda
+	@$(GSED) -i "7i---" $(OUTDIR)/index.md
+	@$(GSED) -i "8i" $(OUTDIR)/index.md
 
 	@echo " [DONE]"
 
