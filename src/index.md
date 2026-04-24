@@ -6,8 +6,10 @@ csl: chicago.csl
 notes-after-punctuation: false
 ---
 
-This website presents the Agda formalisation for the paper "Commutative algebras of series" [@Clemente:arXiv:2026],
-however it is meant to be accessible without referring to the paper.
+ This website presents the Agda formalisation for the paper [@Clemente:arXiv:2026],
+<center>
+    Lorenzo Clemente, "Commutative algebras of series" (LICS'26),
+</center> however it is meant to be accessible without referring to the paper.
 The paper contains clickable links to the relevant parts of this website.
 
 We develop a fragment of the theory of *formal series in noncommuting variables* and their algebraic properties.
