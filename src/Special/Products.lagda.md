@@ -8,8 +8,6 @@ In fact, over the rationals the converse is true (and easy to see), however we d
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 
-
-open import Size
 open import Preliminaries.Base
 
 module Special.Products
@@ -196,10 +194,10 @@ Finally, the semantics of terms is invariant.
         sem-inv (P.≈-trans u v)= ≈-trans (sem-inv u) (sem-inv v)
         sem-inv (P.·-cong c≈d p≈q) = ·-cong c≈d (sem-inv p≈q)
         sem-inv (P.·-one _) = ·-one _
-        sem-inv (P.·-+-distrib c p q)  = ·-+-distrib _ _ _ where open Properties
-        sem-inv (P.+-·-distrib p c d)  = +-·-distrib _ _ _ where open Properties
+        sem-inv (P.·-+-distrib c p q)  = ·-+-distrib _ _ _ where open DistributivityProperties
+        sem-inv (P.+-·-distrib p c d)  = +-·-distrib _ _ _ where open DistributivityProperties
         sem-inv (P.·-*-distrib c p q)  = ·-*-distrib _ _ _
-        sem-inv (P.*-·-distrib c d p)  = *-·-distrib _ _ _ where open Properties
+        sem-inv (P.*-·-distrib c d p)  = *-·-distrib _ _ _ where open DistributivityProperties
         sem-inv (P.+-cong P0≈P1 Q0≈Q1) = +-cong (sem-inv P0≈P1) (sem-inv Q0≈Q1)
         sem-inv (P.+-zeroʳ p) = +-identityʳ _
         sem-inv (P.+-assoc p q r) = +-assoc _ _ _

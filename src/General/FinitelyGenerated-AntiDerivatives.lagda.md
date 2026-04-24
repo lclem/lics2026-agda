@@ -33,8 +33,6 @@ Crucially, we fix the alphabet to be a *finite set* of size `n`.
 ```
 
 ```
-open import Size
-
 open import Preliminaries.Vector
 open import Preliminaries.Algebra R
 

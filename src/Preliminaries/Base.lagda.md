@@ -3,11 +3,14 @@ title: Basic common definitions
 ---
 
 ```
+{-# OPTIONS --sized-types #-}
+
 module Preliminaries.Base where
 
 open import Agda.Primitive using (Level; lzero) renaming (_⊔_ to _⊔ℓ_) public
 open import Agda.Builtin.Sigma using (fst; snd) public
 open import Agda.Builtin.Bool using (Bool; true; false) public
+open import Agda.Builtin.Size public
 
 open import Relation.Nullary using (Dec; yes; no) public
 open import Relation.Unary using () renaming (WeaklyDecidable to WeaklyDecidable₁) public
@@ -48,6 +51,7 @@ open import Data.Fin.Base using (Fin; zero; suc; fromℕ; fromℕ<; fromℕ<″;
 
 open import Data.Vec
     using (Vec; []; _∷_; _++_; lookup; map; truncate; tabulate; fromList; concat)
+    -- renaming (_++_ to _++ᵥ_)
     public
 
 open import Data.Vec.Relation.Unary.Any as Any using (Any; here; there) public

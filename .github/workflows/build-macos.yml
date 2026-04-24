@@ -65,8 +65,8 @@ jobs:
       # - name: std-lib
         # run: cd agda-stdlib && cabal install --overwrite-policy=always
         
-      - name: Install pandoc-numbering
-        run: pip3 install pandoc-numbering --break-system-packages
+      - name: Install python requirements
+        run: pip3 install -r requirements.txt --break-system-packages
       # gem install ffi -v '1.15.5' -- --with-cflags=-Wno-implicit-function-declaration
       
       - name: Make pp

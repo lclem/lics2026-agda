@@ -8,13 +8,12 @@ and discuss their basic properties.
 ```
 {-# OPTIONS --guardedness --sized-types #-}
 
-open import Preliminaries.Base renaming (_++_ to _++ᵥ_)
+open import Preliminaries.Base hiding (_++_) -- renaming (_++_ to _++ᵥ_)
 module General.Reversal
     (R : CommutativeRing)
     (Σ : Set)
     where
 
-open import Size
 open import Preliminaries.Algebra R
 open import Preliminaries.Vector 
 
@@ -48,7 +47,7 @@ We define the homomorphic extension `δʳ*` of the right derivative to all finit
 
 ```
 module _ where
-    open import Preliminaries.Lists
+    open import Preliminaries.List renaming (_++ℓ_ to _++_)
 
       -- homomorphic extension to all words
     δʳ* : Σ * → A ⟪ Σ ⟫ → A ⟪ Σ ⟫
@@ -79,14 +78,14 @@ Right derivatives preserve series equivalence.
 ν-≈ (δʳ-cong a f≈g) = ν-≈ (δ-≈ f≈g a)
 δ-≈ (δʳ-cong a f≈g) b = δʳ-cong a (δ-≈ f≈g b)
 
-δʳ-inv : ∀ a → ≈-Invariance (δʳ a)
+δʳ-inv : ∀ a → Congruent₁ _≈_ (δʳ a)
 δʳ-inv a f≈g = δʳ-cong a f≈g
 ```
 
 We show that right derivatives preserve the vector space structure.
 
 ```
-open Properties
+open DistributivityProperties
 
 δʳ-end-𝟘 : ∀ a → Endomorphic-𝟘 (δʳ a)
 ν-≈ (δʳ-end-𝟘 a) = R-refl
@@ -105,7 +104,7 @@ We show how right derivatives interact with the coefficient extraction operation
 
 ```
 module _ where
-    open Inductive
+    open Inductive renaming (_++ℓ_ to _++_)
 
     δʳ-coeff : ∀ a w f → δʳ a f ⟨ w ⟩ ≡ f ⟨ w ∷ʳ a ⟩
     δʳ-coeff a ε f = refl

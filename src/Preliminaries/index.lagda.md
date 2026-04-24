@@ -14,7 +14,7 @@ In this part we preliminariate.
 import Preliminaries.Algebra
 import Preliminaries.Base
 import Preliminaries.Equivalence
-import Preliminaries.Lists
+import Preliminaries.List
 import Preliminaries.Structures
 import Preliminaries.Vector
 ```

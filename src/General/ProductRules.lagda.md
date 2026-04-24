@@ -11,7 +11,6 @@ motivating a general definition of a product rule.
 open import Preliminaries.Base hiding (_×_)
 module General.ProductRules (R : CommutativeRing) where
 
-open import Size
 private variable i : Size
 
 open import Preliminaries.Algebra R

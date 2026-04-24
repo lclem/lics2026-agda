@@ -6,17 +6,27 @@ title: List preliminaries
 ```
 {-# OPTIONS --sized-types #-}
 
-module Preliminaries.Lists where
+module Preliminaries.List where
 
 open import Preliminaries.Base hiding (_++_)
 open import Preliminaries.Equivalence
 
-open import Data.List as L renaming (List to _*; [] to ε) hiding (map; concatMap; lookup) public
+open import Data.List
+    renaming (List to _*; [] to ε)
+    hiding (map; concatMap; lookup; _++_) public
+
+open import Data.List using (_++_)
+
 open import Data.List.Properties public
 
 private
   variable
     A B : Set
+
+-- we rexport concatenation as _++ℓ_ to avoid clashes with the vector concatenation _++ᵥ_
+
+infixr 5 _++ℓ_
+_++ℓ_ = _++_
 
 ∷ʳ-++-++ :
     ∀ (xs : A *) a ys zs →

@@ -23,6 +23,11 @@
 [this section](!1 "Section %g")
 ~~~~~~~~~~~~~
 
+!define(stdlibRef)
+~~~~~~~~~~~~~
+[!2](https://agda.github.io/agda-stdlib/v2.3/!1.html#!2)
+~~~~~~~~~~~~~
+
 !define(example)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ::::: {.examplebox}

@@ -3,6 +3,8 @@ title: Algebraic preliminaries
 ---
 
 ```
+{-# OPTIONS --sized-types #-}
+
 open import Preliminaries.Base
 module Preliminaries.Algebra (R : CommutativeRing) where
 

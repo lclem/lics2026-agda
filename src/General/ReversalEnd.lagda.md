@@ -21,7 +21,6 @@ module General.ReversalEnd
     (P : ProductRule R)
     where
 
-open import Size
 open import Preliminaries.Algebra R
 open import Preliminaries.Vector 
 
@@ -527,7 +526,7 @@ In this section we characterise !ref(δʳ-satisfies P) with `P`-automata.
 It will provide a stepping stone towards showing decidability 
 
 ```
-open Inductive
+open Inductive renaming (_++ℓ_ to _++_)
 open import General.Automata R Σ P
 ```
 

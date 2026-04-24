@@ -10,7 +10,7 @@ BUILDDIR := $(SRCDIR)/_build
 INCLUDES := _includes
 SVGS := $(INCLUDES)/svgs
 PARTS := Introduction Preliminaries General Special
-LIBRARYPARTS := Agda Data Function Relation
+LIBRARYPARTS := Agda Data Function Relation Algebra Structures Level Size
 AGDA := agda
 # PP := /usr/local/bin/pp
 # PP := ~/.local/bin/pp
@@ -63,10 +63,10 @@ AGDA_MODULES := $(patsubst %.lagda.md,%,$(notdir $(AGDA_SOURCES)))
 #$(info AGDA_MD:$(AGDA_MD))
 
 MARKDOWN_SOURCES := $(shell find $(SRCDIR) -name '*.md' -and -not -name '*.lagda.md' -and -not -name '*\#*' -and -not -name 'footer.md')
-$(info MARKDOWN_SOURCES:$(MARKDOWN_SOURCES))
+# $(info MARKDOWN_SOURCES:$(MARKDOWN_SOURCES))
 
 MARKDOWN_MD := $(patsubst $(SRCDIR)/%.md,$(OUTDIR)/%.md,$(MARKDOWN_SOURCES))
-$(info MARKDOWN_MD:$(MARKDOWN_MD))
+# $(info MARKDOWN_MD:$(MARKDOWN_MD))
 
 PART_DIRS := $(patsubst %,$(OUTDIR)/%,$(PARTS))
 #$(info PART_DIRS:$(PART_DIRS))
@@ -87,6 +87,9 @@ markdown: agda refs $(MARKDOWN_MD)
 
 spellcheck:
 	@echo " [DONE]"
+
+linkchecker:
+	linkchecker --no-warnings http://0.0.0.0:4000/lics2026-agda/
 
 $(OUTDIR):
 	@mkdir -p $(OUTDIR)
@@ -281,7 +284,6 @@ endif
 
 #	cp $(OUTDIR)/$1/$2.md $(OUTDIR)/$1/$2.md.sed
 
-
 #{% include markdown_file.md %}
 
 # change the href link in those positions where names are first declared;
@@ -318,14 +320,12 @@ endif
 # fix the links in place: $(PART).$(AGDA_MODULE).html --> $(OUTDIR)/$(PART)/$(AGDA_MODULE).md
 	@$(foreach PART,$(PARTS),$(foreach AGDA_MODULE,$(AGDA_MODULES),$(SED) 's+$(PART).$(AGDA_MODULE).html+{% endraw %}{{ site.baseurl }}{% link $(OUTDIR)/$(PART)/$(AGDA_MODULE).md %}{% raw %}+g;' $(OUTDIR)/$1/$2.md;))
 
-# TODO: fix the links to the agda library
+# Fix the links to the agda library
+# Algebra
+# Relation
 # example: 'href="Relation..."' --> 'href="https://agda.github.io/agda-stdlib/v2.3/Relation..."'
 
-#string='This is a sample 123 text and some 987 numbers'
-#echo "$string" | sed -rn 's/[^[:digit:]]*([[:digit:]]+)[^[:digit:]]+([[:digit:]]+)[^[:digit:]]*/\1 \2/p'
-#echo 'aaa href="Data.Int.html"' | sed 's+href="\(Data..*.html\)"+"href="ciao/\1"+g'
-
-	@$(foreach PART,$(LIBRARYPARTS),$(SED) 's+href="\($(PART).[^"]*.html\)+href="https://agda.github.io/agda-stdlib/v2.3/\1+g;' $(OUTDIR)/$1/$2.md;)
+	@$(foreach LIBRARYPART,$(LIBRARYPARTS),$(SED) 's+href="\($(LIBRARYPART)[^"]*\.html\)+href="https://agda.github.io/agda-stdlib/v2.3/\1+g;' $(OUTDIR)/$1/$2.md;)
 
 	@echo " [DONE]"
 

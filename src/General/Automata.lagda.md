@@ -23,8 +23,6 @@ module General.Automata
 ```
 
 ```
-open import Size
-
 open import Preliminaries.Vector
 open import Preliminaries.Algebra R
 

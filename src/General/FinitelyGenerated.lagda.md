@@ -25,8 +25,6 @@ module General.FinitelyGenerated
 ```
 
 ```
-open import Size
-
 open import Preliminaries.Vector
 open import Preliminaries.Algebra R
 
