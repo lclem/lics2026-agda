@@ -78,10 +78,10 @@ PART_DIRS := $(patsubst %,$(OUTDIR)/%,$(PARTS))
 all: build
 	
 docs: build
-	rm -fr $(DOCSDIR)/ && rsync -aP $(SITerm′DIR)/ $(DOCSDIR)/
+	rm -fr $(DOCSDIR)/ && rsync -aP $(SITEDIR)/ $(DOCSDIR)/
 
 clean:
-	@rm -fr keys.make $(OUTDIR)/ $(TMPDIR)/ $(SITerm′DIR)/ $(BUILDDIR)/ $(SVGS)/ $(DOCSDIR)/
+	@rm -fr keys.make $(OUTDIR)/ $(TMPDIR)/ $(SITEDIR)/ $(BUILDDIR)/ $(SVGS)/ $(DOCSDIR)/
 
 markdown: agda refs $(MARKDOWN_MD)
 
@@ -130,7 +130,8 @@ $(OUTDIR)/index.md: $(SRCDIR)/index.md
 	@$(GSED) -i "5ipermalink: /" $(OUTDIR)/index.md
 	@$(GSED) -i "6isrc: $(SRCDIR)/index.md" $(OUTDIR)/index.md
 	@$(GSED) -i "7i---" $(OUTDIR)/index.md
-	@$(GSED) -i "8i" $(OUTDIR)/index.md
+
+	@$(GSED) -i 's|markdown="1"||g' $(OUTDIR)/index.md
 
 	@echo " [DONE]"
 
@@ -231,7 +232,7 @@ $(OUTDIR)/$1/$2.md: $(TMPDIR)/$1.$2.md
 # WARNING: the number of added lines will affect the following!
 
 	@echo "1 \c"
-# STerm′P 0: apply PP macros
+# STEP 0: apply PP macros
 
 ifneq ($(wildcard $(SRCDIR)/$1/$2.pp),)
 # additionally import a chapter-specific pp macrofile, if it exists
@@ -243,12 +244,14 @@ endif
 
 # 2>/dev/null || true
 
-# STerm′P 1: process citations
+# STEP 1: process citations
 # Table of contents shows up only with options "--from markdown --to markdown_phpextra"
 	@$(PANDOC) $(TMPDIR)/$1.$2.2.md -o $(TMPDIR)/$1.$2.3.md
 
 # sometimes pandoc transforms <pre class="Agda"> to <pre markdown="1" class="Agda">, we need to undo this 
-	@$(SED) 's|<pre markdown="1" class="Agda">|<pre class="Agda">|g' $(TMPDIR)/$1.$2.3.md
+#	@$(SED) 's|<pre markdown="1" class="Agda">|<pre class="Agda">|g' $(TMPDIR)/$1.$2.3.md
+# even better, remove 'markdown="1"' altogether
+	@$(SED) 's|markdown="1"||g' $(TMPDIR)/$1.$2.3.md
 
 # sometimes pandoc adds section references such as {#an-unreferenced-section .unnumbered}, but we need to remove .unnumbered
 	@$(SED) 's| .unnumbered||g' $(TMPDIR)/$1.$2.3.md
