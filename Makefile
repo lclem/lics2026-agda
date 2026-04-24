@@ -128,7 +128,7 @@ $(OUTDIR)/index.md: $(SRCDIR)/index.md
 	@$(GSED) -i "3ilayout : home" $(OUTDIR)/index.md
 	@$(GSED) -i "4ilast-modified: $(LAST_MODIFIED)" $(OUTDIR)/index.md
 	@$(GSED) -i "5ipermalink: /" $(OUTDIR)/index.md
-	@$(GSED) -i "6isrc: $(SRCDIR)/index.md" $(OUTDIR)/index.mda
+	@$(GSED) -i "6isrc: $(SRCDIR)/index.md" $(OUTDIR)/index.md
 	@$(GSED) -i "7i---" $(OUTDIR)/index.md
 	@$(GSED) -i "8i" $(OUTDIR)/index.md
 
