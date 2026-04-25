@@ -83,7 +83,7 @@ We have learned a lot from several Agda resources [@BoveDybjer:LerNet:2008] [@No
 # Citing this document
 
 ```bibtex
-@Book{Clemente:Agda:LICS:2026,
+@article{Clemente:Agda:LICS:2026,
     author = {Lorenzo Clemente},
     title  = {Commutative algebras of series (in Agda)},
     year   = {2026},
