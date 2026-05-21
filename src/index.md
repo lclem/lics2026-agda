@@ -39,7 +39,7 @@ and in particular it applies to the notable Hadamard, shuffle, and infiltration 
 > Every P-product gives rise to the class of P-automata,
 an infinite-state model where states are terms.
 The second main result of the paper is that the equivalence problem for P-automata is decidable for P-products satisfying our characterisation.
-This explains, subsumes, and extends known results from the literature on the Hadamard, shuffle, and infiltration automata.
+This explains, subsumes, and extends known results about the Hadamard, shuffle, and infiltration automata.
 
 {::comment}
 Removed the last sentence of the abstract.
@@ -66,6 +66,7 @@ The rest of the document is structured in three parts, as follows.
 - [Special](Special/index/): We focus on the *special product rules*,
 which are those rules giving rise to products which are bilinear, associative, and commutative.
 
+    - [Polynomials](Special/Polynomials): Polynomials as equivalence classes of terms.
     - [Special product rules](Special/ProductRules): Special product rules.
     - [Special products](Special/Products): Special products.
     - [Automata](Special/Automata): Special automata and equivalence with special finite series.

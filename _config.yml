@@ -23,7 +23,12 @@ includes_dir        : _includes
 encoding            : "utf-8"
 show_dir_listing    : false
 
+collections:
+  sections:
+    output: true
+
 plugins:
+  - jekyll-numbered-headings
   - jekyll-toc
   - html-proofer
   - jekyll-scholar

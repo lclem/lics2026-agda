@@ -1,5 +1,6 @@
 ---
 title: "Series"
+next: /General/Terms
 ---
 
 In this section we introduce the notion of *formal series* in noncommuting variables,
@@ -8,7 +9,7 @@ which is the central mathematical object of our formalisation.
 Our development is coinductive.
 We compare this with the classical inductive definition [at the end](#sec:classic).
 
-# Formal series
+# Series
 
 The whole development is parametrised by a commutative ring `R`
 and a set of input symbols `Σ`.
@@ -21,7 +22,7 @@ module General.Series (R : CommutativeRing) (Σ : Set) where
 
 ```
 
-Let `A` be the set of coefficients and `Σ` the set of input symbols.
+Let `A` be the carrier of the coefficient ring `R` and `Σ` the set of input symbols.
 We denote the set of series by
 
     A ⟪ Σ ⟫
@@ -34,9 +35,9 @@ A series `f` from `A ⟪ Σ ⟫` is defined coinductively by specifying
 its *left derivative* `δ f a` (also a series in `A ⟪ Σ ⟫`).
 
 At this point, calling it a "left" derivative is just a convention,
-however we will later break symmetry when we introduce ["right" derivatives](../Reversal/index).
+however we will later break symmetry when we introduce [right derivatives](../Reversal/index).
 
-This definition is capture in Agda as follows.
+This definition is captured in Agda as follows.
 
 ```
 infix 4 _⟪_⟫_
@@ -65,7 +66,6 @@ A ⟪ Σ ⟫ = A ⟪ Σ ⟫ ∞
 ```
 
 In the rest of the section,
-`A` denotes the carrier of the commutative ring `R`,
 
 - `i`, `j` denote sizes,
 - `c`, `d` denote scalars from the ring `R`, and
@@ -113,7 +113,7 @@ This notion is defined coinductively as follows:
 
 - their constant terms are equal: `ν f ≈R ν g`; and
 
-- all left derivatives are equal: `δ f a ≈ (δ g a)` for all `a` from `Σ`.
+- their left derivatives are equal: `δ f a ≈ (δ g a)` for all `a` from `Σ`.
 
 In order to allow Agda to check that definitions involving equality are productive,
 we introduce a family of equality relations `f ≈[ i ] g` indexed by a size parameter `i`.
@@ -142,7 +142,7 @@ f ≈ g = f ≈[ ∞ ] g
 We prove that equality of series is an equivalence relation.
 This is a consequence of the fact that equality of coefficients `_≈R_` is an equivalence relation.
 
-In spirit with the definition of equality, all proofs are coinductive.
+In line with the definition of equality, all proofs are coinductive.
 
 ```
 ≈-refl : f ≈[ i ] f
@@ -199,7 +199,7 @@ _+_ : A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
 
 ## Monoid structure
 
-We show that series with addition `_+_` and zero `𝟘` form a monoid.
+We show that series with addition `_+_` and zero `𝟘` form a commutative monoid.
 In other word, `𝟘` is a left and right identity,
 and addition is associative and commutative.
 
@@ -246,7 +246,13 @@ It will later be useful to have a ternary version
 of the congruence property for addition.
 
 ```
-+-cong₃ : f ≈[ i ] f′ → g ≈[ i ] g′ → h ≈[ i ] h′ → f + g + h ≈[ i ] f′ + g′ + h′
++-cong₃ :
+  f ≈[ i ] f′ →
+  g ≈[ i ] g′ →
+  h ≈[ i ] h′ →
+  -----------------------------
+  f + g + h ≈[ i ] f′ + g′ + h′
+
 +-cong₃ f≈f′ g≈g′ h≈h′ = f≈f′ ⟨ +-cong ⟩ (g≈g′ ⟨ +-cong ⟩ h≈h′)
 ```
 
@@ -291,8 +297,8 @@ Endomorphic-+ F = ∀ {i} f g → F (f + g) ≈[ i ] F f + F g
 Endomorphic-𝟘 F = ∀ {i} → F 𝟘 ≈[ i ] 𝟘
 ```
 
-For instance, left derivatives respect to addition and zero,
-and thus are an endomorphism of the additive monoid of series.
+For instance, left derivatives respect addition and zero,
+and thus are endomorphisms of the additive monoid of series.
 
 ```
 δˡ-end-𝟘 : ∀ a → Endomorphic-𝟘 (δˡ a)
@@ -327,15 +333,10 @@ _·_ : A → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
 ## Properties of scalar multiplication
 
 We investigate some basic properties connecting scalar multiplication and addition.
-
 First of all, multipliying a series by the zero scalar gives the zero series.
 
 ```
-·-zero :
-    ∀ (f : A ⟪ Σ ⟫) →
-    -----------------
-    0R · f ≈ 𝟘
-
+·-zero : ∀ f → 0R · f ≈ 𝟘
 ν-≈ (·-zero f) = R-zeroˡ _
 δ-≈ (·-zero f) a = ·-zero (δ f a)
 ```
@@ -343,11 +344,7 @@ First of all, multipliying a series by the zero scalar gives the zero series.
 Analogously, multiplying a series by the unit scalar gives the same series.
 
 ```
-·-one :
-    ∀ (f : A ⟪ Σ ⟫) →
-    -----------------
-    1R · f ≈ f
-
+·-one : ∀ f → 1R · f ≈ f
 ν-≈ (·-one f) = *R-identityˡ (ν f)
 δ-≈ (·-one f) a = ·-one (δ f a)
 ```
@@ -394,11 +391,7 @@ module DistributivityProperties where
 First we show that scalar multiplication distributes over addition of series.
 
 ```
-  ·-+-distrib :
-    ∀ (c : A) (f g : A ⟪ Σ ⟫) →
-    ---------------------------
-    c · (f + g) ≈ c · f + c · g
-
+  ·-+-distrib : ∀ c f g → c · (f + g) ≈ c · f + c · g
   ν-≈ (·-+-distrib c f g) = R-distribˡ c (ν f) (ν g)
   δ-≈ (·-+-distrib c f g) a = ·-+-distrib c (δ f a) (δ g a)
 ```
@@ -406,11 +399,7 @@ First we show that scalar multiplication distributes over addition of series.
 Second, we show distributivity of ring addition over scalar multiplication.
 
 ```
-  +-·-distrib :
-    ∀ (f : A ⟪ Σ ⟫) (c d : A) →
-    --------------------------------
-    (c +R d) · f ≈ c · f + d · f
-
+  +-·-distrib : ∀ f c d → (c +R d) · f ≈ c · f + d · f
   ν-≈ (+-·-distrib f c d) = R-distribʳ (ν f) c d
   δ-≈ (+-·-distrib f c d) a = +-·-distrib (δ f a) c d
 ```
@@ -418,11 +407,7 @@ Second, we show distributivity of ring addition over scalar multiplication.
 Finally, we show that the multiplication operation `_*R_` of the underlying coefficient ring `R` is compatible with scalar multiplication of series.
 
 ```
-  *-·-distrib :
-    ∀ (c d : A) (f : A ⟪ Σ ⟫) →
-    ---------------------------
-    (c *R d) · f ≈ c · (d · f)
-
+  *-·-distrib : ∀ c d f → (c *R d) · f ≈ c · (d · f)
   ν-≈ (*-·-distrib c d f) = *R-assoc c d (ν f)
   δ-≈ (*-·-distrib c d f) a = *-·-distrib c d (δ f a)
 ```
@@ -487,7 +472,6 @@ we also obtain left additive inverses.
     ∎ where open EqS
 ```
 
-
 Inverses are packaged together with the !stdlibRef(Algebra.Definitions)(Inverse) structure provided by the standard library.
 
 ```
@@ -545,6 +529,8 @@ from finite words over the alphabet `Σ` to the carrier of the coefficient ring 
   Series A Σ = Σ * → A
 ```
 
+## From coinductively to inductively defined series
+
 We can convert a coinductively defined series to a classically defined one.
 To this end, let `δˡ*` be the homomorphic extension of the left derivative `δˡ` to all finite words.
 
@@ -577,13 +563,16 @@ shows that series are completely determined by their coefficients.
   δ-≈ (series-ext ass) a = series-ext λ w → ass (a ∷ w)
 ```
 
-A nice property connects `δˡ*` and `_⟨_⟩`.
+We conclude this part by a property connecting `δˡ*` and `_⟨_⟩`.
+It will be used later in [Reversal](../Reversal).
 
 ```
   coeff-δˡ* : ∀ u v f → δˡ* u f ⟨ v ⟩ ≡ f ⟨ u ++ℓ v ⟩
   coeff-δˡ* ε v f = refl
   coeff-δˡ* (a ∷ u) v f = coeff-δˡ* u v (δˡ a f)
 ```
+
+## From inductively to coinductively defined series
 
 We can also convert a classical series to a coinductive one,
 however we will not need this in the rest of the development.

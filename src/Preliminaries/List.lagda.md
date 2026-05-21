@@ -1,7 +1,10 @@
-
 ---
 title: List preliminaries
+comment: keep me
 ---
+
+We import the standard library's `Data.List` (and rename some symbols).
+We prove some simple lemmas about lists that we need in the rest of the formalisation.
 
 ```
 {-# OPTIONS --sized-types #-}
@@ -23,8 +26,12 @@ private
   variable
     A B : Set
 
--- we rexport concatenation as _++ℓ_ to avoid clashes with the vector concatenation _++ᵥ_
+```
 
+We rexport concatenation as `_++ℓ_`
+to avoid clashes with the vector concatenation `_++ᵥ_`.
+
+```
 infixr 5 _++ℓ_
 _++ℓ_ = _++_
 

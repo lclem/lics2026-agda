@@ -11,6 +11,7 @@ group :jekyll_plugins do
   gem "jekyll-scholar"
   gem "jekyll-last-modified-at"
   # gem "bibtex-ruby" #, ">= 5.1.0"
+  gem 'jekyll-numbered-headings'
 end
 
 group :development do

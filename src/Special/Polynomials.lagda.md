@@ -1,9 +1,13 @@
 ---
 title: "Polynomials"
+prev: /Special/index
+next: /Special/Products/
 ---
 
-In this section we introduce an natural equivalence on terms turning them into polynomial expressions (without constant term)
+In this section we introduce a natural equivalence on terms,
+turning them into polynomial expressions (without constant term),
 and we study their properties.
+At the end, we use this equivalence to define the class of *special* product rules.
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
@@ -13,6 +17,12 @@ module Special.Polynomials (R : CommutativeRing) where
 
 open import Preliminaries.Algebra R
 open import General.Terms R
+
+private variable
+    X Y : Set
+    c d : A
+    p q r p₀ p₁ q₀ q₁ r₀ r₁ : Term X
+    n : ℕ
 ```
 
 # Equivalence of terms
@@ -21,19 +31,11 @@ We introduce a natural equivalence relation on terms
 capturing commutativity, associativity, and distributivity of addition and multiplication.
 This equivalence turns the set of terms into a commutative algebra over `R`.
 
-```
-infix 4 _≈_ _≈₄_ _≈₅_ _≈₆_ _≈₇_ _≈₉_
-private variable
-    X Y : Set
-    c d : A
-    p q r p₀ p₁ q₀ q₁ r₀ r₁ : Term X
-    n : ℕ
-```
-
 Formally, two terms `p` and `q` are equivalent, written `p ≈ q`,
 if they satisfy any of the following rules.
 
 ```
+infix 4 _≈_ _≈₄_ _≈₅_ _≈₆_ _≈₇_ _≈₉_
 data _≈_ {X} : Term X → Term X → Set where
 
     ≈-refl : p ≈ p
@@ -90,13 +92,15 @@ _≈₉_ : Term (Var 9) → Term (Var 9) → Set
 p ≈₉ q = p ≈ q
 ```
 
-## Algebraic properties
+# Algebraic properties
+
+In this section we show that the set of terms modulo the equivalence relation `_≈_` forms an associative commutative algebra over `R`.
 
 ```
 module AlgebraicProperties where
 ```
 
-### Additive structure
+## Additive structure
 
 ```
     +-zeroˡ : ∀ (p : Term X) → 0T + p ≈ p
@@ -277,7 +281,7 @@ These two properties follow from the ring structure.
 open AlgebraicProperties
 ```
 
-## Properties of substitution
+# Properties of substitution
 
 Substitution preserves equivalence of terms.
 This comes in two flavours.
@@ -333,6 +337,8 @@ subst-inv′ (p * q) ϱ₀≈ϱ₁ = subst-inv′ p ϱ₀≈ϱ₁ ⟨ *-cong ⟩
 
 ## Vectors of equivalences
 
+We introduce some specialised notation for vectors of equivalences of terms.
+
 ```
 private variable
     ϱ η : Substᵥ n X
@@ -367,3 +373,45 @@ subst-inv′ᵥ :
 
 subst-inv′ᵥ {ϱ = ϱ} {η} p ϱ≈η = subst-inv′ p (≈ᵥ-lookup ϱ≈η)
 ```
+
+# Special product rules
+
+We conclude this section by using the equivalence on terms to define the class of *special* product rules.
+
+```
+open import General.ProductRules R
+record Special (P : ProductRule) : Set where
+
+    field
+
+        P-add :
+            [ P ]⟨ x + y , x′ + y′ , z , z′ ⟩ ≈₆
+            [ P ]⟨ x , x′ , z , z′ ⟩ + [ P ]⟨ y , y′ , z , z′ ⟩
+        
+        P-assoc :
+            [ P ]⟨ x * y , [ P ]⟨ x , x′ , y , y′ ⟩ ,  z , z′ ⟩ ≈₆
+            [ P ]⟨ x , x′ , y * z , [ P ]⟨ y , y′ , z , z′ ⟩ ⟩
+
+        P-comm :
+            [ P ]⟨ x , x′ , y , y′ ⟩ ≈₄
+            [ P ]⟨ y , y′ , x , x′ ⟩
+
+        P-compat : ∀ c →
+            [ P ]⟨ c · x , c · x′ , y , y′ ⟩ ≈₄
+            c · [ P ]⟨ x , x′ , y , y′ ⟩
+
+open Special public
+```
+
+The notion of special product rule will be used in the [next section](../Products)
+to show that they induce products on series with good algebraic properties.
+
+# Simple product rules {#sec:simple-product-rules}
+
+It can be shown that a special product `P` can be written in the following normal form
+
+    P ≈ α · x * y + β · (x′ * y + x * y′) + γ · x′ * y′
+
+for suitable coefficients `α`, `β`, `γ` in `R` satisfying `α γ = β (β - 1)`.
+We call a product rule *simple* if it is of the form above.
+We do not provide a formal proof of this fact in Agda.

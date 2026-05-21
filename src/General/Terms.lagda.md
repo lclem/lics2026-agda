@@ -1,5 +1,7 @@
 ---
 title: "Terms"
+next: /General/ProductRules/
+prev: /General/Series/
 ---
 
 In this section we define the syntax of terms and their semantics.
@@ -101,7 +103,8 @@ subst-≡ (p * q) ϱ₀ ϱ₁ ϱ≡ϱ′
   rewrite subst-≡ p ϱ₀ ϱ₁ ϱ≡ϱ′ | subst-≡ q ϱ₀ ϱ₁ ϱ≡ϱ′ = refl
 ```
 
-We can compose substitutions.
+The following lemma says that applying one substitution after another
+is the same as applying the composite substitution.
 
 ```
 subst-subst :
@@ -131,7 +134,7 @@ Term′ m = Term (Var m)
 ```
 
 Let `m : ℕ` be the number of variables.
-A *finite substitution* (or *vector substitution*) a vector of terms over `X` of length `m`.
+A *finite substitution* (or *vector substitution*) is a vector of terms over `X` of length `m`.
 
 ```
 open import Preliminaries.Vector
@@ -156,23 +159,19 @@ We introduce a convenient notation for applying finite substitutions.
 [ p ]ᵥ ϱ = substᵥ ϱ p
 ```
 
-We can compose a substitution with a finite one.
+The next lemma discusses applying a finite substitution followed by a substitution.
 
 ```
 subst-substᵥ :
   ∀ p (ϱ₀ : Substᵥ m X) (ϱ₁ : Subst X Y) →
-  -------------------------------------------------------
+  -----------------------------------------------------
   subst ϱ₁ (substᵥ ϱ₀ p) ≡ substᵥ (map (subst ϱ₁) ϱ₀) p
 
 subst-substᵥ p ϱ₀ ϱ₁ = 
-  subst ϱ₁ (substᵥ ϱ₀ p)
-    ≡⟨⟩
-  subst ϱ₁ (subst (lookup ϱ₀) p)
-    ≡⟨ subst-subst p (lookup ϱ₀) ϱ₁ ⟩
-  subst (subst ϱ₁ ∘ lookup ϱ₀) p
-    ≡⟨ subst-≡ p _ _ (lookup-map (subst ϱ₁) ϱ₀) ⟨
-  subst (lookup (map (subst ϱ₁) ϱ₀)) p
-    ≡⟨⟩
+  subst ϱ₁ (substᵥ ϱ₀ p)               ≡⟨⟩
+  subst ϱ₁ (subst (lookup ϱ₀) p)       ≡⟨ subst-subst p (lookup ϱ₀) ϱ₁ ⟩
+  subst (subst ϱ₁ ∘ lookup ϱ₀) p       ≡⟨ subst-≡ p _ _ (lookup-map (subst ϱ₁) ϱ₀) ⟨
+  subst (lookup (map (subst ϱ₁) ϱ₀)) p ≡⟨⟩
   substᵥ (map (subst ϱ₁) ϱ₀) p
   ∎ where open ≡-Eq
 ```
@@ -188,34 +187,36 @@ substᵥ-substᵥ :
 substᵥ-substᵥ p ϱ₀ ϱ₁ = subst-substᵥ p ϱ₀ (lookup ϱ₁)
 ```
 
-```
-private variable
-    ϱ η : Substᵥ n X
+!ignore
+~~~~
+The code below does not seem to be used anywhere.
 
-infix 4 _≡ᵥ_
-infixr 5 _∷-≡_
-data _≡ᵥ_ {X : Set} : ∀ {m : ℕ} → (ϱ η : Substᵥ m X) → Set where
-    []-≡ : [] ≡ᵥ []
-    _∷-≡_ : ∀ {p q} (p≡q : p ≡ q) (ϱ≡η : ϱ ≡ᵥ η) → (p ∷ ϱ) ≡ᵥ (q ∷ η)
 ```
+-- private variable
+--     ϱ η : Substᵥ n X
+
+-- infix 4 _≡ᵥ_
+-- infixr 5 _∷-≡_
+-- data _≡ᵥ_ {X : Set} : ∀ {m : ℕ} → (ϱ η : Substᵥ m X) → Set where
+--     []-≡ : [] ≡ᵥ []
+--     _∷-≡_ : ∀ {p q} (p≡q : p ≡ q) (ϱ≡η : ϱ ≡ᵥ η) → (p ∷ ϱ) ≡ᵥ (q ∷ η)
+```
+~~~~
 
 We introduce convenient notations for finite substitutions of certain fixed lengths.
 
 ```
 infix 101 [_]⟨_,_,_,_⟩
-[_]⟨_,_,_,_⟩ : Term′ 4 → Term X → Term X → Term X → Term X → Term X
-[ p ]⟨ p0 , p1 , p2 , p3 ⟩ =
-  substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ []) p 
+[_]⟨_,_,_,_⟩ : Term′ 4 → FunRep 4 (Term X)
+[ p ]⟨ p0 , p1 , p2 , p3 ⟩ = substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ []) p 
 
 infix 101 [_]⟨_,_,_,_,_⟩
-[_]⟨_,_,_,_,_⟩ : Term′ 5 → Term X → Term X → Term X → Term X → Term X → Term X
-[ p ]⟨ p0 , p1 , p2 , p3 , p4 ⟩ =
-  substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ []) p
+[_]⟨_,_,_,_,_⟩ : Term′ 5 → FunRep 5 (Term X)
+[ p ]⟨ p0 , p1 , p2 , p3 , p4 ⟩ = substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ []) p
 
 infix 101 [_]⟨_,_,_,_,_,_⟩
-[_]⟨_,_,_,_,_,_⟩ : Term′ 6 → Term X → Term X → Term X → Term X → Term X → Term X → Term X
-[ p ]⟨ p0 , p1 , p2 , p3 , p4 , p5 ⟩ =
-  substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ p5 ∷ []) p
+[_]⟨_,_,_,_,_,_⟩ : Term′ 6 → FunRep 6 (Term X)
+[ p ]⟨ p0 , p1 , p2 , p3 , p4 , p5 ⟩ = substᵥ (p0 ∷ p1 ∷ p2 ∷ p3 ∷ p4 ∷ p5 ∷ []) p
 ```
 
 ## Variables
@@ -272,7 +273,8 @@ t = mkVar 6
 
 # Semantics
 
-An environment `ϱ : Env X` is a function mapping variables from `X` to coefficients from `A`.
+In this section we define the semantics of terms as values in the underlying ring `R`.
+An *environment* `ϱ : Env X` is a function mapping variables from `X` to coefficients from `A`.
 
 ```
 module Semantics where
@@ -281,7 +283,7 @@ module Semantics where
   Env X = X → A
 ```
 
-The semantics extends the environment from variables `X` to all terms `Term X`.
+The *semantics* is defined by extending the environment from variables `X` to all terms `Term X`.
 
 ```
   infix 200 ⟦_⟧_

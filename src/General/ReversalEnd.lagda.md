@@ -1,13 +1,27 @@
 ---
-title: Reversal endomorphism
+title: Reversal endomorphisms
+prev: /General/Reversal/
+ignore: this extra field will help with the Make script ;p
 ---
 
+Fix a product rule `P`.
 In this section we provide a characterisation of when reversal is an endomorphism of the series algebra.
 When this is the case, [we show](#sec:rev-end-right-derivatives-P-fin)
 that `P`-finite series are closed under right derivatives.
 We then discuss an [automata-based characterisation](#sec:automata).
 
-Our developement is parametrised by a product rule `P`.
+The rest of the section is organised as follows.
+
+- In !refSection(#sec:rev-product_rule) we show that reversal is an endomorphism
+if and only if right derivatives satisfy the same product rule `P` as left derivatives do.
+
+- In !refSection(#sec:unary-operators-product-rules) we show that if a unary operator `G` satisfies a product rule `Q`,
+then we can extend the product rule to arbitrary terms.
+
+- In !refSection(#sec:closure-under-right-derivatives) we show that if right derivatives satisfy *any* product rule (not necessarily `P`),
+then `P`-finite series are closed under right derivatives.
+
+- Finally, in !refSection(#sec:automata) we provide an automata-based characterisation of when reversal is an endomorphism.
 
 ```
 {-# OPTIONS --guardedness --sized-types #-}
@@ -32,6 +46,7 @@ open import General.Products R Σ
 open import General.Reversal R Σ
 
 open Product P
+open Extensions P
 
 private variable
     i : Size
@@ -46,7 +61,7 @@ private variable
 
 In this section we study the connection between
 
-- reversal preserving the product operation.
+- reversal preserving the product operation, and
 - right derivatives satisfying a product rule.
 
 We introduce an abbreviation for the property that right derivatives satisfy an arbitrary product rule.
@@ -61,7 +76,7 @@ We introduce an abbreviation for the property that right derivatives satisfy an 
 The main result of this section is the following characterisation
 
 ```
-rev-end↔δʳ-P : IsEndomorphism rev iff δʳ-satisfies P
+rev-end↔δʳP : IsEndomorphism rev iff δʳ-satisfies P
 ```
 
 We prove the two directions separately.
@@ -69,11 +84,11 @@ We prove the two directions separately.
 ## From reversal to a product rule {#sec:rev-to-product_rule}
 
 We show that if reversal is an endomorphism,
-then the right derivatives satisfy the same product rule `P` as left derivatives.
+then the right derivatives satisfy the same product rule `P` as left derivatives do.
 
 ```
-rev-end→δʳ-P : IsEndomorphism rev → δʳ-satisfies P
-rev-end→δʳ-P end a f g =
+rev-end→δʳP : IsEndomorphism rev → δʳ-satisfies P
+rev-end→δʳP end a f g =
     begin
         δʳ a (f * g)
             ≈⟨ δʳ-rev-rev _ _ ⟩
@@ -93,12 +108,12 @@ rev-end→δʳ-P end a f g =
 
 ## From product rule to reversal {#sec:product_rule-to-rev}
 
-Viceversa, if right derivatives satisfy the same product rule `P` as left derivatives,
+Viceversa, if right derivatives satisfy the same product rule `P` as left derivatives do,
 then reversal is an endomorphism.
 
 ```
-δʳ-P→rev-end : δʳ-satisfies P → IsEndomorphism rev {i}
-δʳ-P→rev-end p-rev = record {
+δʳP→rev-end : δʳ-satisfies P → IsEndomorphism rev {i}
+δʳP→rev-end p-rev = record {
     𝟘-end = rev-end-𝟘;
     ·-end = rev-end-·;
     +-end = rev-end-+;
@@ -107,6 +122,14 @@ then reversal is an endomorphism.
 ```
 
 The additional size parameter `i` is used to enable Agda to witness productivity.
+Preservation of the vector space structure (`rev-end-𝟘`, `rev-end-·`, and `rev-end-+`) has been proved already.
+It remains to show preservation of the product operation.
+The proof proceeds by coinduction.
+
+- The base case `ν (rev (f * g)) ≈R ν (rev f * rev g)` is immediate.
+
+- The coinductive case `δˡ a (rev (f * g)) ≈ δˡ a (rev f * rev g)`
+relies on the endomorphism lemma applied to the coinductive hypothesis.
 
 ```
     rev-end-* : Endomorphic-* rev
@@ -118,7 +141,7 @@ The additional size parameter `i` is used to enable Agda to witness productivity
             rev (δʳ a (f * g))
                 ≈⟨ rev-cong (p-rev a f g) ⟩
             rev ⟦ P ⟧⟨ f , δʳ a f , g , δʳ a g ⟩
-                ≈⟨ endᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (δʳ-P→rev-end p-rev)⟩
+                ≈⟨ endᵥ P (_ ∷ _ ∷ _ ∷ _ ∷ []) (δʳP→rev-end p-rev)⟩
             ⟦ P ⟧⟨ rev f , rev (δʳ a f) , rev g , rev (δʳ a g) ⟩
                 ≈⟨⟩
             ⟦ P ⟧⟨ rev f , δˡ a (rev f) , rev g , δˡ a (rev g) ⟩
@@ -127,16 +150,18 @@ The additional size parameter `i` is used to enable Agda to witness productivity
         ∎ where open EqS
 ```
 
-The proof is concluded by putting together the two directions above.
+The proof of `rev-end↔δʳP` is concluded by putting together the two directions above.
 
 ```
-rev-end↔δʳ-P = rev-end→δʳ-P ,, δʳ-P→rev-end
+rev-end↔δʳP = rev-end→δʳP ,, δʳP→rev-end
 ```
 
 # Unary operators satisfying a product rule {#sec:unary-operators-product-rules}
 
-Let `G` be a unary operator on series and let `Q` be a product rule.
-If `G` is a `Q`-extension, then we can extend the product rule to arbitrary terms.
+In this section we consider a general unary operator `G` on series
+and we show that if `G` satisfies a product rule `Q`
+(which does not need to be the same as `P`, the product rule satisfies by left derivatives),
+then we can extend the product rule to arbitrary terms.
 
 ```
 ext-lem :
@@ -148,7 +173,7 @@ ext-lem :
 ```
 
 In order to prove the lemma,
-we will to introduce some auxiliary notions.
+we will need to introduce some auxiliary notions.
 
 ## Primed variables
 
@@ -213,7 +238,7 @@ The following is the crucial property of !ref(′-var x).
 ```
 ′-var-lem :
     ∀ (x : Var k) ϱ (η : Vec (A ⟪ Σ ⟫) ℓ) →
-    --------------------------------------------
+    ------------------------------------------
     ⟦ var x ⟧ᵥ ϱ ≈ ⟦ var (′-var x) ⟧ᵥ (ϱ ++ᵥ η)
 
 ′-var-lem zero ϱ η =
@@ -226,7 +251,7 @@ The following is the crucial property of !ref(′-var x).
 ′-var-lem (suc x) (_ ∷ ϱ) η = ′-var-lem x ϱ η
 ```
 
-We extend this operation to all terms.
+We extend the priming operation to all terms.
 
 ```
 infix 30 ′_
@@ -238,13 +263,15 @@ infix 30 ′_
 ′ (u [*] v) = ′ u [*] ′ v
 ```
 
-The crucial property is that the semantics of the extended term (in any environment extension)
+The crucial property of the priming operation
+is that the semantics of the extended term (in any environment extension)
 equals the semantics of the original one.
+The proof is by structural induction on terms, where the case for variables relies on !ref(′-var-lem).
 
 ```
 ′-lem :
     ∀ (u : Term′ k) ϱ η →
-    ------------------------------
+    ----------------------------
     ⟦ u ⟧ᵥ ϱ ≈ ⟦ ′ u ⟧ᵥ (ϱ ++ᵥ η)
 
 ′-lem 0T ϱ η = ≈-refl
@@ -328,12 +355,12 @@ ext-lem {G = G} {Q} ϱ isExt (u [*] v)
         ∎ where open EqS
 ```
 
-# Closure under right derivatives
+# Closure under right derivatives {#sec:closure-under-right-derivatives}
 
 We show that if right derivatives satisfy *any* product rule (not necessarily `P`),
 then `P`-finite series are closed under right derivatives.
 
-In particular, by !ref(rev-end↔δʳ-P) in the [previous section](#sec:rev-to-product_rule)
+In particular, by !ref(rev-end↔δʳP) in the [previous section](#sec:rev-to-product_rule)
 this is the case when reversal is an endomorphism.
 
 ```
@@ -517,13 +544,14 @@ rev-end→P-fin :
     P-fin (δʳ b f) (k +ℕ k)
 
 rev-end→P-fin rev-end f-P-fin b =
-    P-fin-δʳ P (rev-end→δʳ-P rev-end) f-P-fin b
+    P-fin-δʳ P (rev-end→δʳP rev-end) f-P-fin b
 ```
 
 # Automaton-based characterisation {#sec:automata}
 
-In this section we characterise !ref(δʳ-satisfies P) with `P`-automata.
-It will provide a stepping stone towards showing decidability 
+In this section we characterise when reversal is an endomorphism with `P`-automata.
+This syntactic characterisation will be used [later](../../Special/Reversal)
+to show that reversal is an endomorphism for every special product rule.
 
 ```
 open Inductive renaming (_++ℓ_ to _++_)
@@ -625,7 +653,7 @@ automata-char-lemma : IsEndomorphism rev iff δʳΔʳ × δʳΔʳ iff ⟦ΔʳΔ�
 
 We begin with the first half of !ref(automata-char-lemma).
 We show that !ref(δʳΔʳ) is equivalent to !ref(δʳ-satisfies P),
-and then use  !ref(rev-end↔δʳ-P) to conclude.
+and then use  !ref(rev-end↔δʳP) to conclude.
 
 We prove two implications.
 
@@ -862,8 +890,15 @@ We can finally show that `⟦ΔʳΔˡ⟧` implies `δʳΔʳ`.
     ∎ where open EqS
 ```
 
-We now prove !ref(automata-char-lemma).
+We can finally prove !ref(automata-char-lemma).
 
 ```
-automata-char-lemma = (δʳP→δʳΔʳ ∘ rev-end→δʳ-P , δʳ-P→rev-end ∘ δʳΔʳ→δʳP) , (δʳΔʳ→⟦ΔʳΔˡ⟧ , ⟦ΔʳΔˡ⟧→δʳΔʳ)
+automata-char-lemma = (δʳP→δʳΔʳ ∘ rev-end→δʳP , δʳP→rev-end ∘ δʳΔʳ→δʳP) , (δʳΔʳ→⟦ΔʳΔˡ⟧ , ⟦ΔʳΔˡ⟧→δʳΔʳ)
+```
+
+For later reference, we extract the following corollary.
+
+```
+⟦ΔʳΔˡ⟧→rev-end : ⟦ΔʳΔˡ⟧ → IsEndomorphism rev
+⟦ΔʳΔˡ⟧→rev-end = δʳP→rev-end ∘ δʳΔʳ→δʳP ∘ ⟦ΔʳΔˡ⟧→δʳΔʳ
 ```

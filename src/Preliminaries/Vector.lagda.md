@@ -1,8 +1,9 @@
 ---
 title: Vectors
+comment: keep me
 ---
 
-In this section we do vectors.
+In this section we prove some basic lemmas about vectors that we will use in the rest of the formalisation.
 
 ```
 module Preliminaries.Vector where
@@ -35,12 +36,6 @@ lookup-map :
     lookup (map f as) j ≡ f (lookup as j)
 lookup-map f (a ∷ _) zero = refl
 lookup-map f (_ ∷ as) (suc j) = lookup-map f as j
-
-lookup-tabulate :
-    ∀ (f : Fin n → A) (x : Fin n) →
-    lookup (tabulate f) x ≡ f x
-lookup-tabulate f zero = refl
-lookup-tabulate f (suc j) = lookup-tabulate (f ∘ Fin.suc) j
 
 lookup-∈ :
     ∀ {a : A} {as : Vec A n} →

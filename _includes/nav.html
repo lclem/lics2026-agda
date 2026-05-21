@@ -1,23 +1,25 @@
 <header class="nav-header">
     <p style="text-align:center;">
         {% if page.prev %}
-        <a alt="Previous chapter" href="{{ site.baseurl }}{{ page.prev }}">Prev</a>
+            <a alt="Previous chapter" href="{{ site.baseurl }}{{ page.prev }}">← Prev</a>
         {% endif %}
         {% if page.prev and (page.src or page.next) %}
-        &bullet;
+            &bullet;
         {% endif %}
-        {% if page.part %}
-        <a alt="Part" href="{{ site.baseurl }}{{ page.part }}">Part</a>
-        &bullet;
+        {% if page.up %}
+            <a alt="Up" href="{{ site.baseurl }}{{ page.up }}">Up ↑</a>
+        {% else if page.part %}
+            <a alt="Up" href="{{ site.baseurl }}{{ page.part }}">Up ↑</a>
         {% endif %}
+        &bullet;
         {% if page.src %}
-        <a alt="Source code" href="https://github.com/{{ site.repository }}/blob/{{ site.branch }}/{{ page.src }}">Source</a>
+            <a alt="Source code" href="https://github.com/{{ site.repository }}/blob/{{ site.branch }}/{{ page.src }}">Source <i class="icon-github"></i></a>
         {% endif %}
         {% if page.src and page.next %}
         &bullet;
         {% endif %}
         {% if page.next %}
-        <a alt="Next chapter" href="{{ site.baseurl }}{{ page.next }}">Next</a>
+            <a alt="Next chapter" href="{{ site.baseurl }}{{ page.next }}">Next →</a>
         {% endif %}
     </p>
 </header>

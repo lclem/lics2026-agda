@@ -217,7 +217,7 @@ $(OUTDIR)/$1/$2.md: $(TMPDIR)/$1.$2.md
 	@cat $(TMPDIR)/$1.$2.md > $(TMPDIR)/$1.$2.1.md
 
 # add the markdown footer
-#	@cat $(SRCDIR)/footer.md >> $(TMPDIR)/$1.$2.1.md
+	@cat $(SRCDIR)/footer.md >> $(TMPDIR)/$1.$2.1.md
 
 	@$(GSED) -i "3isrc: $(SRCDIR)/$1/$2.lagda.md" $(TMPDIR)/$1.$2.1.md
 	@$(GSED) -i "4ilayout: page" $(TMPDIR)/$1.$2.1.md
@@ -261,9 +261,12 @@ endif
 	@echo "3 \c"
 
 # re-copy the headers
-	@head -n11 $(TMPDIR)/$1.$2.1.md > $(OUTDIR)/$1/$2.md
+	@head -n12 $(TMPDIR)/$1.$2.1.md > $(OUTDIR)/$1/$2.md
 
-# add an horizontal separator
+# add a new line
+	@echo "\n" >> $(OUTDIR)/$1/$2.md
+
+# add a horizontal separator
 #	@echo "\n\n---\n\n" >> $(OUTDIR)/$1/$2.md
 
 	@cat $(TMPDIR)/$1.$2.3.md >> $(OUTDIR)/$1/$2.md

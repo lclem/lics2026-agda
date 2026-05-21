@@ -1,17 +1,18 @@
 ---
-title: "Automata"
+title: "Term automata"
+prev: /General/FinitelyGenerated/
+next: /General/Reversal/
 ---
 
-```
-{-# OPTIONS --guardedness --sized-types #-}
-```
-
-Let `P` be a product rule.
-In this section we define `P`-automata.
+Let `P` be a product rule, `Σ` be an alphabet, and `P` a product rule.
+In this section we define `P`-automata,
+which are automata recognising series.
 The main result is that the class of `P`-finite series coincides with
 the series recognised by `P`-automata over finitely many variables.
 
 ```
+{-# OPTIONS --guardedness --sized-types #-}
+
 open import Preliminaries.Base
 open import General.ProductRules
 
@@ -20,9 +21,7 @@ module General.Automata
     (Σ : Set)
     (P : ProductRule R)
     where
-```
 
-```
 open import Preliminaries.Vector
 open import Preliminaries.Algebra R
 
@@ -59,17 +58,36 @@ open TermAut public
 private variable X : Set
 ```
 
+Note that the syntax of a `P`-automaton does not depend on the product rule `P`-finite,
+however its semantic does, as we will see in the next section.
+
 # Semantics of `P`-automata
 
-## `P`-extensions
+In this section we define the semantics of a `P`-automaton.
+To this end we first need to [extend](#sec:P-extension) the transition function from variables to all terms.
+This will allow us to define the [semantics](#sec:semantics) of a `P`-automaton,
+and then prove the central [*homomorphism lemma*](#sec:homomorphism)
+showing that the semantics function is a homomorphism from the term algebra to the series algebra.
+
+## `P`-extensions {#sec:P-extension}
 
 We extend the transition function from variables to all terms.
-To this end, for any function `Δ : Subst X X` (mapping variables to terms),
-let `Δ ↑` be the function mapping terms to terms defined as follows.
+To this end, we extend any function mapping variables to terms (i.e., any substitution)
+
+    Δ : X → Term X
+
+to a function mapping terms to terms
+
+    Δ ↑ : Term X → Term X
+
+We call `Δ ↑` the *`P`-extension* of `Δ`.
+The definition `Δ ↑` is by structural induction on terms.
+The only nontrivial case is the one of products,
+where we use the product rule `P` to define the extension.
 
 ```
 infix 20 _↑_
-_↑_ : (Δ : Subst X X) → Term X → Term X
+_↑_ : (Δ : X → Term X) → Term X → Term X
 Δ ↑ 0T = 0T
 Δ ↑ (var x) = Δ x
 Δ ↑ (c [·] q) = c [·] Δ ↑ q
@@ -77,22 +95,18 @@ _↑_ : (Δ : Subst X X) → Term X → Term X
 Δ ↑ (p [*] q) = [ P ]⟨ p , Δ ↑ p , q , Δ ↑ q ⟩
 ```
 
-Note that in the rule for the product of two terms we use the product rule `P`.
-For this reason, we call `Δ ↑` the *`P`-extension* of `Δ`.
+## Semantics {#sec:semantics}
 
-## Semantics
+We are now ready to define the *semantics* of `P`-automata,
+which is a function 
 
 ```
-open Semantics
-    renaming (⟦_⟧_ to T⟦_⟧_)
-    hiding (⟦_⟧ᵥ_; ⟦_⟧⟨_,_,_,_⟩; ⟦_⟧≈_)
+infix 200 _⟦_⟧
+_⟦_⟧ : (S : TermAut X) → (α : Term X) → A ⟪ Σ ⟫
 ```
 
-Thanks to the `P`-extension function `_↑_`,
-we can now define the *semantics* of a term automaton `S : TermAut X`,
-which is the function `S ⟦_⟧` mapping terms to series.
-
-Let `α : Term X` be a term.
+mapping a `P`-automaton `S` and a term `α` to the series `S ⟦ α ⟧`
+recognised by `S` starting from configuration `α`.
 We define `S ⟦ α ⟧` coinductively.
 
 - In the base case, we output the value of `F` at `α` (computed by its homomorphic extension).
@@ -102,16 +116,16 @@ We define `S ⟦ α ⟧` coinductively.
 Formally, we obtain the following definition.
 
 ```
-infix 200 _⟦_⟧
-_⟦_⟧ : TermAut X → Term X → A ⟪ Σ ⟫                                                                
-ν (S ⟦ α ⟧) = T⟦ α ⟧ (F S)
+-- open Semantics renaming (⟦_⟧_ to T⟦_⟧_) hiding (⟦_⟧ᵥ_; ⟦_⟧⟨_,_,_,_⟩; ⟦_⟧≈_)
+ν (S ⟦ α ⟧) = T⟦ α ⟧ (F S) where open Semantics renaming (⟦_⟧_ to T⟦_⟧_)
 δ (S ⟦ α ⟧) a = S ⟦ Δ S a ↑ α ⟧
 ```
 
 ## Homomorphism lemma {#sec:homomorphism}
 
 We show that the semantics of a `P`-automaton is a homomorphism from terms to series.
-This does not rely on any assumption on the product rule `P`.
+This is a fundamental property of `P`-automata.
+It does not rely on any assumption on the product rule `P`.
 
 We write `S ⟦X⟧ x` to denote the series recognised by automaton `S` starting from variable `x : X`.
 
@@ -122,6 +136,8 @@ S ⟦X⟧ = λ x → S ⟦ var x ⟧
 ```
 
 ### Zero
+
+We first show that the semantics of the zero term is the zero series.
 
 ```
 sem-𝟘 :
@@ -135,6 +151,8 @@ sem-𝟘 :
 
 ### Scalar multiplication
 
+We show that the semantics respects scalar multiplication.
+
 ```
 sem-· :
     ∀ (S : TermAut X) c p →
@@ -146,6 +164,8 @@ sem-· :
 ```
 
 ### Sum
+
+We show that the semantics respects sums.
 
 ```
 sem-+ :
@@ -159,7 +179,9 @@ sem-+ :
 
 ### Products and the homomorphism lemma
 
-We need to treat the case of products and the homomorphism lemma simultaneously.
+We are now ready to show that the semantics is a homomorphism.
+We need to treat the case of products and the homomorphism lemma simultaneously,
+since they depend on each other.
 
 ```
 mutual
@@ -277,28 +299,37 @@ over an arbitrary set of variables `X`.
         ∎ where open EqS
 ```
 
-We immediately apply `sem-hom` in the next secion
+We apply `sem-hom` in the next secion
 to show equivalence between `P`-finite series and series recognised by `P`-automata over finitely many variables.
 
-# Equivalence with finitely generated series {#sec:coincidence}
+# Equivalence with `P`-finite series {#sec:coincidence}
 
-We show that the class of series recognized by term automata
-coincides with the class of finitely generated series.
-
+We show that the class of series recognized by `P`-automata
+coincides with the class of [`P`-finite series](../FinitelyGenerated).
+This is the main result of this section.
+It fundamentally relies on the homomorphism lemma `sem-hom` proved in the previous section.
 We remark that this holds for every product rule `P`.
+
+There are two directions to prove.
+
+- In the [first subsection](#sec:automata-to-series) we show that a `P`-automaton with `n` variables
+recognises a `P`-finite series (with `n` generators).
+- In the [second subsection](#sec:series-to-automata) we show the converse direction,
+namely that a `P`-finite series `f` (with `n` generators)
+can be recognised by a `P`-automaton (over `n` variables).
 
 ```
 open import General.FinitelyGenerated R Σ P
 ```
 
-## From automata to series
+## From automata to series {#sec:automata-to-series}
 
 We show that a `P`-automaton with `n` variables recognises only `P`-finite series (with `n` generators).
 
 ```
 P-aut→P-fin :
     ∀ n (S : TermAut (Fin n)) α →
-    -----------------------------------------
+    -----------------------------
     P-fin (S ⟦ α ⟧) n
 ```
 
@@ -363,7 +394,7 @@ The semantics of every term belongs to the algebra generated by the semantics of
         δga∈[gs] rewrite δga≡δS⟦var⟧ = S⟦α⟧∈[gs] _
 ```
 
-## From series to automata
+## From series to automata {#sec:series-to-automata}
 
 Conversely, we show that a `P`-finite series `f` (with `n` generators)
 is recognised by a `P`-automaton (over `n` variables).
@@ -431,10 +462,10 @@ belongs to the algebra generated by `gs`.
 
 We are now ready to construct the automaton.
 
-The output function `F` simply maps each variable `i`
+- The output function `F` simply maps each variable `i`
 to the constant term of the corresponding generator `g i`.
 
-The transition `Δ` function maps each variable `i` and input symbol `a`
+- The transition `Δ` function maps each variable `i` and input symbol `a`
 to the term `α i a` defined above.
 
 ```
@@ -448,7 +479,7 @@ to the term `α i a` defined above.
 It remains to show that the construction is correct,
 in the sense that the automaton recognises `f`.
 
-It is necessary to show a more general property first.
+It is necessary to show a more general property.
 First, we claim that from configuration `α`
 the automaton recognises the series `⟦ α ⟧ g`.
 
@@ -516,3 +547,6 @@ The proof of correctness is concluded by applying soundness to `β`.
             S ⟦ β ⟧
         ∎ where open EqS
 ```
+
+This concludes this section on `P`-automata.
+In the [next section](../Reversal) we study the reversal operation on series.

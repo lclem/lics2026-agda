@@ -1,6 +1,9 @@
 ---
 title: Basic common definitions
+comment: keep me
 ---
+
+The definition in this file are used throughout the rest of the formalisation.
 
 ```
 {-# OPTIONS --sized-types #-}
@@ -13,10 +16,8 @@ open import Agda.Builtin.Bool using (Bool; true; false) public
 open import Agda.Builtin.Size public
 
 open import Relation.Nullary using (Dec; yes; no) public
-open import Relation.Unary using () renaming (WeaklyDecidable to WeaklyDecidable₁) public
 open import Relation.Binary.Core public
 open import Relation.Binary.Structures public
-open import Relation.Binary.Definitions using (WeaklyDecidable) public
 open import Function.Base using (id; _∘_; _$_) public
 
 open import Relation.Binary.PropositionalEquality
@@ -27,7 +28,6 @@ module ≡-Eq where
     open Relation.Binary.PropositionalEquality.≡-Reasoning public
 
 open import Data.Bool.Base using (T) public
--- (Bool; true; false; T; ⊥; _∧_; _∨_; not) public
 
 open import Data.Empty public
 
@@ -47,15 +47,17 @@ open import Data.Nat
     renaming (_+_ to _+ℕ_; _*_ to _*ℕ_)
     public
 
-open import Data.Fin.Base using (Fin; zero; suc; fromℕ; fromℕ<; fromℕ<″; _↑ˡ_; _↑ʳ_; inject≤) public
+open import Data.Fin.Base
+    using (Fin; zero; suc; fromℕ; fromℕ<; fromℕ<″; _↑ˡ_; _↑ʳ_; inject≤) public
 
 open import Data.Vec
     using (Vec; []; _∷_; _++_; lookup; map; truncate; tabulate; fromList; concat)
-    -- renaming (_++_ to _++ᵥ_)
     public
 
 open import Data.Vec.Relation.Unary.Any as Any using (Any; here; there) public
-open import Data.Vec.Relation.Unary.All as All using (All; []; _∷_) renaming (lookup to All-lookup; map to All-map) public
+open import Data.Vec.Relation.Unary.All as All
+    using (All; []; _∷_)
+    renaming (lookup to All-lookup; map to All-map) public
 
 open import Data.Vec.Membership.Propositional.Properties
     using (∈-++⁺ˡ; ∈-++⁺ʳ; ∈-tabulate⁺; ∈-lookup) public
@@ -66,12 +68,12 @@ open import Algebra renaming (CommutativeRing to CR)
 CommutativeRing = CR lzero lzero
 
 infixl 5 _⟨_⟩_
-_⟨_⟩_ : 
-    -- {A : Set} {B : A → Set} {C : (a : A) → B a → Set} →
-    -- (a : A) → ((a : A) → (b : B a) → C a b) → (b : B a) → C a b
-    -- ∀ {ℓ} {A B : Set} {C : Set ℓ} →
-    ∀ {ℓ} {A B C : Set ℓ} →
-    A → (A → B → C) → B → C
+_⟨_⟩_ : ∀ {ℓ} {A B C : Set ℓ} → A → (A → B → C) → B → C
     
 x ⟨ f ⟩ y = f x y
+
+FunRep : ∀ {ℓ} → ℕ → Set ℓ → Set ℓ
+FunRep zero F = F
+FunRep (suc m) F = F → FunRep m F
+
 ```

@@ -1,8 +1,10 @@
 ---
 title: "General results"
+up : /
+next: /Special/index
 ---
 
-In this part we the basic theory of formal series in noncommuting variables.
+In this part we develop the basic theory of formal series in noncommuting variables.
 The results in this part are valid for every product rule.
 This is the fundation upon which, in the [next part](../../Special/index),
 we will develop the theory of *special* product rules.

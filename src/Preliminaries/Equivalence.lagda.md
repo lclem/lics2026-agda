@@ -1,6 +1,9 @@
 ---
-title: Algebraic preliminaries
+title: Equivalence relations
+comment: keep me
 ---
+
+In this section we define convenient notations for working with equivalence relations.
 
 ```
 open import Agda.Primitive

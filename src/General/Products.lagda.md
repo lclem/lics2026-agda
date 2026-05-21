@@ -1,5 +1,7 @@
 ---
 title: Products of power series
+prev: /General/ProductRules/
+next: /General/FinitelyGenerated/
 ---
 
 In this section we define products of formal series obeying a product rule.
@@ -17,7 +19,6 @@ open import Preliminaries.Vector
 open import General.Series R Σ hiding (≡→≈)
 
 -- we need to rename term constructors to avoid name clashes
--- with the corresponding series operations
 open import General.Terms R
     renaming (_+_ to _[+]_; _*_ to _[*]_; _·_ to _[·]_)
 
@@ -30,24 +31,29 @@ private variable
     f g : A ⟪ Σ ⟫
 ```
 
-## Extensions of equality
+# Preliminaries
 
-We extend equality of series to environments and vectors of series.
+We begin by introducing some auxiliary definitions.
 
-### Extension to environments
+## Series environments
 
-An *environment* is a mapping from a set of variables `X` to series `A ⟪ Σ ⟫`.
+First of all, we will need the notion of *series environment* `SEnv`,
+which are mappings from variables to series.
 
 ```
-SEnv : {i : Size} → Set → Set
+SEnv : {Size} → Set → Set
 SEnv {i} X = X → A ⟪ Σ ⟫ i
 ```
 
-We extend equality of series to environments point-wise.
+We denote series environments by `ϱ` and `ϱ′`.
 
 ```
--- private variable X : Set
+private variable ϱ ϱ′ ϱ₀ ϱ₁ : SEnv X
+```
 
+We extend equality of series to environments and vectors of series.
+
+```
 infix 4 _≈ϱ[_]_
 _≈ϱ[_]_ : ∀ (ϱ : SEnv X) i (ϱ′ : SEnv X) → Set
 ϱ ≈ϱ[ i ] ϱ′ = ∀ x → ϱ x ≈[ i ] ϱ′ x
@@ -65,7 +71,7 @@ For instance, we can show that two environments are equal if they are point-wise
 ≡→≈ϱ ϱ≡ϱ′ x rewrite ϱ≡ϱ′ x = ≈-refl
 ```
 
-### Extension to vectors
+## Series vector environments
 
 We denote by `SEnvᵥ n` the type of `n`-tuples of series.
 
@@ -75,10 +81,10 @@ SEnvᵥ {i} n = Vec (A ⟪ Σ ⟫ i) n
 ```
 
 We define equality of vectors of series point-wise.
+We introduce a convenient data type to package together such a tuple of equalities.
 
 ```
 private variable
---   n : ℕ
   fs gs : SEnvᵥ n
 
 infix 4 _≈ᵥ[_]_
@@ -116,11 +122,10 @@ infix 5 [_,_,_,_] [_,_,_,_,_,_]
     (f₄ ≈[ i ] g₄) →
     (f₅ ≈[ i ] g₅) →
     (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ f₄ ∷ f₅ ∷ []) ≈ᵥ[ i ] (g₀ ∷ g₁ ∷ g₂ ∷ g₃ ∷ g₄ ∷ g₅ ∷ [])
+
 [ f₀≈g₀ , f₁≈g₁ , f₂≈g₂ , f₃≈g₃ , f₄≈g₄ , f₅≈g₅ ] =
     f₀≈g₀ ∷≈ f₁≈g₁ ∷≈ f₂≈g₂ ∷≈ f₃≈g₃ ∷≈ f₄≈g₄ ∷≈ f₅≈g₅ ∎≈
 ```
-
-## Auxiliary definitions
 
 We can convert vector equalities to environment equalities.
 
@@ -134,28 +139,23 @@ build-≈ϱ (f≈g ∷≈ _) zero = f≈g
 build-≈ϱ (_ ∷≈ h) (suc x) = build-≈ϱ h x
 ```
 
-```
-map-cong :
-  ∀ (f g : SEnv X) (xs : Vec X n) →
-  (∀ x → f x ≈[ i ] g x) →
-  ---------------------------------
-  map f xs ≈ᵥ[ i ] map g xs
-
-map-cong f g [] ass = []≈
-map-cong f g (x ∷ xs) ass = ass x ∷≈ map-cong f g xs ass
-```
-
-# `P`-products
-
-Let `P` be a product rule.
-We define a *`P`-product* of formal series as the unique binary operation satisfying the product rule `P`.
+# `P`-products and series semantics of terms
 
 ```
 module Product (P : ProductRule) where
 ```
 
-We simultaneously define the product `_*_`
-and the semantics of terms over series.
+Let `P` be a product rule.
+Intuitively, a *`P`-product* of formal series is the unique binary operation
+satisfying the constant term rule
+
+    ν (f * g) = ν f *R ν g
+
+and the product rule `P`:
+
+    δ (f * g) a = P( f , δ f a , g , δ g a )
+
+In order to achieve a formal definition, we simultaneously define the product `_*_` and the semantics of terms over series.
 This is necessary since we need to capture arbitrary product rules.
 
 ```
@@ -168,7 +168,7 @@ To make the case of the product rule more readable,
 we introduce a special notation for the semantics of terms with four variables
 
 ```
-    ⟦_⟧⟨_,_,_,_⟩ : Term′ 4 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
+    ⟦_⟧⟨_,_,_,_⟩ : Term′ 4 → FunRep 4 (A ⟪ Σ ⟫ i)
 ```
 
 The `P`-product `f * g` of two series `f ` and `g` is defined coinductively as follows.
@@ -192,7 +192,8 @@ In the last case, the definition depends on the product of series.
     ⟦ u [*] v ⟧ ϱ = ⟦ u ⟧ ϱ * ⟦ v ⟧ ϱ
 ```
 
-We also define the semantics of terms with `n` variables, together with a special syntax.
+Finally, we define the semantics of terms with `n` variables,
+together with the special syntax.
 
 ```
     ⟦_⟧ᵥ_ : ∀ {n} → Term′ n → SEnvᵥ {i} n → A ⟪ Σ ⟫ i
@@ -201,59 +202,14 @@ We also define the semantics of terms with `n` variables, together with a specia
     ⟦ p ⟧⟨ f₀ , f₁ , f₂ , f₃ ⟩ = ⟦ p ⟧ᵥ (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ [])
 ```
 
-It will also be convenient to have a special syntax for six variables.
+We will later use the following special syntax for six variables.
 
 ```
-    ⟦_⟧⟨_,_,_,_,_,_⟩ : Term′ 6 → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i →
-        A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i → A ⟪ Σ ⟫ i
+    ⟦_⟧⟨_,_,_,_,_,_⟩ : Term′ 6 → FunRep 6 (A ⟪ Σ ⟫ i)
     ⟦ p ⟧⟨ f₀ , f₁ , f₂ , f₃ , f₄ , f₅ ⟩ = ⟦ p ⟧ᵥ (f₀ ∷ f₁ ∷ f₂ ∷ f₃ ∷ f₄ ∷ f₅ ∷ [])
 ```
 
-# `Q`-extensions
-
-For future use, we formalise what it means for a unary operation `F` on series (such as left derivatives)
-to *satisfy* a product rule `Q`.
-
-```
-    infix 10 _satisfies_
-    _satisfies_ : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → ProductRule → Set
-    F satisfies Q = ∀ (f g : A ⟪ Σ ⟫) → F (f * g) ≈ ⟦ Q ⟧⟨ f , F f , g , F g ⟩
-```
-
-A *`Q`-extension* is a linear endofunction on series
-that respects equivalence of series and satisfies the product rule `Q`.
-
-```
-    infix 10 _IsExt_
-    record _IsExt_ (F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫) (Q : ProductRule) : Set where
-        field
-            ≈-ext : Congruent₁ _≈_ F
-            𝟘-ext : Endomorphic-𝟘 F
-            ·-ext : Endomorphic-· F
-            +-ext : Endomorphic-+ F
-            *-ext : F satisfies Q
-
-    open _IsExt_ public
-```
-
-This is designed so that, by definition,
-left derivatives are `P`-extensions.
-
-```
-    δˡ-sat-P : ∀ a → (δˡ a) satisfies P
-    δˡ-sat-P a f g = ≈-refl
-
-    δˡ-ext : ∀ a → (δˡ a) IsExt P
-    δˡ-ext a = record {
-        ≈-ext = \ x → δ-≈ x a ;
-        𝟘-ext = δˡ-end-𝟘 a ;
-        ·-ext = δˡ-end-· a ;
-        +-ext = δˡ-end-+ a ;
-        *-ext = δˡ-sat-P a
-        }
-```
-
-# Invariance
+## Invariance
 
 We show that the product and, more generally, the semantics of terms resepects equivalence of series.
 Again, we need a mutual corecursion.
@@ -264,12 +220,7 @@ Again, we need a mutual corecursion.
     *-cong = _*≈_
 
     infix 30 ⟦_⟧≈_ sem-cong
-    ⟦_⟧≈_ :
-        ∀ {ϱ₀ ϱ₁ : SEnv X} (p : Term X) →
-        ϱ₀ ≈ϱ[ i ] ϱ₁ →
-        ---------------------------------
-        ⟦ p ⟧ ϱ₀ ≈[ i ] ⟦ p ⟧ ϱ₁
-
+    ⟦_⟧≈_ : ∀ p → ϱ₀ ≈ϱ[ i ] ϱ₁ → ⟦ p ⟧ ϱ₀ ≈[ i ] ⟦ p ⟧ ϱ₁
     sem-cong = ⟦_⟧≈_
 ```
 
@@ -286,7 +237,6 @@ We use a convenient syntax for terms with finitely many variables.
 
 We begin with invariance of the product.
 In the base case, we use invariance of the underlying ring multiplication.
-In the coinductive case, 
 
 ```
     ν-≈ (f≈g *≈ h≈i) = *R-cong (ν-≈ f≈g) (ν-≈ h≈i)
@@ -310,19 +260,16 @@ The definition is concluded by the case of finitely-many variables.
     ⟦ p ⟧≈ᵥ fs≈gs = ⟦ p ⟧≈ build-≈ϱ fs≈gs
 ```
 
-# `nu` is a homomorphism {#lem:constant-term-homomorphism-lemma}
-
-```
-    open Semantics
-        -- we need to rename term semantics operations
-        -- to avoid name clashes
-        renaming (⟦_⟧_ to T⟦_⟧_; ⟦_⟧ᵥ_ to T⟦_⟧ᵥ_; ⟦_⟧≈_ to T⟦_⟧≈_)
-```
+## `nu` is a homomorphism {#lem:constant-term-homomorphism-lemma}
 
 We show that the operation of constant term extraction `ν` is a homomorphism
 from the series algebra to the underlying ring `R`.
 
 ```
+    open Semantics
+        -- we need to rename term semantics operations to avoid name clashes
+        renaming (⟦_⟧_ to T⟦_⟧_; ⟦_⟧ᵥ_ to T⟦_⟧ᵥ_; ⟦_⟧≈_ to T⟦_⟧≈_)
+        
     ν-hom :
         ∀ (p : Term X) (ϱ : SEnv X) →
         -----------------------------
@@ -360,13 +307,15 @@ Its proof is by reduction to `ν-hom`.
         ∎ where open EqR
 ```
 
-# Substitution and evaluation
+## Substitution and evaluation
+
+In this section we study the interaction between substitution and evaluation of terms.
 
 If we have a term `p` over variables `X`, a substitution from `X` to terms over `Y`,
 and a series environment `env` over `Y`, we can either
 
 - substitute and evaluate, obtaining `⟦ subst ϱ p ⟧ env `, or
-- evaluate in an updated environment, obtaining ⟦ p ⟧ (⟦_⟧ env ∘ ϱ).
+- evaluate in an updated environment, obtaining `⟦ p ⟧ (⟦_⟧ env ∘ ϱ)`.
 
 These two operations produce the same result.
 
@@ -411,10 +360,17 @@ which is proved by reduction to the latter.
         ∎ where open EqS
 ```
 
-# Endomorphism lemma
+## Endomorphism lemma
 
 We define what it means for an endofunction on series `F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫`  to be an endomorphism.
-Informally, this means that `F` respects the series operations.
+Informally, this means that `F` respects the series operations:
+
+- It respects the zero series `F 𝟘 ≈ 𝟘`.
+- It respects scalar multiplication `F (c · f) ≈ c · F f`.
+- It respects addition `F (f + g) ≈ F f + F g`.
+- It respects the product `F (f * g) ≈ F f * F g`.
+
+These properties are formalised as follows.
 
 ```
     open DistributivityProperties
@@ -424,9 +380,9 @@ Informally, this means that `F` respects the series operations.
 
     record IsEndomorphism (F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫) {i : Size} : Set where
         field
+            𝟘-end : Endomorphic-𝟘 F
             ·-end : Endomorphic-· F
             +-end : Endomorphic-+ F
-            𝟘-end : Endomorphic-𝟘 F
             *-end : Endomorphic-* F {i}
 
     open IsEndomorphism public
@@ -434,7 +390,8 @@ Informally, this means that `F` respects the series operations.
     private variable F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫
 ```
 
-We can then show that endomorphisms `F` commute with the semantics of terms. 
+The main result of this section is the following *endomorphism lemma* `end`,
+stating that endomorphisms commute with the semantics of terms.
 
 ```
     end :
@@ -446,11 +403,23 @@ We can then show that endomorphisms `F` commute with the semantics of terms.
 
 The proof is by structural induction on terms.
 
+- The base case for the zero term `0T`
+amounts to the fact that `F` respects the zero series.
+
 ```
     end 0T endF = endF .𝟘-end
+```
 
+- The base case for the variable term `var x` is trivial.
+
+```
     end (var x) _ = ≈-refl
+```
 
+- The base case for scalar multiplication `c [·] p`
+relies on the fact that `F` respects scalar multiplication.
+
+```
     end {F = F} (c [·] p) {ϱ} endF =
         begin
             F (⟦ c [·] p ⟧ ϱ)
@@ -458,12 +427,16 @@ The proof is by structural induction on terms.
             F (c · ⟦ p ⟧ ϱ)
                 ≈⟨ ·-end endF _ _ ⟩
             c · F (⟦ p ⟧ ϱ)
-                ≈⟨ R-refl ·≈ end p endF ⟩
+                ≈⟨ R-refl ·≈ end p endF ⟩ -- induction hypothesis
             c · ⟦ p ⟧ (F ∘ ϱ)
                 ≈⟨⟩
             ⟦ c [·] p ⟧ (F ∘ ϱ)
         ∎ where open EqS
+```
 
+- The case for addition `p [+] q` relies on the fact that `F` respects addition.
+
+```
     end {F = F} (p [+] q) {ϱ} endF =
         begin
             F (⟦ p [+] q ⟧ ϱ)
@@ -471,12 +444,16 @@ The proof is by structural induction on terms.
             F (⟦ p ⟧ ϱ + ⟦ q ⟧ ϱ)
                 ≈⟨ +-end endF _ _ ⟩
             F (⟦ p ⟧ ϱ) + F (⟦ q ⟧ ϱ)
-                ≈⟨ end p endF +≈ end q endF ⟩
+                ≈⟨ end p endF +≈ end q endF ⟩ -- induction hypothesis (x2)
             (⟦ p ⟧ (F ∘ ϱ)) + (⟦ q ⟧ (F ∘ ϱ))
                 ≈⟨⟩
             ⟦ p [+] q ⟧ (F ∘ ϱ)
         ∎ where open EqS
+```
 
+- Finally, the case for product `p [*] q` relies on the fact that `F` respects the product.
+
+```
     end {F = F} (p [*] q) {ϱ} endF =
         begin
             F (⟦ p [*] q ⟧ ϱ)
@@ -484,7 +461,7 @@ The proof is by structural induction on terms.
             F (⟦ p ⟧ ϱ * ⟦ q ⟧ ϱ)
                 ≈⟨ *-end endF _ _ ⟩
             F (⟦ p ⟧ ϱ) * F (⟦ q ⟧ ϱ)
-                ≈⟨ end p endF *≈ end q endF ⟩
+                ≈⟨ end p endF *≈ end q endF ⟩ -- induction hypothesis (x2)
             (⟦ p ⟧ (F ∘ ϱ)) * (⟦ q ⟧ (F ∘ ϱ))
                 ≈⟨⟩
             ⟦ p [*] q ⟧ (F ∘ ϱ)
@@ -527,21 +504,30 @@ and show that we recover the corresponding products.
 
 ## Hadamard product
 
+We let `*` be the product defined by the Hadamard product rule.
+
 ```
 module Hadamard where
 
     open Product ruleHadamard
+```
 
-    agree : ∀ (f g : A ⟪ Σ ⟫) → f * g ≈[ i ] f ⊙ g
+We prove that `*` is indeed the Hadamard product `⊙` defined previously.
+
+```
+    agree : ∀ f g → f * g ≈[ i ] f ⊙ g
     ν-≈ (agree f g) = R-refl
     δ-≈ (agree f g) a =
         begin
             δ (f * g) a ≈⟨⟩
-            δ f a * δ g a ≈⟨ agree _ _ ⟩
+            δ f a * δ g a ≈⟨ agree _ _ ⟩ -- coinductive assumption
             δ f a ⊙ δ g a ≈⟨⟩
             δ (f ⊙ g) a
         ∎ where open EqS            
 ```
+
+The development for the shuffle and infiltration products below is similar,
+relying on the corresponding product rules.
 
 ## Shuffle product
 
@@ -550,7 +536,7 @@ module Shuffle where
 
     open Product ruleShuffle
 
-    agree : ∀ (f g : A ⟪ Σ ⟫) → f * g ≈[ i ] f ⧢ g
+    agree : ∀ f g → f * g ≈[ i ] f ⧢ g
     ν-≈ (agree f g) = R-refl
     δ-≈ (agree f g) a =
         begin
@@ -568,7 +554,7 @@ module Infiltration where
 
     open Product ruleInfiltration
 
-    agree : ∀ (f g : A ⟪ Σ ⟫) → f * g ≈[ i ] f ↑ g
+    agree : ∀ f g → f * g ≈[ i ] f ↑ g
     ν-≈ (agree f g) = R-refl
     δ-≈ (agree f g) a =
         begin
@@ -580,4 +566,70 @@ module Infiltration where
                 ≈⟨⟩
             δ (f ↑ g) a
         ∎ where open EqS   
+```
+
+In the [next section](../FinitelyGenerated) we will see how the notion of `P`-product
+can be used to define a natural class of series, called *`P`-finite series*.
+
+# Appendix
+
+In this appendix we give some auxiliary results which will be used in later sections.
+
+```
+map-cong :
+  ∀ (f g : SEnv X) (xs : Vec X n) →
+  (∀ x → f x ≈[ i ] g x) →
+  ---------------------------------
+  map f xs ≈ᵥ[ i ] map g xs
+
+map-cong f g [] ass = []≈
+map-cong f g (x ∷ xs) ass = ass x ∷≈ map-cong f g xs ass
+```
+
+## `Q`-extensions
+
+For future use, we formalise what it means for a unary operation `F` on series (such as left derivatives)
+to *satisfy* a product rule `Q`.
+
+```
+module Extensions (P : ProductRule) where
+
+    open Product P
+
+    infix 10 _satisfies_
+    _satisfies_ : (A ⟪ Σ ⟫ → A ⟪ Σ ⟫) → ProductRule → Set
+    F satisfies Q = ∀ (f g : A ⟪ Σ ⟫) → F (f * g) ≈ ⟦ Q ⟧⟨ f , F f , g , F g ⟩
+```
+
+A *`Q`-extension* is a linear endofunction on series
+that respects equivalence of series and satisfies the product rule `Q`.
+
+```
+    infix 10 _IsExt_
+    record _IsExt_ (F : A ⟪ Σ ⟫ → A ⟪ Σ ⟫) (Q : ProductRule) : Set where
+        field
+            ≈-ext : Congruent₁ _≈_ F
+            𝟘-ext : Endomorphic-𝟘 F
+            ·-ext : Endomorphic-· F
+            +-ext : Endomorphic-+ F
+            *-ext : F satisfies Q
+
+    open _IsExt_ public
+```
+
+This is designed so that, by definition,
+left derivatives are `P`-extensions.
+
+```
+    δˡ-sat-P : ∀ a → (δˡ a) satisfies P
+    δˡ-sat-P a f g = ≈-refl
+
+    δˡ-ext : ∀ a → (δˡ a) IsExt P
+    δˡ-ext a = record {
+        ≈-ext = \ x → δ-≈ x a ;
+        𝟘-ext = δˡ-end-𝟘 a ;
+        ·-ext = δˡ-end-· a ;
+        +-ext = δˡ-end-+ a ;
+        *-ext = δˡ-sat-P a
+        }
 ```

@@ -1,5 +1,7 @@
 ---
 title: Reversal of formal series
+prev: /General/Automata/
+next: /General/ReversalEnd/
 ---
 
 In this section we define right derivatives and reversal of formal series,
@@ -46,16 +48,24 @@ The additional size parameters allow Agda to verify that the definition is produ
 We define the homomorphic extension `δʳ*` of the right derivative to all finite words.
 
 ```
-module _ where
-    open import Preliminaries.List renaming (_++ℓ_ to _++_)
+open Inductive renaming (_++ℓ_ to _++_)
 
-      -- homomorphic extension to all words
-    δʳ* : Σ * → A ⟪ Σ ⟫ → A ⟪ Σ ⟫
-    δʳ* ε f = f
-    δʳ* (a ∷ w) f = δʳ* w (δʳ a f)
+δʳ* : Σ * → A ⟪ Σ ⟫ → A ⟪ Σ ⟫
+δʳ* ε f = f
+δʳ* (a ∷ w) f = δʳ* w (δʳ a f)
+```
+
+We show how `δʳ` and `δʳ*` interact with each other.
+
+```
+δʳ-δʳ* : ∀ a w f → δʳ a (δʳ* w f) ≡ δʳ* (w ∷ʳ a) f  
+δʳ-δʳ* a ε f = refl
+δʳ-δʳ* a (b ∷ w) f = δʳ-δʳ* a w (δʳ b f)
 ```
 
 ## Properties of right derivatives
+
+### Left and right derivatives
 
 Left and right derivatives commute by definition,
 however it is useful to state this explicitly.
@@ -64,6 +74,16 @@ however it is useful to state this explicitly.
 δˡ-δʳ : ∀ (f : A ⟪ Σ ⟫) a b → δˡ a (δʳ b f) ≈ δʳ b (δˡ a f)
 δˡ-δʳ f a b = ≈-refl
 ```
+
+Consequently, `δʳ` commutes with `δˡ*`.
+
+```
+δʳ-δˡ* : ∀ f a w → δʳ a (δˡ* w f) ≈ δˡ* w (δʳ a f)
+δʳ-δˡ* f a ε = ≈-refl
+δʳ-δˡ* f a (_ ∷ w) = δʳ-δˡ* _ a w
+```
+
+### Preservation of equivalence
 
 Right derivatives preserve series equivalence.
 
@@ -82,7 +102,10 @@ Right derivatives preserve series equivalence.
 δʳ-inv a f≈g = δʳ-cong a f≈g
 ```
 
+### Preservation of the vector space structure
+
 We show that right derivatives preserve the vector space structure.
+In other words, right derivatives are linear operations.
 
 ```
 open DistributivityProperties
@@ -100,65 +123,68 @@ open DistributivityProperties
 δ-≈ (δʳ-end-· a c f) b = δʳ-end-· _ _ _
 ```
 
+### Coefficient extraction
+
 We show how right derivatives interact with the coefficient extraction operation.
 
 ```
-module _ where
-    open Inductive renaming (_++ℓ_ to _++_)
-
-    δʳ-coeff : ∀ a w f → δʳ a f ⟨ w ⟩ ≡ f ⟨ w ∷ʳ a ⟩
-    δʳ-coeff a ε f = refl
-    δʳ-coeff a (b ∷ w) f = δʳ-coeff a w (δˡ b f)
-
-    -- analogous to coeff-δˡ* :
-    -- ∀ (u v : List Σ) (f : A ⟪ Σ ⟫) → δˡ* u f ⟨ v ⟩ ≡ f ⟨ u ++ v ⟩
-    coeff-δʳ* : ∀ u v f → δʳ* u f ⟨ v ⟩ ≡ f ⟨ v ++ reverse u ⟩
-    coeff-δʳ* ε v f =
-        begin
-            δʳ* ε f ⟨ v ⟩ ≡⟨⟩
-            f ⟨ v ⟩ ≡⟨ cong (λ w → f ⟨ w ⟩) (++-identityʳ v) ⟨
-            f ⟨ v ++ ε ⟩ ≡⟨⟩
-            f ⟨ v ++ reverse ε ⟩
-        ∎ where open ≡-Eq
-    coeff-δʳ* (a ∷ u) v f = 
-        begin
-            δʳ* (a ∷ u) f ⟨ v ⟩ ≡⟨⟩
-            δʳ* u (δʳ a f) ⟨ v ⟩ ≡⟨ coeff-δʳ* u v _ ⟩
-            δʳ a f ⟨ v ++ reverse u ⟩ ≡⟨ δʳ-coeff a (v ++ reverse u) f ⟩
-            f ⟨ (v ++ reverse u) ∷ʳ a ⟩ ≡⟨ cong (λ x → f ⟨ x ⟩) (++-assoc v (reverse u) _) ⟩
-            f ⟨ v ++ (reverse u ∷ʳ a) ⟩ ≡⟨ cong (λ x → f ⟨ v ++ x ⟩) (unfold-reverse a u) ⟨
-            f ⟨ v ++ reverse (a ∷ u) ⟩
-        ∎ where open ≡-Eq
-
-    δʳ-δʳ* : ∀ a w f → δʳ a (δʳ* w f) ≡ δʳ* (w ∷ʳ a) f  
-    δʳ-δʳ* a ε f = refl
-    δʳ-δʳ* a (b ∷ w) f = δʳ-δʳ* a w (δʳ b f)
-
-    δʳ-δˡ* : ∀ f a w → δʳ a (δˡ* w f) ≈ δˡ* w (δʳ a f)
-    δʳ-δˡ* f a ε = ≈-refl
-    δʳ-δˡ* f a (_ ∷ w) = δʳ-δˡ* _ a w
-
-    coeff-δˡ*-δʳ* :
-        ∀ u v f w →
-        -------------------------------------------------
-        δˡ* u (δʳ* v f) ⟨ w ⟩ ≡ f ⟨ u ++ w ++ reverse v ⟩
-        
-    coeff-δˡ*-δʳ* u v f w =
-        begin
-            δˡ* u (δʳ* v f) ⟨ w ⟩
-            ≡⟨ coeff-δˡ* u w _ ⟩
-            δʳ* v f ⟨ u ++ w ⟩
-            ≡⟨ coeff-δʳ* v (u ++ w) _ ⟩
-            f ⟨ (u ++ w) ++ reverse v ⟩
-            ≡⟨ cong (λ x → f ⟨ x ⟩) (++-assoc u w (reverse v)) ⟩
-            f ⟨ u ++ (w ++ reverse v) ⟩
-        ∎ where open ≡-Eq
+δʳ-coeff : ∀ a w f → δʳ a f ⟨ w ⟩ ≡ f ⟨ w ∷ʳ a ⟩
+δʳ-coeff a ε f = refl
+δʳ-coeff a (b ∷ w) f = δʳ-coeff a w (δˡ b f)
 ```
+
+When lifting right derivatives to words,
+`δʳ-coeff` above generalises to `coeff-δʳ*` below.
+
+```
+coeff-δʳ* : ∀ u v f → δʳ* u f ⟨ v ⟩ ≡ f ⟨ v ++ reverse u ⟩
+coeff-δʳ* ε v f =
+    begin
+        δʳ* ε f ⟨ v ⟩ ≡⟨⟩
+        f ⟨ v ⟩ ≡⟨ cong (λ w → f ⟨ w ⟩) (++-identityʳ v) ⟨
+        f ⟨ v ++ ε ⟩ ≡⟨⟩
+        f ⟨ v ++ reverse ε ⟩
+    ∎ where open ≡-Eq
+coeff-δʳ* (a ∷ u) v f = 
+    begin
+        δʳ* (a ∷ u) f ⟨ v ⟩ ≡⟨⟩
+        δʳ* u (δʳ a f) ⟨ v ⟩ ≡⟨ coeff-δʳ* u v _ ⟩
+        δʳ a f ⟨ v ++ reverse u ⟩ ≡⟨ δʳ-coeff a (v ++ reverse u) f ⟩
+        f ⟨ (v ++ reverse u) ∷ʳ a ⟩ ≡⟨ cong (λ x → f ⟨ x ⟩) (++-assoc v (reverse u) _) ⟩
+        f ⟨ v ++ (reverse u ∷ʳ a) ⟩ ≡⟨ cong (λ x → f ⟨ v ++ x ⟩) (unfold-reverse a u) ⟨
+        f ⟨ v ++ reverse (a ∷ u) ⟩
+    ∎ where open ≡-Eq
+```
+
+### Coefficient extraction with left and right derivatives
+
+We combine the previous properties and show how left and right derivatives interact with each other when extracting coefficients.
+
+```
+coeff-δˡ*-δʳ* :
+    ∀ u v f w →
+    -------------------------------------------------
+    δˡ* u (δʳ* v f) ⟨ w ⟩ ≡ f ⟨ u ++ w ++ reverse v ⟩
+    
+coeff-δˡ*-δʳ* u v f w =
+    begin
+        δˡ* u (δʳ* v f) ⟨ w ⟩
+        ≡⟨ coeff-δˡ* u w _ ⟩
+        δʳ* v f ⟨ u ++ w ⟩
+        ≡⟨ coeff-δʳ* v (u ++ w) _ ⟩
+        f ⟨ (u ++ w) ++ reverse v ⟩
+        ≡⟨ cong (λ x → f ⟨ x ⟩) (++-assoc u w (reverse v)) ⟩
+        f ⟨ u ++ (w ++ reverse v) ⟩
+    ∎ where open ≡-Eq
+```
+
+We are now ready to define the reversal of a series and discuss its properties.
 
 # Reversal
 
 We define the *reversal* of a formal series,
 which intuitively means that the series reads the input words backwards.
+Our definition of reversal is based on right derivatives `δʳ`.
 
 ```
 rev : A ⟪ Σ ⟫ → A ⟪ Σ ⟫
@@ -168,21 +194,27 @@ rev : A ⟪ Σ ⟫ → A ⟪ Σ ⟫
 
 ## Properties of reversal
 
+In this section we discuss the properties of reversal
+
+### Left and right derivatives
+
 The following rule connecting reversal, left and right derivatives holds by definition,
 however it is useful to state it explicitly.
 
 ```
-rev-δʳ : ∀ (f : A ⟪ Σ ⟫) a → rev (δʳ a f) ≈ δˡ a (rev f)
+rev-δʳ : ∀ f a → rev (δʳ a f) ≈ δˡ a (rev f)
 rev-δʳ f a = ≈-refl
 ```
 
 The following variation is also useful, and we need to prove it explicitly.
 
 ```
-δʳ-rev : ∀ (f : A ⟪ Σ ⟫) a → δʳ a (rev f) ≈[ i ] rev (δˡ a f)
+δʳ-rev : ∀ f a → δʳ a (rev f) ≈[ i ] rev (δˡ a f)
 ν-≈ (δʳ-rev f a) = R-refl
 δ-≈ (δʳ-rev f a) b = δʳ-rev (δʳ b f) a
 ```
+
+### Equivalence
 
 Reversal preserves series equivalence.
 
@@ -196,13 +228,12 @@ rev-cong :
 δ-≈ (rev-cong f≈g) a = rev-cong (δʳ-cong a f≈g)
 ```
 
+### Involutivity
+
 Reversal is an involution.
 
 ```
-rev-rev :
-    ∀ (f : A ⟪ Σ ⟫) →
-    --------------------
-    rev (rev f) ≈[ i ] f
+rev-rev : ∀ f → rev (rev f) ≈[ i ] f
 
 ν-≈ (rev-rev f) = R-refl
 δ-≈ (rev-rev f) a = 
@@ -218,10 +249,11 @@ rev-rev :
 ```
 
 We can express right derivatives in terms of left derivatives and a double reversal.
+The proof uses involutivity of reversal.
 
 ```
 δʳ-rev-rev :
-    ∀ (f : A ⟪ Σ ⟫) a →
+    ∀ f a →
     --------------------------------
     δʳ a f ≈[ i ] rev (δˡ a (rev f))
 
@@ -234,7 +266,10 @@ We can express right derivatives in terms of left derivatives and a double rever
     ∎ where open EqS
 ```
 
-Reversal respects the vector space structure.
+### Vector space structure
+
+Reversal respects the vector space structure,
+i.e., it is a linear operation.
 
 ```
 rev-end-𝟘 : Endomorphic-𝟘 rev
@@ -280,3 +315,7 @@ rev-end-· : Endomorphic-· rev
         δˡ a (c · rev f)
     ∎ where open EqS
 ```
+
+This concludes our discussion of right derivatives, reversal, and their basic properties.
+In the [next section](../ReversalEnd/) we will show how reversal interacts with the product operation,
+and in particular we will discuss when reversal preserves the product of two series.
