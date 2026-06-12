@@ -13,7 +13,10 @@ open import Relation.Binary.PropositionalEquality
     using (_≡_)
     renaming (refl to ≡-refl; sym to ≡-sym)
 
-module Preliminaries.Equivalence {A : Set} {_≈_ : Rel A lzero} (isEq : IsEquivalence _≈_) where
+module Preliminaries.Equivalence
+    {A : Set}
+    {_≈_ : Rel A lzero}
+    (isEq : IsEquivalence _≈_) where
 
 open IsEquivalence isEq
 
