@@ -91,7 +91,7 @@ module _ {M : Set} (_≈_ : M → M → Set) where
 
         open IsRingWithoutOne isRingWithoutOne public
 
-    -- open IsCommutativeRingWithoutOne 
+    -- open IsCommutativeRingWithoutOne
 
     -- associative, commutative algebra
     record IsAlgebra
@@ -99,7 +99,7 @@ module _ {M : Set} (_≈_ : M → M → Set) where
         (_·_ : A → M → M) : Set where
 
         field
-            isCommutativeRingWithoutOne : IsCommutativeRingWithoutOne _+_ _*_ -_ 0#       
+            isCommutativeRingWithoutOne : IsCommutativeRingWithoutOne _+_ _*_ -_ 0#
             isLeftModule : IsLeftModule _+_ -_ 0# _·_
             compatible : ∀ x y z → ((x · y) * z) ≈ (x · (y * z))
 ```
